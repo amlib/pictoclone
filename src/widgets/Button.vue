@@ -1,75 +1,94 @@
 <template>
   <button>
-    <div v-if="icon">{{ icon }}</div>
+    <w-plate :hover-feedback="simple !== true" click-feedback :color-hue-deg="colorHueDeg"
+             :notch-t-l="notchTL" :notch-t-r="notchTR" :notch-b-l="notchBL" :notch-b-r="notchBR"
+             :normal-tile="simple ? 'small-button' : 'main-button'"
+             :click-tile="simple ? 'small-button-highlight' : 'main-color-fill'"
+             :padding="padding != null ? padding : (simple ? 2 : 8)"
+             @hovering="val => hovering = val" @clicking="val => clicking = val">
+      <img v-if="icon" draggable="false" class="image" :src="iconImageSrc"/>
+    </w-plate>
   </button>
 </template>
 
 <script>
+import WPlate from '@/widgets/Plate'
 export default {
   name: 'WButton',
-  emits: ['click'],
+  components: { WPlate },
   props: {
     icon: {
       type: String,
       required: false,
       default: null
     },
-    color: {
-      type: String,
+    colorHueDeg: {
+      type: Number,
       required: false,
-      default: 'red'
+      default: null
     },
-    border: {
-      type: String,
+    notchTL: {
+      type: Boolean,
+      required: false,
+      default: null
+    },
+    notchTR: {
+      type: Boolean,
+      required: false,
+      default: null
+    },
+    notchBL: {
+      type: Boolean,
+      required: false,
+      default: null
+    },
+    notchBR: {
+      type: Boolean,
+      required: false,
+      default: null
+    },
+    simple: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    padding: {
+      type: Number,
       required: false,
       default: null
     }
   },
+  data: function () {
+    return {
+      clicking: false,
+      hovering: false
+    }
+  },
   computed: {
+    iconImageSrc: function () {
+      if (this.clicking) {
+        return this.$imageMap('icon-color-fill-' + this.icon).url
+      } else {
+        return this.$imageMap('icon-normal-' + this.icon).url
+      }
+    }
   },
   methods: {
-    onClick: function () {
-      this.$emit('click')
-    }
   }
 }
 </script>
 
 <style scoped>
-button::before {
-  background-color: red;
-  clip-path: polygon(25% 0%, 100% 0, 100% 100%, 0 100%, 0% 25%);
-  content: '';
-  position: absolute;
-  z-index: -1;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-button::after {
-  image-rendering: pixelated;
-  background-color: green;
-  clip-path: polygon(25% 0%, 100% 0, 100% 100%, 0 100%, 0% 25%);
-  content: '';
-  position: absolute;
-  z-index: -1;
-  top: 2px;
-  bottom: 2px;
-  left: 2px;
-  right: 2px;
-}
 button {
-  image-rendering: pixelated;
-  min-width: 32px;
-  min-height: 32px;
+  padding: unset;
   background-color: unset;
   border: none;
-  position: relative;
+  line-height: 0;
 }
 
-button:hover, button:active {
-  border: red 2px solid;
+.image {
+  image-rendering: pixelated;
+  user-select: none;
 }
 
 </style>
