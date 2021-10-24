@@ -1,29 +1,21 @@
 <template>
-  <template v-if="mode === 'scale'">
-    <div class="plate" :style="plateStyle"
-         @mouseover="hoverFeedback ? onMouseOver : null"
-         @mouseleave="hoverFeedback ? onMouseLeave : null"
-         @mousedown="clickFeedback ? onMouseDown() : null"
-         @mouseout="clickFeedback ? onMouseOut() : null"
-         @mouseup="clickFeedback ? onMouseUp() : null">
+  <div class="plate" :style="plateStyle"
+       @mouseover="hoverFeedback ? onMouseOver : null"
+       @mouseleave="hoverFeedback ? onMouseLeave : null"
+       @mousedown="clickFeedback ? onMouseDown() : null"
+       @mouseout="clickFeedback ? onMouseOut() : null"
+       @mouseup="clickFeedback ? onMouseUp() : null">
+    <template v-if="mode === 'scale'">
       <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="scaledPlateStyle"/>
       <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" v-if="stripeMode" :style="scaledModeStripeStyle"/>
-      <slot></slot>
-    </div>
-  </template>
-  <template v-else-if="mode === 'tile'">
-    <div class="plate" :style="plateStyle"
-         @mouseover="hoverFeedback ? onMouseOver : null"
-         @mouseleave="hoverFeedback ? onMouseLeave : null"
-         @mousedown="clickFeedback ? onMouseDown() : null"
-         @mouseout="clickFeedback ? onMouseOut() : null"
-         @mouseup="clickFeedback ? onMouseUp() : null">
-      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="straightTBSlices"></div>
-      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="straightLRSlices"></div>
-      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="cornerSlices"></div>
-      <slot></slot>
-    </div>
-  </template>
+    </template>
+    <template v-else-if="mode === 'tile'">
+      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="tiledStraightTBSlices"></div>
+      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="tiledStraightLRSlices"></div>
+      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="tiledCornerSlices"></div>
+    </template>
+    <slot></slot>
+  </div>
 </template>
 
 <script>
@@ -119,6 +111,20 @@ export default {
         return this.$global.superSample * this.padding
       }
     },
+    tileName: function () {
+      if (this.click) {
+        return this.clickTile
+      } else if (this.over) {
+        return this.hoverTile
+      } else {
+        return this.normalTile
+      }
+    },
+    plateStyle: function () {
+      return {
+        padding: this.internalPadding + 'px'
+      }
+    },
     scaledModeStripeStyle: function () {
       const ss = this.$global.superSample
       const obj = {}
@@ -154,15 +160,6 @@ export default {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
       }
 
-      let tileName
-      if (this.click) {
-        tileName = this.clickTile
-      } else if (this.over) {
-        tileName = this.hoverTile
-      } else {
-        tileName = this.normalTile
-      }
-
       for (let s = 0; s < tileSpec.length; ++s) {
         const spec = tileSpec[s]
 
@@ -182,7 +179,7 @@ export default {
             }
           }
 
-          const tile = tileName + '-' + spec.name + notch + (variant && variant !== '' ? ('-' + variant) : '')
+          const tile = this.tileName + '-' + spec.name + notch + (variant && variant !== '' ? ('-' + variant) : '')
           const img = this.$tileMap(tile)
           if (img == null) {
             throw new Error('Could not find tile: ' + tile)
@@ -202,14 +199,7 @@ export default {
 
       return obj
     },
-    plateStyle: function () {
-      const obj = {
-        padding: this.internalPadding + 'px'
-      }
-
-      return obj
-    },
-    cornerSlices: function () {
+    tiledCornerSlices: function () {
       // eslint-disable-next-line no-unused-expressions
       this.$global.superSample
       const obj = {}
@@ -218,37 +208,19 @@ export default {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
       }
 
-      let tileName
-      if (this.click) {
-        tileName = this.clickTile
-      } else if (this.over) {
-        tileName = this.hoverTile
-      } else {
-        tileName = this.normalTile
-      }
-
-      this.mergeSlice(obj, this.getSlice(tileName + '-corner' + (this.notchTL ? '1' : '2') + '-tl'))
-      this.mergeSlice(obj, this.getSlice(tileName + '-corner' + (this.notchTR ? '1' : '2') + '-tr'))
-      this.mergeSlice(obj, this.getSlice(tileName + '-corner' + (this.notchBL ? '1' : '2') + '-bl'))
-      this.mergeSlice(obj, this.getSlice(tileName + '-corner' + (this.notchBR ? '1' : '2') + '-br'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notchTL ? '1' : '2') + '-tl'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notchTR ? '1' : '2') + '-tr'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notchBL ? '1' : '2') + '-bl'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notchBR ? '1' : '2') + '-br'))
 
       return obj
     },
-    straightLRSlices: function () {
+    tiledStraightLRSlices: function () {
       const ss = this.$global.superSample
       const obj = {}
 
       if (this.colorHueDeg != null) {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
-
-      let tileName
-      if (this.click) {
-        tileName = this.clickTile
-      } else if (this.over) {
-        tileName = this.hoverTile
-      } else {
-        tileName = this.normalTile
       }
 
       if (this.stripeMode === 1) {
@@ -263,12 +235,12 @@ export default {
         obj.backgroundSize = `calc(100% - ${ss * 6}px) ${ss * 32 - 1}px, auto, auto`
       }
 
-      this.mergeSlice(obj, this.getSlice(tileName + '-straight-l'))
-      this.mergeSlice(obj, this.getSlice(tileName + '-straight-r'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-l'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-r'))
 
       return obj
     },
-    straightTBSlices: function () {
+    tiledStraightTBSlices: function () {
       // eslint-disable-next-line no-unused-expressions
       this.$global.superSample
       const obj = {}
@@ -277,18 +249,9 @@ export default {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
       }
 
-      let tileName
-      if (this.click) {
-        tileName = this.clickTile
-      } else if (this.over) {
-        tileName = this.hoverTile
-      } else {
-        tileName = this.normalTile
-      }
-
-      this.mergeSlice(obj, this.getSlice(tileName + '-straight-t'))
-      this.mergeSlice(obj, this.getSlice(tileName + '-straight-b'))
-      this.mergeSlice(obj, this.getSlice(tileName + '-center'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-t'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-b'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-center'))
 
       return obj
     }
@@ -367,5 +330,4 @@ export default {
   right: 0;
   z-index: -1;
 }
-
 </style>
