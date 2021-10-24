@@ -1,11 +1,12 @@
 <template>
   <template v-if="mode === 'scale'">
-    <div class="plate" :style="scaledPlateStyle"
+    <div class="plate" :style="plateStyle"
          @mouseover="hoverFeedback ? onMouseOver : null"
          @mouseleave="hoverFeedback ? onMouseLeave : null"
          @mousedown="clickFeedback ? onMouseDown() : null"
          @mouseout="clickFeedback ? onMouseOut() : null"
          @mouseup="clickFeedback ? onMouseUp() : null">
+      <div class="plate-slice" :style="scaledPlateStyle"/>
       <div class="plate-slice" v-if="stripeMode" :style="scaledModeStripeStyle"/>
       <slot></slot>
     </div>
@@ -41,6 +42,11 @@ export default {
       type: Number,
       required: false,
       default: null
+    },
+    globalTint: {
+      type: Boolean,
+      required: false,
+      default: false
     },
     notchTL: {
       type: Boolean,
@@ -102,7 +108,7 @@ export default {
     return {
       over: false,
       click: false,
-      mode: 'tile'
+      mode: 'scale'
     }
   },
   computed: {
@@ -116,6 +122,13 @@ export default {
     scaledModeStripeStyle: function () {
       const ss = this.$global.superSample
       const obj = {}
+
+      if (this.colorHueDeg != null) {
+        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
+      }
+      if (this.globalTint) {
+        obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
+      }
 
       if (this.stripeMode === 1) {
         obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 4}px, ${this.stripeColor} ${ss * 4}px, ${this.stripeColor} ${ss * 5}px, transparent ${ss * 5}px, transparent ${ss * 8}px)`
@@ -138,11 +151,13 @@ export default {
     scaledPlateStyle: function () {
       // eslint-disable-next-line no-unused-vars
       const ss = this.$global.superSample
-      const obj = {
-        padding: this.internalPadding + 'px'
-      }
+      const obj = {}
+
       if (this.colorHueDeg != null) {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
+      }
+      if (this.globalTint) {
+        obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
       }
 
       let tileName
@@ -198,16 +213,20 @@ export default {
         padding: this.internalPadding + 'px'
       }
 
-      if (this.colorHueDeg != null) {
-        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
-
       return obj
     },
     cornerSlices: function () {
       // eslint-disable-next-line no-unused-expressions
       this.$global.superSample
       const obj = {}
+
+      if (this.colorHueDeg != null) {
+        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
+      }
+      if (this.globalTint) {
+        obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
+      }
+
       let tileName
       if (this.click) {
         tileName = this.clickTile
@@ -227,6 +246,14 @@ export default {
     straightLRSlices: function () {
       const ss = this.$global.superSample
       const obj = {}
+
+      if (this.colorHueDeg != null) {
+        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
+      }
+      if (this.globalTint) {
+        obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
+      }
+
       let tileName
       if (this.click) {
         tileName = this.clickTile
@@ -257,6 +284,14 @@ export default {
       // eslint-disable-next-line no-unused-expressions
       this.$global.superSample
       const obj = {}
+
+      if (this.colorHueDeg != null) {
+        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
+      }
+      if (this.globalTint) {
+        obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
+      }
+
       let tileName
       if (this.click) {
         tileName = this.clickTile
@@ -333,7 +368,6 @@ export default {
 
 <style scoped>
 .plate {
-  image-rendering: pixelated;
   display: inline-block;
   position: relative;
   z-index: 0;

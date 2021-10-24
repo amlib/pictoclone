@@ -2,8 +2,8 @@
   <div class="main">
     <div class="main-button-bar">
       <div class="main-button-bar-wrapper">
-        <w-button class="closer" icon="arrow-up" simple :padding="0" :color-hue-deg="$global.colorHueDeg"/>
-        <w-button class="closer" icon="arrow-down" simple :padding="0" :color-hue-deg="$global.colorHueDeg"/>
+        <w-button class="closer" icon="arrow-up" simple :padding="0"/>
+        <w-button class="closer" icon="arrow-down" simple :padding="0"/>
       </div>
       <div class="separator"></div>
       <w-button-toggle v-model="selectedTool" class="main-button-bar-wrapper"
@@ -47,11 +47,11 @@
           </w-plate>
           <div class="button-cluster">
             <w-button class="button-cluster-button" icon="send"
-                      notch-t-l :padding="3" :color-hue-deg="$global.colorHueDeg"/>
+                      notch-t-l :padding="3"/>
             <w-button class="button-cluster-button" icon="copy"
-                      :style="`margin: ${$global.superSample * -1}px 0;`" :color-hue-deg="$global.colorHueDeg"/>
+                      :style="`margin: ${$global.superSample * -1}px 0;`"/>
             <w-button class="button-cluster-button" icon="clear"
-                      notch-b-l :color-hue-deg="$global.colorHueDeg"/>
+                      notch-b-l/>
           </div>
         </div>
       </w-plate>

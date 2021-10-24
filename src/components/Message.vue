@@ -1,16 +1,16 @@
 <template>
   <w-plate class="message-area" normal-tile="main-drawing-area"
            notch-b-l notch-b-r notch-t-l notch-t-r
-           stripe-color="#fbbaba" :stripe-mode=2 :color-hue-deg="$global.colorHueDeg">
-    <canvas v-if="mode === 'edit'" class="drawing-area"
+           stripe-color="#fbbaba" :stripe-mode=2 global-tint>
+    <canvas v-if="mode === 'edit'" class="drawing-area" ref="canvas"
             :width="width" :height="height"
             :style="{ width: targetWidth + 'px', height: targetHeight + 'px' }"/>
     <div v-else-if="mode === 'view'" class="drawing-area"
          :style="{ width: targetWidth + 'px', height: targetHeight +'px' }">
     </div>
     <w-plate class="message-area-user-tag" normal-tile="main-color-background"
-             notch-t-l notch-b-r>
-      <div>user...</div>
+             notch-t-l notch-b-r global-tint>
+      <div :style="userNameStyle">user...</div>
     </w-plate>
   </w-plate>
 </template>
@@ -30,12 +30,19 @@ export default {
       mode: 'edit'
     }
   },
+  created: function () {
+  },
   computed: {
     targetWidth: function () {
       return this.width * this.$global.superSample
     },
     targetHeight: function () {
       return this.height * this.$global.superSample
+    },
+    userNameStyle: function () {
+      const obj = {}
+      obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
+      return obj
     }
   }
 }
