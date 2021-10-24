@@ -22,10 +22,11 @@ const mapper = {
               canvas.width = tile.w * options.superSample
               canvas.height = tile.h * options.superSample
 
-              slice.x = tile.x + group.x
-              slice.y = tile.y + group.y
-              slice.w = tile.w
-              slice.h = tile.h
+              const sourceX = tile.x + group.x
+              const sourceY = tile.y + group.y
+              const sourceW = tile.w
+              const sourceH = tile.h
+
               slice.backgroundRepeat = tile.backgroundRepeat
               slice.backgroundPosition = tile.backgroundPosition
               slice.alias = group.groupName + '-' + tile.alias
@@ -33,9 +34,14 @@ const mapper = {
               slice.bottom = tile.bottom * options.superSample + 'px'
               slice.left = tile.left * options.superSample + 'px'
               slice.right = tile.right * options.superSample + 'px'
+              slice.offsetX = tile.offsetX * options.superSample
+              slice.offsetY = tile.offsetY * options.superSample
+              slice.w = sourceW * options.superSample
+              slice.h = sourceH * options.superSample
 
               context.imageSmoothingEnabled = false
-              context.drawImage(image, slice.x, slice.y, slice.w, slice.h, 0, 0, slice.w * options.superSample, slice.h * options.superSample)
+              context.drawImage(image, sourceX, sourceY, sourceW, sourceH,
+                0, 0, sourceW * options.superSample, sourceH * options.superSample)
               // const url = canvas.toDataURL()
               const blob = await getCanvasBlob(canvas)
               const url = URL.createObjectURL(blob)

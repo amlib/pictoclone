@@ -24,6 +24,9 @@ export default {
     // setInterval(() => { this.globalValues.colorHueDeg += 15 }, 100)
 
     setTimeout(() => { this.patchingTiles = false }, 200)
+    // setInterval(() => {
+    //   this.setSuperSample(this.globalValues.superSample === 2 ? 1 : 2)
+    // }, 1500)
   },
   computed: {
     getStyle: function () {

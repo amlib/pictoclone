@@ -1,18 +1,32 @@
 <template>
-  <div class="plate" :style="plateStyle"
-       @mouseover="hoverFeedback ? onMouseOver : null"
-       @mouseleave="hoverFeedback ? onMouseLeave : null"
-       @mousedown="clickFeedback ? onMouseDown() : null"
-       @mouseout="clickFeedback ? onMouseOut() : null"
-       @mouseup="clickFeedback ? onMouseUp() : null">
-    <div class="plate-slice" :style="straightTBSlices"></div>
-    <div class="plate-slice" :style="straightLRSlices"></div>
-    <div class="plate-slice" :style="cornerSlices"></div>
-    <slot></slot>
-  </div>
+  <template v-if="mode === 'scale'">
+    <div class="plate" :style="scaledPlateStyle"
+         @mouseover="hoverFeedback ? onMouseOver : null"
+         @mouseleave="hoverFeedback ? onMouseLeave : null"
+         @mousedown="clickFeedback ? onMouseDown() : null"
+         @mouseout="clickFeedback ? onMouseOut() : null"
+         @mouseup="clickFeedback ? onMouseUp() : null">
+      <div class="plate-slice" v-if="stripeMode" :style="scaledModeStripeStyle"/>
+      <slot></slot>
+    </div>
+  </template>
+  <template v-else-if="mode === 'tile'">
+    <div class="plate" :style="plateStyle"
+         @mouseover="hoverFeedback ? onMouseOver : null"
+         @mouseleave="hoverFeedback ? onMouseLeave : null"
+         @mousedown="clickFeedback ? onMouseDown() : null"
+         @mouseout="clickFeedback ? onMouseOut() : null"
+         @mouseup="clickFeedback ? onMouseUp() : null">
+      <div class="plate-slice" :style="straightTBSlices"></div>
+      <div class="plate-slice" :style="straightLRSlices"></div>
+      <div class="plate-slice" :style="cornerSlices"></div>
+      <slot></slot>
+    </div>
+  </template>
 </template>
 
 <script>
+import { tileSpec } from '@/mapper/tilemap'
 
 export default {
   name: 'WPlate',
@@ -87,7 +101,8 @@ export default {
   data: function () {
     return {
       over: false,
-      click: false
+      click: false,
+      mode: 'tile'
     }
   },
   computed: {
@@ -97,6 +112,86 @@ export default {
       } else {
         return this.$global.superSample * this.padding
       }
+    },
+    scaledModeStripeStyle: function () {
+      const ss = this.$global.superSample
+      const obj = {}
+
+      if (this.stripeMode === 1) {
+        obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 4}px, ${this.stripeColor} ${ss * 4}px, ${this.stripeColor} ${ss * 5}px, transparent ${ss * 5}px, transparent ${ss * 8}px)`
+        obj.backgroundPosition = 'bottom'
+        obj.backgroundRepeat = 'repeat-y'
+        obj.backgroundSize = `calc(100% - ${ss * 2}px) ${ss * 8}px`
+        obj.top = `${ss * 4}px`
+        obj.bottom = `${ss * 4}px`
+      } else if (this.stripeMode === 2) {
+        obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 16}px, ${this.stripeColor} ${ss * 16}px, ${this.stripeColor} ${ss * 17}px, transparent ${ss * 17}px, transparent ${ss * 32}px)`
+        obj.backgroundPosition = 'top'
+        obj.backgroundRepeat = 'repeat-y'
+        obj.backgroundSize = `calc(100% - ${ss * 6}px) ${ss * 32 - 1}px`
+        obj.top = `${ss * 4}px`
+        obj.bottom = `${ss * 4}px`
+      }
+
+      return obj
+    },
+    scaledPlateStyle: function () {
+      // eslint-disable-next-line no-unused-vars
+      const ss = this.$global.superSample
+      const obj = {
+        padding: this.internalPadding + 'px'
+      }
+      if (this.colorHueDeg != null) {
+        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
+      }
+
+      let tileName
+      if (this.click) {
+        tileName = this.clickTile
+      } else if (this.over) {
+        tileName = this.hoverTile
+      } else {
+        tileName = this.normalTile
+      }
+
+      for (let s = 0; s < tileSpec.length; ++s) {
+        const spec = tileSpec[s]
+
+        for (let i = 0; i < spec.variants.length; ++i) {
+          const variant = spec.variants[i]
+
+          let notch = ''
+          if (spec.notchable) {
+            if (variant === 'tl') {
+              notch = this.notchTL ? '1' : '2'
+            } else if (variant === 'tr') {
+              notch = this.notchTR ? '1' : '2'
+            } else if (variant === 'bl') {
+              notch = this.notchBL ? '1' : '2'
+            } else if (variant === 'br') {
+              notch = this.notchBR ? '1' : '2'
+            }
+          }
+
+          const tile = tileName + '-' + spec.name + notch + (variant && variant !== '' ? ('-' + variant) : '')
+          const img = this.$tileMap(tile)
+          if (img == null) {
+            throw new Error('Could not find tile: ' + tile)
+          }
+
+          const slice = {
+            backgroundImage: 'url(' + img.url + ')',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: `${spec.positionX[variant]} ${img.offsetX}px ${spec.positionY[variant]} ${img.offsetY}px`,
+            backgroundSize: (spec.sizeX[variant] ? `calc(100% - ${img.offsetY * 2}px)` : `${img.w}px`) + ' ' +
+              (spec.sizeY[variant] ? `calc(100% - ${img.offsetX * 2}px)` : `${img.h}px`)
+          }
+
+          this.mergeSlice(obj, slice)
+        }
+      }
+
+      return obj
     },
     plateStyle: function () {
       const obj = {
@@ -217,7 +312,7 @@ export default {
       return obj
     },
     mergeSlice: function (a, b) {
-      const attributes = ['backgroundImage', 'backgroundPosition', 'backgroundRepeat']
+      const attributes = ['backgroundImage', 'backgroundPosition', 'backgroundRepeat', 'backgroundSize']
       for (let i = 0; i < attributes.length; ++i) {
         const att = attributes[i]
         if (a[att] && b[att]) {
@@ -238,6 +333,7 @@ export default {
 
 <style scoped>
 .plate {
+  image-rendering: pixelated;
   display: inline-block;
   position: relative;
   z-index: 0;

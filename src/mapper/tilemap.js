@@ -1,70 +1,148 @@
 import { cloneDeep } from 'lodash'
 
+const tileSpec = [
+  {
+    name: 'corner',
+    variants: ['tl', 'tr', 'bl', 'br'],
+    notchable: true,
+    positionX: {
+      tl: 'top',
+      tr: 'top',
+      bl: 'bottom',
+      br: 'bottom'
+    },
+    positionY: {
+      tl: 'left',
+      tr: 'right',
+      bl: 'left',
+      br: 'right'
+    },
+    sizeX: {
+      tl: false,
+      tr: false,
+      bl: false,
+      br: false
+    },
+    sizeY: {
+      tl: false,
+      tr: false,
+      bl: false,
+      br: false
+    }
+  },
+  {
+    name: 'straight',
+    variants: ['t', 'r', 'b', 'l'],
+    notchable: false,
+    positionX: {
+      t: 'top',
+      r: 'top',
+      b: 'bottom',
+      l: 'top'
+    },
+    positionY: {
+      t: 'left',
+      r: 'right',
+      b: 'left',
+      l: 'left'
+    },
+    sizeX: {
+      t: true,
+      r: false,
+      b: true,
+      l: false
+    },
+    sizeY: {
+      t: false,
+      r: true,
+      b: false,
+      l: true
+    }
+  },
+  {
+    name: 'center',
+    variants: [''],
+    notchable: false,
+    positionX: {
+      '': 'top'
+    },
+    positionY: {
+      '': 'left'
+    },
+    sizeX: {
+      '': true
+    },
+    sizeY: {
+      '': true
+    }
+  }
+]
+
 const mainMap = [
   {
     x: 0, y: 0, w: 4, h: 4, alias: 'corner1-tl',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 4, y: 0, w: 4, h: 4, alias: 'corner1-tr',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'top right',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 8, y: 0, w: 4, h: 4, alias: 'corner1-bl',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom left',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 12, y: 0, w: 4, h: 4, alias: 'corner1-br',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 16, y: 0, w: 4, h: 4, alias: 'corner2-tl',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 20, y: 0, w: 4, h: 4, alias: 'corner2-tr',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'top right',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 24, y: 0, w: 4, h: 4, alias: 'corner2-bl',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom left',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 28, y: 0, w: 4, h: 4, alias: 'corner2-br',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 32, y: 0, w: 4, h: 4, alias: 'straight-t',
     backgroundRepeat: 'repeat-x', backgroundPosition: 'top',
-    top: 0, left: 4, bottom: 0, right: 4
+    top: 0, left: 4, bottom: 0, right: 4, offsetX: 0, offsetY: 4
   },
   {
     x: 36, y: 0, w: 4, h: 4, alias: 'straight-r',
     backgroundRepeat: 'repeat-y', backgroundPosition: 'right',
-    top: 4, left: 0, bottom: 4, right: 0
+    top: 4, left: 0, bottom: 4, right: 0, offsetX: 4, offsetY: 0
   },
   {
     x: 40, y: 0, w: 4, h: 4, alias: 'straight-b',
     backgroundRepeat: 'repeat-x', backgroundPosition: 'bottom',
-    top: 0, left: 4, bottom: 0, right: 4
+    top: 0, left: 4, bottom: 0, right: 4, offsetX: 0, offsetY: 4
   },
   {
     x: 44, y: 0, w: 4, h: 4, alias: 'straight-l',
     backgroundRepeat: 'repeat-y', backgroundPosition: 'left',
-    top: 4, left: 0, bottom: 4, right: 0
+    top: 4, left: 0, bottom: 4, right: 0, offsetX: 4, offsetY: 0
   },
   {
     x: 48, y: 0, w: 4, h: 4, alias: 'center',
     backgroundRepeat: 'repeat', backgroundPosition: null,
-    top: 0, left: 4, bottom: 0, right: 4
+    top: 0, left: 4, bottom: 0, right: 4, offsetX: 4, offsetY: 4
   }
 ]
 
@@ -72,67 +150,67 @@ const smallButtonMap = [
   {
     x: 0, y: 0, w: 2, h: 2, alias: 'corner1-tl',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 2, y: 0, w: 2, h: 2, alias: 'corner1-tr',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'top right',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 4, y: 0, w: 2, h: 2, alias: 'corner1-bl',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom left',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 6, y: 0, w: 2, h: 2, alias: 'corner1-br',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 8, y: 0, w: 2, h: 2, alias: 'corner2-tl',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 8, y: 0, w: 2, h: 2, alias: 'corner2-tr',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'top right',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 8, y: 0, w: 2, h: 2, alias: 'corner2-bl',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom left',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 8, y: 0, w: 2, h: 2, alias: 'corner2-br',
     backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
-    top: 0, left: 0, bottom: 0, right: 0
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
   },
   {
     x: 8, y: 0, w: 2, h: 2, alias: 'straight-t',
     backgroundRepeat: 'repeat-x', backgroundPosition: 'top',
-    top: 0, left: 2, bottom: 0, right: 2
+    top: 0, left: 2, bottom: 0, right: 2, offsetX: 0, offsetY: 2
   },
   {
     x: 8, y: 0, w: 2, h: 2, alias: 'straight-r',
     backgroundRepeat: 'repeat-y', backgroundPosition: 'right',
-    top: 2, left: 0, bottom: 2, right: 0
+    top: 2, left: 0, bottom: 2, right: 0, offsetX: 2, offsetY: 0
   },
   {
     x: 8, y: 0, w: 2, h: 2, alias: 'straight-b',
     backgroundRepeat: 'repeat-x', backgroundPosition: 'bottom',
-    top: 0, left: 2, bottom: 0, right: 2
+    top: 0, left: 2, bottom: 0, right: 2, offsetX: 0, offsetY: 2
   },
   {
     x: 8, y: 0, w: 2, h: 2, alias: 'straight-l',
     backgroundRepeat: 'repeat-y', backgroundPosition: 'left',
-    top: 2, left: 0, bottom: 2, right: 0
+    top: 2, left: 0, bottom: 2, right: 0, offsetX: 2, offsetY: 0
   },
   {
     x: 8, y: 0, w: 2, h: 2, alias: 'center',
     backgroundRepeat: 'repeat', backgroundPosition: null,
-    top: 0, left: 2, bottom: 0, right: 2
+    top: 0, left: 2, bottom: 0, right: 2, offsetX: 2, offsetY: 2
   }
 ]
 
@@ -259,4 +337,4 @@ const tileMap = [
   }
 ]
 
-export { tileMap }
+export { tileMap, tileSpec }
