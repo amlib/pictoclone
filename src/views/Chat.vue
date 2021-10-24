@@ -36,14 +36,7 @@
         </w-plate>
         <w-plate class="test2" normal-tile="main-inverted"
                  notch-b-l notch-b-r notch-t-l notch-t-r/>
-        <w-plate class="drawing-area" normal-tile="main-drawing-area"
-                 notch-b-l notch-b-r notch-t-l notch-t-r
-                 stripe-color="#fbbaba" :stripe-mode=2 :color-hue-deg="220">
-          <w-plate class="drawing-area-user-tag" normal-tile="main-color-background"
-                   notch-t-l notch-b-r>
-            <div>user...</div>
-          </w-plate>
-        </w-plate>
+        <message/>
         <div class="main-background-bottom">
           <w-plate class="keyboard" normal-tile="main-foreground"
                    notch-b-l notch-b-r notch-t-l notch-t-r>
@@ -64,9 +57,10 @@
 import WButton from '@/widgets/Button'
 import WPlate from '@/widgets/Plate'
 import WButtonToggle from '@/widgets/ButtonToggle'
+import Message from '@/components/Message'
 export default {
   name: 'Chat',
-  components: { WButtonToggle, WPlate, WButton },
+  components: { Message, WButtonToggle, WPlate, WButton },
   data: function () {
     return {
       keyboardMode: 'romaji',
@@ -143,29 +137,10 @@ export default {
 .main-background {
   min-width: 300px;
   min-height: 24px;
-  color: white;
   margin-left: 0;
   margin-right: -8px;
   margin-top: 24px;
   margin-bottom: 8px;
-}
-
-.drawing-area {
-  height: 154px;
-  color: white;
-  margin-top: 2px;
-  margin-bottom: 6px;
-  margin-right: 4px;
-  position: relative;
-  display: block;
-}
-
-.drawing-area-user-tag {
-  position: absolute;
-  left: 0;
-  top: 0;
-  padding: 0 4px;
-  color: red;
 }
 
 .main-background-bottom {
