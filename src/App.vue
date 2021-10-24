@@ -21,7 +21,7 @@ export default {
   created: function () {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
     // Since we get reactive across the entire app... uncomment for RGB mode lol
-    // setInterval(() => { this.globalValues.colorHueDeg += 15 }, 100)
+    // setInterval(() => { this.globalValues.colorHueDeg += 15 }, 50)
 
     setTimeout(() => { this.patchingTiles = false }, 200)
     // setInterval(() => {
@@ -31,7 +31,7 @@ export default {
   computed: {
     getStyle: function () {
       return {
-        '--global-chd': this.globalValues.colorHueDeg,
+        '--global-chd': this.globalValues.colorHueDeg + 'deg',
         '--global-ss': this.globalValues.superSample,
         visibility: this.patchingTiles ? 'hidden' : null
       }

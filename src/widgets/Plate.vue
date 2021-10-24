@@ -6,8 +6,8 @@
          @mousedown="clickFeedback ? onMouseDown() : null"
          @mouseout="clickFeedback ? onMouseOut() : null"
          @mouseup="clickFeedback ? onMouseUp() : null">
-      <div class="plate-slice" :style="scaledPlateStyle"/>
-      <div class="plate-slice" v-if="stripeMode" :style="scaledModeStripeStyle"/>
+      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="scaledPlateStyle"/>
+      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" v-if="stripeMode" :style="scaledModeStripeStyle"/>
       <slot></slot>
     </div>
   </template>
@@ -18,9 +18,9 @@
          @mousedown="clickFeedback ? onMouseDown() : null"
          @mouseout="clickFeedback ? onMouseOut() : null"
          @mouseup="clickFeedback ? onMouseUp() : null">
-      <div class="plate-slice" :style="straightTBSlices"></div>
-      <div class="plate-slice" :style="straightLRSlices"></div>
-      <div class="plate-slice" :style="cornerSlices"></div>
+      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="straightTBSlices"></div>
+      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="straightLRSlices"></div>
+      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="cornerSlices"></div>
       <slot></slot>
     </div>
   </template>
@@ -126,9 +126,6 @@ export default {
       if (this.colorHueDeg != null) {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
       }
-      if (this.globalTint) {
-        obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
-      }
 
       if (this.stripeMode === 1) {
         obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 4}px, ${this.stripeColor} ${ss * 4}px, ${this.stripeColor} ${ss * 5}px, transparent ${ss * 5}px, transparent ${ss * 8}px)`
@@ -155,9 +152,6 @@ export default {
 
       if (this.colorHueDeg != null) {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
-      if (this.globalTint) {
-        obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
       }
 
       let tileName
@@ -223,9 +217,6 @@ export default {
       if (this.colorHueDeg != null) {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
       }
-      if (this.globalTint) {
-        obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
-      }
 
       let tileName
       if (this.click) {
@@ -249,9 +240,6 @@ export default {
 
       if (this.colorHueDeg != null) {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
-      if (this.globalTint) {
-        obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
       }
 
       let tileName
@@ -287,9 +275,6 @@ export default {
 
       if (this.colorHueDeg != null) {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
-      if (this.globalTint) {
-        obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
       }
 
       let tileName

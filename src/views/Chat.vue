@@ -7,20 +7,20 @@
       </div>
       <div class="separator"></div>
       <w-button-toggle v-model="selectedTool" class="main-button-bar-wrapper"
-      :common-options="{ simple: true, class: 'closer', 'color-hue-deg': $global.colorHueDeg }"
+      :common-options="{ simple: true, class: 'closer' }"
       :options="[
         { icon: 'brush', name: 'brush' },
         { icon: 'eraser', name: 'eraser' }]">
       </w-button-toggle>
       <w-button-toggle v-model="brushSize" class="main-button-bar-wrapper"
-        :common-options="{ simple: true, class: 'closer', 'color-hue-deg': $global.colorHueDeg }"
+        :common-options="{ simple: true, class: 'closer' }"
         :options="[
         { icon: 'brush-big', name: 'brush-big' },
         { icon: 'brush-small', name: 'brush-small' }]">
       </w-button-toggle>
       <div class="separator"></div>
       <w-button-toggle v-model="keyboardMode" class="main-button-bar-wrapper"
-      :common-options="{ simple: true, 'notch-t-l': true, 'color-hue-deg': $global.colorHueDeg }"
+      :common-options="{ simple: true, 'notch-t-l': true }"
       :options="[
         { icon: 'romaji', name: 'romaji' },
         { icon: 'accents', name: 'accents' },

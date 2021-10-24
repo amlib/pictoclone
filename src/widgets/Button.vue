@@ -1,12 +1,13 @@
 <template>
   <button>
-    <w-plate :hover-feedback="simple !== true" click-feedback :color-hue-deg="colorHueDeg" :global-tint="colorHueDeg == null"
+    <w-plate :hover-feedback="simple !== true" click-feedback :color-hue-deg="colorHueDeg" :global-tint="globalTint"
              :notch-t-l="notchTL" :notch-t-r="notchTR" :notch-b-l="notchBL" :notch-b-r="notchBR"
              :normal-tile="simple ? (toggled ? 'small-button-highlight' : 'small-button') : (toggled ? 'main-color-fill' : 'main-button')"
              :click-tile="simple ? 'small-button-highlight' : 'main-color-fill'"
              :padding="padding != null ? padding : (simple ? 1 : 4)"
              @hovering="val => hovering = val" @clicking="val => clicking = val">
-      <img v-if="icon" draggable="false" class="image" :src="iconImageSrc" :style="iconStyle"/>
+      <img v-if="icon" draggable="false" :class="[ 'image', globalTint ? 'globalColorHueTint' : '' ]"
+           :src="iconImageSrc" :style="iconStyle"/>
     </w-plate>
   </button>
 </template>
@@ -26,6 +27,11 @@ export default {
       type: Number,
       required: false,
       default: null
+    },
+    globalTint: {
+      type: Boolean,
+      required: false,
+      default: true
     },
     notchTL: {
       type: Boolean,
@@ -91,7 +97,9 @@ export default {
     },
     iconStyle: function () {
       const obj = {}
-      obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
+      if (this.colorHueDeg) {
+        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
+      }
       return obj
     }
   },

@@ -10,7 +10,7 @@
     </div>
     <w-plate class="message-area-user-tag" normal-tile="main-color-background"
              notch-t-l notch-b-r global-tint>
-      <div :style="userNameStyle">user...</div>
+      <div class="globalColorHueTint">user...</div>
     </w-plate>
   </w-plate>
 </template>
@@ -38,11 +38,6 @@ export default {
     },
     targetHeight: function () {
       return this.height * this.$global.superSample
-    },
-    userNameStyle: function () {
-      const obj = {}
-      obj.filter = 'hue-rotate(' + this.$global.colorHueDeg + 'deg)'
-      return obj
     }
   }
 }
