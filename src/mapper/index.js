@@ -311,6 +311,7 @@ const mapper = {
     })
   },
   install: (app, options) => {
+    app.config.unwrapInjectedRef = true // needed elsewhere...
     app.config.globalProperties.$imageMap = (alias) => {
       return imageSlices[alias]
     }

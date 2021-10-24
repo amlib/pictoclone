@@ -20,7 +20,7 @@ export default {
     padding: {
       type: Number,
       required: false,
-      default: 8
+      default: null
     },
     colorHueDeg: {
       type: Number,
@@ -90,9 +90,16 @@ export default {
     }
   },
   computed: {
+    internalPadding: function () {
+      if (this.padding == null) {
+        return this.$global.superSample * 4
+      } else {
+        return this.$global.superSample * this.padding
+      }
+    },
     plateStyle: function () {
       const obj = {
-        padding: this.padding + 'px'
+        padding: this.internalPadding + 'px'
       }
 
       if (this.colorHueDeg != null) {
@@ -130,16 +137,17 @@ export default {
         tileName = this.normalTile
       }
 
+      const ss = this.$global.superSample
       if (this.stripeMode === 1) {
-        obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} 2px, transparent 2px, transparent 8px, ${this.stripeColor} 8px, ${this.stripeColor} 10px, transparent 10px, transparent 16px)`
+        obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 4}px, ${this.stripeColor} ${ss * 4}px, ${this.stripeColor} ${ss * 5}px, transparent ${ss * 5}px, transparent ${ss * 8}px)`
         obj.backgroundPosition = 'bottom'
         obj.backgroundRepeat = 'repeat-y'
-        obj.backgroundSize = 'calc(100% - 4px) 16px, auto, auto'
+        obj.backgroundSize = `calc(100% - ${ss * 2}px) ${ss * 8}px, auto, auto`
       } else if (this.stripeMode === 2) {
-        obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} 2px, transparent 2px, transparent 32px, ${this.stripeColor} 32px, ${this.stripeColor} 34px, transparent 34px, transparent 64px)`
+        obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 16}px, ${this.stripeColor} ${ss * 16}px, ${this.stripeColor} ${ss * 17}px, transparent ${ss * 17}px, transparent ${ss * 32}px)`
         obj.backgroundPosition = 'top'
         obj.backgroundRepeat = 'repeat-y'
-        obj.backgroundSize = 'calc(100% - 12px) 63px, auto, auto'
+        obj.backgroundSize = `calc(100% - ${ss * 6}px) ${ss * 32 - 1}px, auto, auto`
       }
 
       this.mergeSlice(obj, this.getSlice(tileName + '-straight-l'))
@@ -166,16 +174,6 @@ export default {
     }
   },
   methods: {
-    onClick: function () {
-      // TODO sound
-      this.click = true
-      console.log('clicking')
-      setTimeout(() => {
-        console.log('unclicking')
-        this.click = false
-      }, 50)
-      this.$emit('click')
-    },
     onMouseOver: function () {
       this.over = true
       this.$emit('hovering', this.over)

@@ -2,33 +2,36 @@
   <div class="main">
     <div class="main-button-bar">
       <div class="main-button-bar-wrapper">
-        <w-button class="closer" icon="arrow-up" simple :padding="0"/>
-        <w-button class="closer" icon="arrow-down" simple :padding="0"/>
+        <w-button class="closer" icon="arrow-up" simple :padding="0" :color-hue-deg="$global.colorHueDeg"/>
+        <w-button class="closer" icon="arrow-down" simple :padding="0" :color-hue-deg="$global.colorHueDeg"/>
       </div>
       <div class="separator"></div>
       <w-button-toggle v-model="selectedTool" class="main-button-bar-wrapper"
+      :common-options="{ simple: true, class: 'closer', 'color-hue-deg': $global.colorHueDeg }"
       :options="[
-        { icon: 'brush', name: 'brush', simple: true, class: 'closer'},
-        { icon: 'eraser', name: 'eraser', simple: true, class: 'closer'}]">
+        { icon: 'brush', name: 'brush' },
+        { icon: 'eraser', name: 'eraser' }]">
       </w-button-toggle>
       <w-button-toggle v-model="brushSize" class="main-button-bar-wrapper"
+        :common-options="{ simple: true, class: 'closer', 'color-hue-deg': $global.colorHueDeg }"
         :options="[
-        { icon: 'brush-big', name: 'brush-big', simple: true, class: 'closer'},
-        { icon: 'brush-small', name: 'brush-small', simple: true, class: 'closer'}]">
+        { icon: 'brush-big', name: 'brush-big' },
+        { icon: 'brush-small', name: 'brush-small' }]">
       </w-button-toggle>
       <div class="separator"></div>
       <w-button-toggle v-model="keyboardMode" class="main-button-bar-wrapper"
+      :common-options="{ simple: true, 'notch-t-l': true, 'color-hue-deg': $global.colorHueDeg }"
       :options="[
-        { icon: 'romaji', name: 'romaji', simple: true, 'notch-t-l': true },
-        { icon: 'accents', name: 'accents', simple: true, 'notch-t-l': true },
-        { icon: 'kana', name: 'kana', simple: true, 'notch-t-l': true },
-        { icon: 'symbols1', name: 'symbols1', simple: true, 'notch-t-l': true },
-        { icon: 'symbols2', name: 'symbols2', simple: true, 'notch-t-l': true }]">
+        { icon: 'romaji', name: 'romaji' },
+        { icon: 'accents', name: 'accents' },
+        { icon: 'kana', name: 'kana' },
+        { icon: 'symbols1', name: 'symbols1' },
+        { icon: 'symbols2', name: 'symbols2' }]">
       </w-button-toggle>
     </div>
     <div class="main-background-wrapper">
       <w-plate class="main-background" normal-tile="main-background"
-               notch-t-l notch-b-l :padding="6"
+               notch-t-l notch-b-l :padding="3"
                :stripe-mode=1 stripe-color="#bababa">
         <w-plate class="test2" normal-tile="main-inverted"
                  notch-b-l notch-b-r notch-t-l notch-t-r>
@@ -43,9 +46,12 @@
             {{ keyboardMode }}
           </w-plate>
           <div class="button-cluster">
-            <w-button class="button-cluster-button" icon="send" notch-t-l :padding="6"/>
-            <w-button class="button-cluster-button" icon="copy" style="margin: -2px 0;"/>
-            <w-button class="button-cluster-button" icon="clear" notch-b-l/>
+            <w-button class="button-cluster-button" icon="send"
+                      notch-t-l :padding="3" :color-hue-deg="$global.colorHueDeg"/>
+            <w-button class="button-cluster-button" icon="copy"
+                      :style="`margin: ${$global.superSample * -1}px 0;`" :color-hue-deg="$global.colorHueDeg"/>
+            <w-button class="button-cluster-button" icon="clear"
+                      notch-b-l :color-hue-deg="$global.colorHueDeg"/>
           </div>
         </div>
       </w-plate>
@@ -69,9 +75,6 @@ export default {
     }
   },
   methods: {
-    test: function (n) {
-      console.log('clicked event', n)
-    }
   }
 }
 </script>
@@ -80,8 +83,8 @@ export default {
 .test2 {
   display: block;
   color: white;
-  margin: 2px;
-  min-height: 24px;
+  margin: calc(1px * var(--global-ss));
+  min-height: calc(12px * var(--global-ss));
 }
 
 .main {
@@ -100,29 +103,29 @@ export default {
 .main-button-bar-wrapper {
   display: flex;
   flex-direction: column;
-  row-gap: 2px;
+  row-gap: calc(1px * var(--global-ss));
 }
 
 .main-button-bar > .separator {
-  height: 2px;
+  height: calc(1px * var(--global-ss));
   background-image: linear-gradient(90deg, #ffffff 25%, #494949 25%, #494949 50%, #ffffff 50%, #ffffff 75%, #494949 75%, #494949 100%);
-  background-size: 8px 8px;
+  background-size: calc(4px * var(--global-ss)) calc(4px * var(--global-ss));
 }
 
 /* also non scoped version */
 .main-button-bar-wrapper > button {
   display: block;
-  margin: 2px 4px;
+  margin: calc(1px * var(--global-ss)) calc(4px * var(--global-ss));
 }
 
 /* also non scoped version */
 .main-button-bar-wrapper > button:first-child {
-  margin-top: 6px;
+  margin-top: calc(3px * var(--global-ss));
 }
 
 /* also non scoped version */
 .main-button-bar-wrapper > button:last-child {
-  margin-bottom: 6px;
+  margin-bottom: calc(3px * var(--global-ss));
 }
 
 /* also non scoped version */
@@ -135,22 +138,20 @@ export default {
 }
 
 .main-background {
-  min-width: 300px;
-  min-height: 24px;
   margin-left: 0;
-  margin-right: -8px;
-  margin-top: 24px;
-  margin-bottom: 8px;
+  margin-right: calc(-4px * var(--global-ss));
+  margin-top: calc(12px * var(--global-ss));
+  margin-bottom: calc(4px * var(--global-ss));
 }
 
 .main-background-bottom {
   display: flex;
   flex-direction: row;
-  margin-bottom: 2px;
+  margin-bottom: calc(1px * var(--global-ss));
 }
 .keyboard {
-  margin-left: 2px;
-  margin-right: 4px;
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(2px * var(--global-ss));
   color: black;
   flex-grow: 1;
 }
@@ -167,15 +168,15 @@ export default {
 <style>
 .main-button-bar-wrapper > button {
   display: block;
-  margin: 2px 4px;
+  margin: calc(1px * var(--global-ss)) calc(2px * var(--global-ss));
 }
 
 .main-button-bar-wrapper > button:first-child {
-  margin-top: 6px;
+  margin-top: calc(3px * var(--global-ss));
 }
 
 .main-button-bar-wrapper > button:last-child {
-  margin-bottom: 6px;
+  margin-bottom: calc(3px * var(--global-ss));
 }
 
 .main-button-bar-wrapper > .closer {

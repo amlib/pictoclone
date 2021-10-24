@@ -2,7 +2,7 @@
   <div>
     <!-- must have at least name field in each obj of options array -->
     <template v-for="(item, index) in options" :key="item.name">
-      <w-button v-bind="item" @click="onClick(item, index)" :toggled="internalValue === item.name">
+      <w-button v-bind="{ ...item, ...commonOptions }" @click="onClick(item, index)" :toggled="internalValue === item.name">
         <slot :name="item.name"></slot>
       </w-button>
     </template>
@@ -23,6 +23,11 @@ export default {
     options: {
       type: Array,
       required: true
+    },
+    commonOptions: {
+      type: Object,
+      required: false,
+      default: null
     }
   },
   data: function () {
