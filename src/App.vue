@@ -13,21 +13,35 @@ export default {
     return {
       globalValues: {
         colorHueDeg: 220,
-        superSample: 2
-      }
+        superSample: this.$superSample
+      },
+      patchingTiles: true // kludge for "glitchyness" when changing tiles
     }
   },
   created: function () {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
     // Since we get reactive across the entire app... uncomment for RGB mode lol
     // setInterval(() => { this.globalValues.colorHueDeg += 15 }, 100)
+
+    setTimeout(() => { this.patchingTiles = false }, 200)
   },
   computed: {
     getStyle: function () {
       return {
         '--global-chd': this.globalValues.colorHueDeg,
-        '--global-ss': this.globalValues.superSample
+        '--global-ss': this.globalValues.superSample,
+        visibility: this.patchingTiles ? 'hidden' : null
       }
+    }
+  },
+  methods: {
+    setSuperSample: async function (newValue) {
+      this.patchingTiles = true
+      await this.$mapperRegenerate({ superSample: newValue })
+      this.globalValues.superSample = newValue
+      setTimeout(() => {
+        this.patchingTiles = false
+      }, 150)
     }
   }
 }

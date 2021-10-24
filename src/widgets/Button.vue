@@ -74,12 +74,19 @@ export default {
       hovering: false
     }
   },
+  created: function () {
+    // this.$watch(() => this.$global.superSample, () => {
+    //   this.key += 1
+    // })
+  },
   computed: {
     iconImageSrc: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
       if (this.clicking || this.toggled) {
-        return this.$imageMap('icon-color-fill-' + this.icon).url
+        return this.$tileMap('icon-color-fill-' + this.icon).url
       } else {
-        return this.$imageMap('icon-normal-' + this.icon).url
+        return this.$tileMap('icon-normal-' + this.icon).url
       }
     }
   },

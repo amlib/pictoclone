@@ -13,6 +13,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'WPlate',
   emits: ['clicking', 'hovering', 'click'],
@@ -109,6 +110,8 @@ export default {
       return obj
     },
     cornerSlices: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
       const obj = {}
       let tileName
       if (this.click) {
@@ -127,6 +130,7 @@ export default {
       return obj
     },
     straightLRSlices: function () {
+      const ss = this.$global.superSample
       const obj = {}
       let tileName
       if (this.click) {
@@ -137,7 +141,6 @@ export default {
         tileName = this.normalTile
       }
 
-      const ss = this.$global.superSample
       if (this.stripeMode === 1) {
         obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 4}px, ${this.stripeColor} ${ss * 4}px, ${this.stripeColor} ${ss * 5}px, transparent ${ss * 5}px, transparent ${ss * 8}px)`
         obj.backgroundPosition = 'bottom'
@@ -156,6 +159,8 @@ export default {
       return obj
     },
     straightTBSlices: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
       const obj = {}
       let tileName
       if (this.click) {
@@ -197,7 +202,7 @@ export default {
     },
     getSlice: function (alias) {
       const obj = {}
-      const img = this.$imageMap(alias)
+      const img = this.$tileMap(alias)
       if (img == null) {
         return null
       }
