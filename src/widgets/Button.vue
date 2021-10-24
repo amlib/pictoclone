@@ -76,7 +76,7 @@ export default {
   },
   computed: {
     iconImageSrc: function () {
-      if (this.clicking) {
+      if (this.clicking || this.toggled) {
         return this.$imageMap('icon-color-fill-' + this.icon).url
       } else {
         return this.$imageMap('icon-normal-' + this.icon).url
