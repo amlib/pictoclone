@@ -139,7 +139,7 @@ export default {
         obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} 2px, transparent 2px, transparent 32px, ${this.stripeColor} 32px, ${this.stripeColor} 34px, transparent 34px, transparent 64px)`
         obj.backgroundPosition = 'top'
         obj.backgroundRepeat = 'repeat-y'
-        obj.backgroundSize = 'calc(100% - 8px) 63px, auto, auto'
+        obj.backgroundSize = 'calc(100% - 12px) 63px, auto, auto'
       }
 
       this.mergeSlice(obj, this.getSlice(tileName + '-straight-l'))
