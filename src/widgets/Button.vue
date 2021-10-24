@@ -2,7 +2,7 @@
   <button>
     <w-plate :hover-feedback="simple !== true" click-feedback :color-hue-deg="colorHueDeg"
              :notch-t-l="notchTL" :notch-t-r="notchTR" :notch-b-l="notchBL" :notch-b-r="notchBR"
-             :normal-tile="simple ? 'small-button' : 'main-button'"
+             :normal-tile="simple ? (toggled ? 'small-button-highlight' : 'small-button') : (toggled ? 'main-color-fill' : 'main-button')"
              :click-tile="simple ? 'small-button-highlight' : 'main-color-fill'"
              :padding="padding != null ? padding : (simple ? 2 : 8)"
              @hovering="val => hovering = val" @clicking="val => clicking = val">
@@ -56,6 +56,16 @@ export default {
       type: Number,
       required: false,
       default: null
+    },
+    name: {
+      type: String,
+      required: false,
+      default: null
+    },
+    toggled: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data: function () {

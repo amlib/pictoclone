@@ -6,22 +6,25 @@
         <w-button class="closer" icon="arrow-down" simple :padding="0"/>
       </div>
       <div class="separator"></div>
-      <div class="main-button-bar-wrapper">
-        <w-button class="closer" icon="brush" simple/>
-        <w-button class="closer" icon="eraser" simple/>
-      </div>
-      <div class="main-button-bar-wrapper">
-        <w-button class="closer" icon="brush-big" simple/>
-        <w-button class="closer" icon="brush-small" simple/>
-      </div>
+      <w-button-toggle v-model="selectedTool" class="main-button-bar-wrapper"
+      :options="[
+        { icon: 'brush', name: 'brush', simple: true, class: 'closer'},
+        { icon: 'eraser', name: 'eraser', simple: true, class: 'closer'}]">
+      </w-button-toggle>
+      <w-button-toggle v-model="brushSize" class="main-button-bar-wrapper"
+        :options="[
+        { icon: 'brush-big', name: 'brush-big', simple: true, class: 'closer'},
+        { icon: 'brush-small', name: 'brush-small', simple: true, class: 'closer'}]">
+      </w-button-toggle>
       <div class="separator"></div>
-      <div class="main-button-bar-wrapper">
-        <w-button icon="romaji" simple notch-t-l/>
-        <w-button icon="accents" simple notch-t-l/>
-        <w-button icon="kana" simple notch-t-l/>
-        <w-button icon="symbols1" simple notch-t-l/>
-        <w-button icon="symbols2" simple notch-t-l/>
-      </div>
+      <w-button-toggle v-model="keyboardMode" class="main-button-bar-wrapper"
+      :options="[
+        { icon: 'romaji', name: 'romaji', simple: true, 'notch-t-l': true },
+        { icon: 'accents', name: 'accents', simple: true, 'notch-t-l': true },
+        { icon: 'kana', name: 'kana', simple: true, 'notch-t-l': true },
+        { icon: 'symbols1', name: 'symbols1', simple: true, 'notch-t-l': true },
+        { icon: 'symbols2', name: 'symbols2', simple: true, 'notch-t-l': true }]">
+      </w-button-toggle>
     </div>
     <div class="main-background-wrapper">
       <w-plate class="main-background" normal-tile="main-background"
@@ -44,7 +47,7 @@
         <div class="main-background-bottom">
           <w-plate class="keyboard" normal-tile="main-foreground"
                    notch-b-l notch-b-r notch-t-l notch-t-r>
-            keyboard goes here...
+            {{ keyboardMode }}
           </w-plate>
           <div class="button-cluster">
             <w-button class="button-cluster-button" icon="send" notch-t-l :padding="6"/>
@@ -60,9 +63,22 @@
 <script>
 import WButton from '@/widgets/Button'
 import WPlate from '@/widgets/Plate'
+import WButtonToggle from '@/widgets/ButtonToggle'
 export default {
   name: 'Chat',
-  components: { WPlate, WButton }
+  components: { WButtonToggle, WPlate, WButton },
+  data: function () {
+    return {
+      keyboardMode: 'romaji',
+      selectedTool: 'brush',
+      brushSize: 'brush-big'
+    }
+  },
+  methods: {
+    test: function (n) {
+      console.log('clicked event', n)
+    }
+  }
 }
 </script>
 
@@ -99,18 +115,23 @@ export default {
   background-size: 8px 8px;
 }
 
+/* also non scoped version */
 .main-button-bar-wrapper > button {
   display: block;
   margin: 2px 4px;
 }
 
+/* also non scoped version */
 .main-button-bar-wrapper > button:first-child {
   margin-top: 6px;
 }
+
+/* also non scoped version */
 .main-button-bar-wrapper > button:last-child {
   margin-bottom: 6px;
 }
 
+/* also non scoped version */
 .main-button-bar-wrapper > .closer {
   margin: 0;
 }
@@ -156,6 +177,7 @@ export default {
   margin-left: 2px;
   margin-right: 4px;
   color: black;
+  flex-grow: 1;
 }
 .button-cluster {
   display: inline-block;
@@ -164,5 +186,24 @@ export default {
 
 .button-cluster-button {
   display: block;
+}
+</style>
+
+<style>
+.main-button-bar-wrapper > button {
+  display: block;
+  margin: 2px 4px;
+}
+
+.main-button-bar-wrapper > button:first-child {
+  margin-top: 6px;
+}
+
+.main-button-bar-wrapper > button:last-child {
+  margin-bottom: 6px;
+}
+
+.main-button-bar-wrapper > .closer {
+  margin: 0;
 }
 </style>
