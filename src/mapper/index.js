@@ -19,8 +19,10 @@ const mapper = {
               const tile = group.map[i]
               const slice = {}
 
-              canvas.width = tile.w * options.superSample
-              canvas.height = tile.h * options.superSample
+              const superSample = tile.noSuperSample ? 1 : options.superSample
+
+              canvas.width = tile.w * superSample
+              canvas.height = tile.h * superSample
 
               const sourceX = tile.x + group.x
               const sourceY = tile.y + group.y
@@ -30,18 +32,18 @@ const mapper = {
               slice.backgroundRepeat = tile.backgroundRepeat
               slice.backgroundPosition = tile.backgroundPosition
               slice.alias = group.groupName + '-' + tile.alias
-              slice.top = tile.top * options.superSample + 'px'
-              slice.bottom = tile.bottom * options.superSample + 'px'
-              slice.left = tile.left * options.superSample + 'px'
-              slice.right = tile.right * options.superSample + 'px'
-              slice.offsetX = tile.offsetX * options.superSample
-              slice.offsetY = tile.offsetY * options.superSample
-              slice.w = sourceW * options.superSample
-              slice.h = sourceH * options.superSample
+              slice.top = tile.top * superSample + 'px'
+              slice.bottom = tile.bottom * superSample + 'px'
+              slice.left = tile.left * superSample + 'px'
+              slice.right = tile.right * superSample + 'px'
+              slice.offsetX = tile.offsetX * superSample
+              slice.offsetY = tile.offsetY * superSample
+              slice.w = sourceW * superSample
+              slice.h = sourceH * superSample
 
               context.imageSmoothingEnabled = false
               context.drawImage(image, sourceX, sourceY, sourceW, sourceH,
-                0, 0, sourceW * options.superSample, sourceH * options.superSample)
+                0, 0, sourceW * superSample, sourceH * superSample)
               // const url = canvas.toDataURL()
               const blob = await getCanvasBlob(canvas)
               const url = URL.createObjectURL(blob)

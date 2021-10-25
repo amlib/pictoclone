@@ -4,7 +4,7 @@
            stripe-color="#fbbaba" :stripe-mode=2 global-tint>
     <w-drawing-canvas v-if="mode === 'edit'" :width="width" :height="height" class="drawing-area"
       :style="{ width: targetWidth + 'px', height: targetHeight + 'px' }"
-      :tool="selectedTool" :tool-size="brushSize"/>
+      :tool="selectedTool" :brush-size="brushSize"/>
     <div v-else-if="mode === 'view'" class="drawing-area"
          :style="{ width: targetWidth + 'px', height: targetHeight +'px' }">
     </div>

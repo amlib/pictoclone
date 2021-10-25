@@ -286,6 +286,20 @@ const iconMap = [
     top: 0, left: 0, bottom: 0, right: 0
   }
 ]
+
+const brushMap = [
+  {
+    x: 0, y: 0, w: 1, h: 1, alias: '1px',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0, noSuperSample: true
+  },
+  {
+    x: 1, y: 0, w: 2, h: 2, alias: '2px',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0, noSuperSample: true
+  }
+]
+
 const tileMap = [
   {
     groupName: 'main-button', x: 0, y: 0,
@@ -318,6 +332,10 @@ const tileMap = [
   {
     groupName: 'main-color-background', x: 0, y: 28,
     map: cloneDeep(mainMap)
+  },
+  {
+    groupName: 'brush-normal', x: 52, y: 0,
+    map: cloneDeep(brushMap)
   },
   {
     groupName: 'small-button', x: 0, y: 32,
