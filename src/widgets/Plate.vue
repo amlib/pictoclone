@@ -1,9 +1,8 @@
 <template>
   <div class="plate" :style="plateStyle"
-       @mouseover="hoverFeedback ? onMouseOver : null"
-       @mouseleave="hoverFeedback ? onMouseLeave : null"
+       @mouseenter="hoverFeedback ? onMouseEnter() : null"
+       @mouseleave="onMouseLeave"
        @mousedown="clickFeedback ? onMouseDown() : null"
-       @mouseout="clickFeedback ? onMouseOut() : null"
        @mouseup="clickFeedback ? onMouseUp() : null">
     <template v-if="mode === 'scale'">
       <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="scaledPlateStyle"/>
@@ -257,14 +256,6 @@ export default {
     }
   },
   methods: {
-    onMouseOver: function () {
-      this.over = true
-      this.$emit('hovering', this.over)
-    },
-    onMouseLeave: function () {
-      this.over = false
-      this.$emit('hovering', this.over)
-    },
     onMouseDown: function () {
       this.click = true
       this.$emit('clicking', this.click)
@@ -274,9 +265,20 @@ export default {
       this.$emit('clicking', this.click)
       this.$emit('click')
     },
-    onMouseOut: function () {
-      this.click = false
-      this.$emit('clicking', this.click)
+    onMouseEnter: function () {
+      this.over = true
+      this.$emit('hovering', this.over)
+    },
+    onMouseLeave: function () {
+      if (this.hoverFeedback) {
+        this.over = false
+        this.$emit('hovering', this.over)
+      }
+
+      if (this.clickFeedback) {
+        this.click = false
+        this.$emit('clicking', this.click)
+      }
     },
     getSlice: function (alias) {
       const obj = {}

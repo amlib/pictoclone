@@ -1,6 +1,6 @@
 <template>
   <button>
-    <w-plate :hover-feedback="simple !== true" click-feedback :color-hue-deg="colorHueDeg" :global-tint="globalTint"
+    <w-plate click-feedback :color-hue-deg="colorHueDeg" :global-tint="globalTint"
              :notch-t-l="notchTL" :notch-t-r="notchTR" :notch-b-l="notchBL" :notch-b-r="notchBR"
              :normal-tile="simple ? (toggled ? 'small-button-highlight' : 'small-button') : (toggled ? 'main-color-fill' : 'main-button')"
              :click-tile="simple ? 'small-button-highlight' : 'main-color-fill'"
