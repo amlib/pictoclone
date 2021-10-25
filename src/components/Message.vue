@@ -1,6 +1,6 @@
 <template>
   <w-plate class="message-area" normal-tile="main-drawing-area"
-           notch-b-l notch-b-r notch-t-l notch-t-r
+           :notch="[true, true, true, true]"
            stripe-color="#fbbaba" :stripe-mode=2 global-tint>
     <w-drawing-canvas v-if="mode === 'edit'" :width="width" :height="height" ref="drawing"
       class="drawing-area" :style="{ width: targetWidth + 'px', height: targetHeight + 'px' }"
@@ -9,7 +9,7 @@
          :style="{ width: targetWidth + 'px', height: targetHeight +'px' }">
     </div>
     <w-plate class="message-area-user-tag" normal-tile="main-color-background"
-             notch-t-l notch-b-r global-tint>
+             :notch="[true, false, false, true]" global-tint>
       <div class="globalColorHueTint">user...</div>
     </w-plate>
   </w-plate>

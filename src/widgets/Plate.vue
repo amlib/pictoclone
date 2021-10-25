@@ -45,25 +45,11 @@ export default {
       required: false,
       default: false
     },
-    notchTL: {
-      type: Boolean,
+    // notch in clockwise order: TL TR BR BL
+    notch: {
+      type: Array,
       required: false,
-      default: false
-    },
-    notchTR: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    notchBL: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    notchBR: {
-      type: Boolean,
-      required: false,
-      default: false
+      default: null
     },
     hoverFeedback: {
       type: Boolean,
@@ -182,15 +168,15 @@ export default {
             const variant = spec.variants[i]
 
             let notch = ''
-            if (spec.notchable) {
+            if (spec.notchable && this.notch) {
               if (variant === 'tl') {
-                notch = this.notchTL ? '1' : '2'
+                notch = this.notch[0] ? '1' : '2'
               } else if (variant === 'tr') {
-                notch = this.notchTR ? '1' : '2'
-              } else if (variant === 'bl') {
-                notch = this.notchBL ? '1' : '2'
+                notch = this.notch[1] ? '1' : '2'
               } else if (variant === 'br') {
-                notch = this.notchBR ? '1' : '2'
+                notch = this.notch[2] ? '1' : '2'
+              } else if (variant === 'bl') {
+                notch = this.notch[3] ? '1' : '2'
               }
             }
 
@@ -224,10 +210,10 @@ export default {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
       }
 
-      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notchTL ? '1' : '2') + '-tl'))
-      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notchTR ? '1' : '2') + '-tr'))
-      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notchBL ? '1' : '2') + '-bl'))
-      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notchBR ? '1' : '2') + '-br'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notch && this.notch[0] ? '1' : '2') + '-tl'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notch && this.notch[1] ? '1' : '2') + '-tr'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notch && this.notch[2] ? '1' : '2') + '-br'))
+      this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notch && this.notch[3] ? '1' : '2') + '-bl'))
 
       return obj
     },

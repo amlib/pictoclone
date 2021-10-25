@@ -1,6 +1,6 @@
 <template>
   <w-plate normal-tile="main-foreground" :padding="0"
-           notch-b-l notch-b-r notch-t-l notch-t-r>
+           :notch="[true, true, true, true]">
     <div v-if="layouts[mode]" class="keyboard">
       <template v-for="(section, index) in layouts[mode].sections" :key="index">
         <div :class="section.class">

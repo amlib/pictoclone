@@ -1,7 +1,6 @@
 <template>
   <button>
-    <w-plate click-feedback :color-hue-deg="colorHueDeg" :global-tint="globalTint"
-             :notch-t-l="notchTL" :notch-t-r="notchTR" :notch-b-l="notchBL" :notch-b-r="notchBR"
+    <w-plate click-feedback :color-hue-deg="colorHueDeg" :global-tint="globalTint" :notch="notch"
              :normal-tile="toggled ? clickTile : normalTile" :click-tile="clickTile"
              :no-borders="noBorders" :padding="padding != null ? padding : 1" class="button-plate"
              @hovering="val => hovering = val" @clicking="val => clicking = val">
@@ -24,7 +23,7 @@ export default {
       required: false,
       default: null
     },
-    // margin in order: top right bottom left
+    // margin in clockwise order: top right bottom left
     iconMargin: {
       type: Array,
       required: false,
@@ -60,23 +59,8 @@ export default {
       required: false,
       default: false
     },
-    notchTL: {
-      type: Boolean,
-      required: false,
-      default: null
-    },
-    notchTR: {
-      type: Boolean,
-      required: false,
-      default: null
-    },
-    notchBL: {
-      type: Boolean,
-      required: false,
-      default: null
-    },
-    notchBR: {
-      type: Boolean,
+    notch: {
+      type: Array,
       required: false,
       default: null
     },

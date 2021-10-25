@@ -20,7 +20,7 @@
       </w-button-toggle>
       <div class="separator"></div>
       <w-button-toggle v-model="keyboardMode" class="main-button-bar-wrapper"
-      :common-options="{ 'notch-t-l': true }"
+      :common-options="{ notch: [true, false, false, false] }"
       :options="[
         { icon: 'romaji', name: 'romaji' },
         { icon: 'accents', name: 'accents' },
@@ -31,27 +31,27 @@
     </div>
     <div class="main-background-wrapper">
       <w-plate class="main-background" normal-tile="main-background"
-               notch-t-l notch-b-l :padding="3"
+               :notch="[true, false, false, true]" :padding="3"
                :stripe-mode=1 stripe-color="#bababa">
         <w-plate class="test2" normal-tile="main-inverted"
-                 notch-b-l notch-b-r notch-t-l notch-t-r>
+                 :notch="[true, true, true, true]">
           Welcome to PICTOCLONE ☸
         </w-plate>
         <w-plate class="test2" normal-tile="main-inverted"
-                 notch-b-l notch-b-r notch-t-l notch-t-r/>
+                 :notch="[true, true, true, true]"/>
         <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]" ref="user-message"/>
         <div class="main-background-bottom">
           <keyboard class="keyboard" :mode="keyboardMode"/>
           <div class="button-cluster">
             <w-button class="button-cluster-button" icon="send"
                       normal-tile="main-button" click-tile="main-color-fill"
-                      notch-t-l :padding="3"/>
+                      :notch="[true, false, false, false]" :padding="3"/>
             <w-button class="button-cluster-button" icon="copy"
                       normal-tile="main-button" click-tile="main-color-fill"
                       :padding="4" :style="`margin: ${$global.superSample * -1}px 0;`"/>
             <w-button class="button-cluster-button" icon="clear"
                       normal-tile="main-button" click-tile="main-color-fill"
-                      notch-b-l  :padding="4"
+                      :notch="[false, false, false, true]"  :padding="4"
                       @click="$refs['user-message'].clearDrawing()"/>
           </div>
         </div>
