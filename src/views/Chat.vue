@@ -2,25 +2,25 @@
   <div class="main">
     <div class="main-button-bar">
       <div class="main-button-bar-wrapper">
-        <w-button class="closer" icon="arrow-up" simple :padding="0"/>
-        <w-button class="closer" icon="arrow-down" simple :padding="0"/>
+        <w-button class="closer" icon="arrow-up" :padding="0" no-borders/>
+        <w-button class="closer" icon="arrow-down" :padding="0" no-borders/>
       </div>
       <div class="separator"></div>
       <w-button-toggle v-model="selectedTool" class="main-button-bar-wrapper"
-      :common-options="{ simple: true, class: 'closer' }"
+      :common-options="{ class: 'closer', 'no-borders': true }"
       :options="[
         { icon: 'brush', name: 'brush' },
         { icon: 'eraser', name: 'eraser' }]">
       </w-button-toggle>
       <w-button-toggle v-model="brushSize" class="main-button-bar-wrapper"
-        :common-options="{ simple: true, class: 'closer' }"
+        :common-options="{ class: 'closer', 'no-borders': true }"
         :options="[
         { icon: 'brush-big', name: 'brush-big' },
         { icon: 'brush-small', name: 'brush-small' }]">
       </w-button-toggle>
       <div class="separator"></div>
       <w-button-toggle v-model="keyboardMode" class="main-button-bar-wrapper"
-      :common-options="{ simple: true, 'notch-t-l': true }"
+      :common-options="{ 'notch-t-l': true }"
       :options="[
         { icon: 'romaji', name: 'romaji' },
         { icon: 'accents', name: 'accents' },
@@ -47,11 +47,15 @@
           </w-plate>
           <div class="button-cluster">
             <w-button class="button-cluster-button" icon="send"
+                      normal-tile="main-button" click-tile="main-color-fill"
                       notch-t-l :padding="3"/>
             <w-button class="button-cluster-button" icon="copy"
-                      :style="`margin: ${$global.superSample * -1}px 0;`"/>
+                      normal-tile="main-button" click-tile="main-color-fill"
+                      :padding="4" :style="`margin: ${$global.superSample * -1}px 0;`"/>
             <w-button class="button-cluster-button" icon="clear"
-                      notch-b-l @click="$refs['user-message'].clearDrawing()"/>
+                      normal-tile="main-button" click-tile="main-color-fill"
+                      notch-b-l  :padding="4"
+                      @click="$refs['user-message'].clearDrawing()"/>
           </div>
         </div>
       </w-plate>
@@ -119,7 +123,7 @@ export default {
 /* also non scoped version */
 .main-button-bar-wrapper > button {
   display: block;
-  margin: calc(1px * var(--global-ss)) calc(4px * var(--global-ss));
+  margin: calc(1px * var(--global-ss)) calc(2px * var(--global-ss));
 }
 
 /* also non scoped version */
@@ -134,7 +138,8 @@ export default {
 
 /* also non scoped version */
 .main-button-bar-wrapper > .closer {
-  margin: 0;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .main-background-wrapper {
@@ -156,7 +161,6 @@ export default {
 .keyboard {
   margin-left: calc(1px * var(--global-ss));
   margin-right: calc(2px * var(--global-ss));
-  color: black;
   flex-grow: 1;
 }
 .button-cluster {
@@ -184,6 +188,7 @@ export default {
 }
 
 .main-button-bar-wrapper > .closer {
-  margin: 0;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 </style>

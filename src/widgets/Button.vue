@@ -2,12 +2,13 @@
   <button>
     <w-plate click-feedback :color-hue-deg="colorHueDeg" :global-tint="globalTint"
              :notch-t-l="notchTL" :notch-t-r="notchTR" :notch-b-l="notchBL" :notch-b-r="notchBR"
-             :normal-tile="simple ? (toggled ? 'small-button-highlight' : 'small-button') : (toggled ? 'main-color-fill' : 'main-button')"
-             :click-tile="simple ? 'small-button-highlight' : 'main-color-fill'"
-             :padding="padding != null ? padding : (simple ? 1 : 4)"
+             :normal-tile="toggled ? clickTile : normalTile" :click-tile="clickTile"
+             :no-borders="noBorders" :padding="padding != null ? padding : 1" class="button-plate"
              @hovering="val => hovering = val" @clicking="val => clicking = val">
-      <img v-if="icon" draggable="false" :class="[ 'image', globalTint ? 'globalColorHueTint' : '' ]"
+      <img v-if="icon" draggable="false"
+           :class="[ 'image', globalTint ? 'globalColorHueTint' : '' ]"
            :src="iconImageSrc" :style="iconStyle"/>
+      <slot></slot>
     </w-plate>
   </button>
 </template>
@@ -23,6 +24,27 @@ export default {
       required: false,
       default: null
     },
+    // margin in order: top right bottom left
+    iconMargin: {
+      type: Array,
+      required: false,
+      default: null
+    },
+    iconPrefixNormal: {
+      type: String,
+      required: false,
+      default: 'icon-normal'
+    },
+    iconPrefixHighlight: {
+      type: String,
+      required: false,
+      default: 'icon-color-fill'
+    },
+    text: {
+      type: String,
+      required: false,
+      default: null
+    },
     colorHueDeg: {
       type: Number,
       required: false,
@@ -32,6 +54,11 @@ export default {
       type: Boolean,
       required: false,
       default: true
+    },
+    noBorders: {
+      type: Boolean,
+      required: false,
+      default: false
     },
     notchTL: {
       type: Boolean,
@@ -53,20 +80,20 @@ export default {
       required: false,
       default: null
     },
-    simple: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
     padding: {
       type: Number,
       required: false,
       default: null
     },
-    name: {
+    normalTile: {
       type: String,
       required: false,
-      default: null
+      default: 'small-button'
+    },
+    clickTile: {
+      type: String,
+      required: false,
+      default: 'small-button-highlight'
     },
     toggled: {
       type: Boolean,
@@ -90,16 +117,23 @@ export default {
       // eslint-disable-next-line no-unused-expressions
       this.$global.superSample
       if (this.clicking || this.toggled) {
-        return this.$tileMap('icon-color-fill-' + this.icon).url
+        return this.$tileMap(this.iconPrefixHighlight + '-' + this.icon).url
       } else {
-        return this.$tileMap('icon-normal-' + this.icon).url
+        return this.$tileMap(this.iconPrefixNormal + '-' + this.icon).url
       }
     },
     iconStyle: function () {
       const obj = {}
+      const ss = this.$global.superSample
+
       if (this.colorHueDeg) {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
       }
+
+      if (this.iconMargin) {
+        obj.margin = `${this.iconMargin[0] * ss}px ${this.iconMargin[1] * ss}px ${this.iconMargin[2] * ss}px ${this.iconMargin[3] * ss}px`
+      }
+
       return obj
     }
   },

@@ -12,7 +12,7 @@
     <template v-else-if="mode === 'tile'">
       <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="tiledStraightTBSlices"></div>
       <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="tiledStraightLRSlices"></div>
-      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="tiledCornerSlices"></div>
+      <div v-if="!noBorders" :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="tiledCornerSlices"></div>
     </template>
     <slot></slot>
   </div>
@@ -36,6 +36,11 @@ export default {
       default: null
     },
     globalTint: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    noBorders: {
       type: Boolean,
       required: false,
       default: false
@@ -100,7 +105,7 @@ export default {
     return {
       over: false,
       click: false,
-      mode: 'scale'
+      mode: 'tile'
     }
   },
   computed: {
@@ -160,40 +165,51 @@ export default {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
       }
 
-      for (let s = 0; s < tileSpec.length; ++s) {
-        const spec = tileSpec[s]
+      if (this.noBorders) {
+        const tile = this.tileName + '-center'
+        const img = this.$tileMap(tile)
+        if (img == null) {
+          throw new Error('Could not find tile: ' + tile)
+        }
 
-        for (let i = 0; i < spec.variants.length; ++i) {
-          const variant = spec.variants[i]
+        obj.backgroundImage = 'url(' + img.url + ')'
+        obj.backgroundSize = '100% 100%'
+      } else {
+        for (let s = 0; s < tileSpec.length; ++s) {
+          const spec = tileSpec[s]
 
-          let notch = ''
-          if (spec.notchable) {
-            if (variant === 'tl') {
-              notch = this.notchTL ? '1' : '2'
-            } else if (variant === 'tr') {
-              notch = this.notchTR ? '1' : '2'
-            } else if (variant === 'bl') {
-              notch = this.notchBL ? '1' : '2'
-            } else if (variant === 'br') {
-              notch = this.notchBR ? '1' : '2'
+          for (let i = 0; i < spec.variants.length; ++i) {
+            const variant = spec.variants[i]
+
+            let notch = ''
+            if (spec.notchable) {
+              if (variant === 'tl') {
+                notch = this.notchTL ? '1' : '2'
+              } else if (variant === 'tr') {
+                notch = this.notchTR ? '1' : '2'
+              } else if (variant === 'bl') {
+                notch = this.notchBL ? '1' : '2'
+              } else if (variant === 'br') {
+                notch = this.notchBR ? '1' : '2'
+              }
             }
-          }
 
-          const tile = this.tileName + '-' + spec.name + notch + (variant && variant !== '' ? ('-' + variant) : '')
-          const img = this.$tileMap(tile)
-          if (img == null) {
-            throw new Error('Could not find tile: ' + tile)
-          }
+            const tile = this.tileName + '-' + spec.name + notch + (variant && variant !== '' ? ('-' + variant) : '')
+            const img = this.$tileMap(tile)
+            if (img == null) {
+              throw new Error('Could not find tile: ' + tile)
+            }
 
-          const slice = {
-            backgroundImage: 'url(' + img.url + ')',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: `${spec.positionX[variant]} ${img.offsetX}px ${spec.positionY[variant]} ${img.offsetY}px`,
-            backgroundSize: (spec.sizeX[variant] ? `calc(100% - ${img.offsetY * 2}px)` : `${img.w}px`) + ' ' +
-              (spec.sizeY[variant] ? `calc(100% - ${img.offsetX * 2}px)` : `${img.h}px`)
-          }
+            const slice = {
+              backgroundImage: 'url(' + img.url + ')',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: `${spec.positionX[variant]} ${img.offsetX}px ${spec.positionY[variant]} ${img.offsetY}px`,
+              backgroundSize: (spec.sizeX[variant] ? `calc(100% - ${img.offsetY * 2}px)` : `${img.w}px`) + ' ' +
+                (spec.sizeY[variant] ? `calc(100% - ${img.offsetX * 2}px)` : `${img.h}px`)
+            }
 
-          this.mergeSlice(obj, slice)
+            this.mergeSlice(obj, slice)
+          }
         }
       }
 
@@ -235,8 +251,10 @@ export default {
         obj.backgroundSize = `calc(100% - ${ss * 6}px) ${ss * 32 - 1}px, auto, auto`
       }
 
-      this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-l'))
-      this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-r'))
+      if (!this.noBorders) {
+        this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-l'))
+        this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-r'))
+      }
 
       return obj
     },
@@ -249,9 +267,20 @@ export default {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
       }
 
-      this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-t'))
-      this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-b'))
-      this.mergeSlice(obj, this.getSlice(this.tileName + '-center'))
+      if (this.noBorders) {
+        const tile = this.tileName + '-center'
+        const img = this.$tileMap(tile)
+        if (img == null) {
+          throw new Error('Could not find tile: ' + tile)
+        }
+
+        obj.backgroundImage = 'url(' + img.url + ')'
+        // obj.backgroundRepeat = 'repeat'
+      } else {
+        this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-t'))
+        this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-b'))
+        this.mergeSlice(obj, this.getSlice(this.tileName + '-center'))
+      }
 
       return obj
     }
@@ -319,9 +348,11 @@ export default {
 
 <style scoped>
 .plate {
-  display: inline-block;
+  display: block;
   position: relative;
   z-index: 0;
+  min-height: inherit; /* will this cause problems? */
+  min-width: inherit;
 }
 
 .plate-slice {
