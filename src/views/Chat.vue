@@ -39,7 +39,7 @@
         </w-plate>
         <w-plate class="test2" normal-tile="main-inverted"
                  notch-b-l notch-b-r notch-t-l notch-t-r/>
-        <message/>
+        <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]"/>
         <div class="main-background-bottom">
           <w-plate class="keyboard" normal-tile="main-foreground"
                    notch-b-l notch-b-r notch-t-l notch-t-r>
@@ -71,7 +71,11 @@ export default {
     return {
       keyboardMode: 'romaji',
       selectedTool: 'brush',
-      brushSize: 'brush-big'
+      brushSize: 'brush-big',
+      brushSizes: {
+        'brush-big': 2,
+        'brush-small': 1
+      }
     }
   },
   methods: {

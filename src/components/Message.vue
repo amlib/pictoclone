@@ -2,9 +2,9 @@
   <w-plate class="message-area" normal-tile="main-drawing-area"
            notch-b-l notch-b-r notch-t-l notch-t-r
            stripe-color="#fbbaba" :stripe-mode=2 global-tint>
-    <canvas v-if="mode === 'edit'" class="drawing-area" ref="canvas"
-            :width="width" :height="height"
-            :style="{ width: targetWidth + 'px', height: targetHeight + 'px' }"/>
+    <w-drawing-canvas v-if="mode === 'edit'" :width="width" :height="height" class="drawing-area"
+      :style="{ width: targetWidth + 'px', height: targetHeight + 'px' }"
+      :tool="selectedTool" :tool-size="brushSize"/>
     <div v-else-if="mode === 'view'" class="drawing-area"
          :style="{ width: targetWidth + 'px', height: targetHeight +'px' }">
     </div>
@@ -17,9 +17,22 @@
 
 <script>
 import WPlate from '@/widgets/Plate'
+import WDrawingCanvas from '@/widgets/DrawingCanvas'
 export default {
   name: 'Message',
-  components: { WPlate },
+  components: { WDrawingCanvas, WPlate },
+  props: {
+    selectedTool: {
+      type: String,
+      required: false,
+      default: null
+    },
+    brushSize: {
+      type: Number,
+      required: false,
+      default: null
+    }
+  },
   data: function () {
     // TODO define message core dimensions elsewhere
     const width = 228
