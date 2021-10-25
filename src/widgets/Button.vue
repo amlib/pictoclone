@@ -119,6 +119,7 @@ button {
 .image {
   image-rendering: pixelated;
   user-select: none;
+  pointer-events: none;
 }
 
 </style>
