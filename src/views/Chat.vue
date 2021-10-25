@@ -41,10 +41,7 @@
                  notch-b-l notch-b-r notch-t-l notch-t-r/>
         <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]" ref="user-message"/>
         <div class="main-background-bottom">
-          <w-plate class="keyboard" normal-tile="main-foreground"
-                   notch-b-l notch-b-r notch-t-l notch-t-r>
-            {{ keyboardMode }}
-          </w-plate>
+          <keyboard class="keyboard" :mode="keyboardMode"/>
           <div class="button-cluster">
             <w-button class="button-cluster-button" icon="send"
                       normal-tile="main-button" click-tile="main-color-fill"
@@ -68,9 +65,10 @@ import WButton from '@/widgets/Button'
 import WPlate from '@/widgets/Plate'
 import WButtonToggle from '@/widgets/ButtonToggle'
 import Message from '@/components/Message'
+import Keyboard from '@/components/Keyboard'
 export default {
   name: 'Chat',
-  components: { Message, WButtonToggle, WPlate, WButton },
+  components: { Keyboard, Message, WButtonToggle, WPlate, WButton },
   data: function () {
     return {
       keyboardMode: 'romaji',

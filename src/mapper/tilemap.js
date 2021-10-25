@@ -146,6 +146,19 @@ const mainMap = [
   }
 ]
 
+const brushMap = [
+  {
+    x: 0, y: 0, w: 1, h: 1, alias: '1px',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0, noSuperSample: true
+  },
+  {
+    x: 1, y: 0, w: 2, h: 2, alias: '2px',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0, noSuperSample: true
+  }
+]
+
 const smallButtonMap = [
   {
     x: 0, y: 0, w: 2, h: 2, alias: 'corner1-tl',
@@ -287,16 +300,71 @@ const iconMap = [
   }
 ]
 
-const brushMap = [
+const keyboardMap = [
   {
-    x: 0, y: 0, w: 1, h: 1, alias: '1px',
+    x: 0, y: 0, w: 23, h: 13, alias: 'backspace',
     backgroundRepeat: 'no-repeat', backgroundPosition: null,
-    top: 0, left: 0, bottom: 0, right: 0, noSuperSample: true
+    top: 0, left: 0, bottom: 0, right: 0
   },
   {
-    x: 1, y: 0, w: 2, h: 2, alias: '2px',
+    x: 23, y: 0, w: 32, h: 13, alias: 'enter',
     backgroundRepeat: 'no-repeat', backgroundPosition: null,
-    top: 0, left: 0, bottom: 0, right: 0, noSuperSample: true
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 0, y: 13, w: 15, h: 13, alias: 'caps',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 15, y: 13, w: 23, h: 13, alias: 'shift',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 38, y: 13, w: 19, h: 12, alias: 'space',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 0, y: 26, w: 16, h: 13, alias: 'small-backspace',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 16, y: 26, w: 17, h: 11, alias: 'small-space',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 0, y: 67, w: 17, h: 29, alias: 'small-enter',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 0, y: 39, w: 15, h: 11, alias: 'hiragana',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 15, y: 39, w: 15, h: 13, alias: 'katakana',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 30, y: 39, w: 15, h: 13, alias: 'tenten',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 45, y: 39, w: 15, h: 13, alias: 'maru',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 60, y: 39, w: 15, h: 9, alias: 'komoji',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
   }
 ]
 
@@ -346,12 +414,32 @@ const tileMap = [
     map: cloneDeep(smallButtonMap)
   },
   {
+    groupName: 'keyboard-normal', x: 20, y: 32,
+    map: cloneDeep(smallButtonMap)
+  },
+  {
+    groupName: 'keyboard-special', x: 30, y: 32,
+    map: cloneDeep(smallButtonMap)
+  },
+  {
+    groupName: 'keyboard-highlight', x: 40, y: 32,
+    map: cloneDeep(smallButtonMap)
+  },
+  {
     groupName: 'icon-normal', x: 0, y: 34,
     map: cloneDeep(iconMap)
   },
   {
     groupName: 'icon-color-fill', x: 0, y: 86,
     map: cloneDeep(iconMap)
+  },
+  {
+    groupName: 'icon-keyboard-normal', x: 0, y: 138,
+    map: cloneDeep(keyboardMap)
+  },
+  {
+    groupName: 'icon-keyboard-highlight', x: 0, y: 190,
+    map: cloneDeep(keyboardMap)
   }
 ]
 
