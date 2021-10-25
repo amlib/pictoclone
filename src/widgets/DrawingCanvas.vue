@@ -125,6 +125,11 @@ export default {
     },
     angleBetween: function (point1, point2) {
       return Math.atan2(point2.x - point1.x, point2.y - point1.y)
+    },
+    clear: function () {
+      // TODO this fills the canvas with rgba(0,0,0,0) transparent black, may cause problems when saving/sending picture
+      // TODO investigate canvas initial state (is it also transparent black?)
+      this.canvasContext.clearRect(0, 0, this.width, this.height)
     }
   }
 }

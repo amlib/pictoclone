@@ -2,8 +2,8 @@
   <w-plate class="message-area" normal-tile="main-drawing-area"
            notch-b-l notch-b-r notch-t-l notch-t-r
            stripe-color="#fbbaba" :stripe-mode=2 global-tint>
-    <w-drawing-canvas v-if="mode === 'edit'" :width="width" :height="height" class="drawing-area"
-      :style="{ width: targetWidth + 'px', height: targetHeight + 'px' }"
+    <w-drawing-canvas v-if="mode === 'edit'" :width="width" :height="height" ref="drawing"
+      class="drawing-area" :style="{ width: targetWidth + 'px', height: targetHeight + 'px' }"
       :tool="selectedTool" :brush-size="brushSize"/>
     <div v-else-if="mode === 'view'" class="drawing-area"
          :style="{ width: targetWidth + 'px', height: targetHeight +'px' }">
@@ -51,6 +51,11 @@ export default {
     },
     targetHeight: function () {
       return this.height * this.$global.superSample
+    }
+  },
+  methods: {
+    clearDrawing: function () {
+      this.$refs.drawing.clear()
     }
   }
 }

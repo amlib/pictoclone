@@ -39,7 +39,7 @@
         </w-plate>
         <w-plate class="test2" normal-tile="main-inverted"
                  notch-b-l notch-b-r notch-t-l notch-t-r/>
-        <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]"/>
+        <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]" ref="user-message"/>
         <div class="main-background-bottom">
           <w-plate class="keyboard" normal-tile="main-foreground"
                    notch-b-l notch-b-r notch-t-l notch-t-r>
@@ -51,7 +51,7 @@
             <w-button class="button-cluster-button" icon="copy"
                       :style="`margin: ${$global.superSample * -1}px 0;`"/>
             <w-button class="button-cluster-button" icon="clear"
-                      notch-b-l/>
+                      notch-b-l @click="$refs['user-message'].clearDrawing()"/>
           </div>
         </div>
       </w-plate>
