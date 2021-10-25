@@ -1,9 +1,10 @@
 <template>
   <div class="plate" :style="plateStyle"
-       @mouseenter="hoverFeedback ? onMouseEnter() : null"
-       @mouseleave="onMouseLeave"
-       @mousedown="clickFeedback ? onMouseDown() : null"
-       @mouseup="clickFeedback ? onMouseUp() : null">
+       @pointerenter="hoverFeedback ? onPointerEnter() : null"
+       @pointerleave="onPointerLeave"
+       @pointercancel="onPointerLeave"
+       @pointerdown="clickFeedback ? onPointerDown() : null"
+       @pointerup="clickFeedback ? onPointerUp() : null">
     <template v-if="mode === 'scale'">
       <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="scaledPlateStyle"/>
       <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" v-if="stripeMode" :style="scaledModeStripeStyle"/>
@@ -256,20 +257,20 @@ export default {
     }
   },
   methods: {
-    onMouseDown: function () {
+    onPointerDown: function () {
       this.click = true
       this.$emit('clicking', this.click)
     },
-    onMouseUp: function () {
+    onPointerUp: function () {
       this.click = false
       this.$emit('clicking', this.click)
       this.$emit('click')
     },
-    onMouseEnter: function () {
+    onPointerEnter: function () {
       this.over = true
       this.$emit('hovering', this.over)
     },
-    onMouseLeave: function () {
+    onPointerLeave: function () {
       if (this.hoverFeedback) {
         this.over = false
         this.$emit('hovering', this.over)
