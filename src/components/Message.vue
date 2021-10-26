@@ -48,7 +48,9 @@ export default {
       specialKeys: {
         enter: () => this.keyPressEnter(),
         backspace: () => this.keyPressBackspace(),
-        space: () => this.keyPress(' ')
+        space: () => this.keyPress(' '),
+        shift: () => {},
+        caps: () => {}
       }
     }
   },

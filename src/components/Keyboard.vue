@@ -4,15 +4,18 @@
     <div v-if="layouts[mode]" class="keyboard">
       <template v-for="(section, index) in layouts[mode].sections" :key="index">
         <div :class="section.class">
-          <template v-for="key in section.keys" :key="key">
+          <template v-for="(key, keyIndex) in section.keys" :key="key">
             <w-button :text="key" :class="section.keyClass" :padding="0" no-borders
                       :normal-tile="uniqueKeyTile[key] ? 'keyboard-special' : 'keyboard-normal'"
                       click-tile="keyboard-highlight"
                       icon-prefix-normal="icon-keyboard-normal"
                       icon-prefix-highlight="icon-keyboard-highlight"
                       :icon="uniqueKeyIcon[key] ? key : null" :icon-margin="uniqueKeyIconMargin[key]"
-                      @click="keyPress(key)">
-              <div v-if="uniqueKeyIcon[key] == null" :class="uniqueKeyClass[key] ? uniqueKeyClass[key] : 'text'">{{ key }}</div>
+                      @click="keyPress(shifting ? section.shiftKeys[keyIndex] : key)"
+                      :toggled="(key === 'shift' && shifting && !capsLocked) || (key === 'caps' && capsLocked)">
+              <div v-if="uniqueKeyIcon[key] == null" :class="uniqueKeyClass[key] ? uniqueKeyClass[key] : 'text'">
+                {{ shifting ? section.shiftKeys[keyIndex] : key }}
+              </div>
             </w-button>
           </template>
         </div>
@@ -43,27 +46,32 @@ export default {
             {
               class: 'romaji-row1',
               keyClass: 'key-14px',
-              keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=']
+              keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+              shiftKeys: ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+']
             },
             {
               class: 'romaji-row2',
               keyClass: 'key-15px',
-              keys: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'backspace']
+              keys: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'backspace'],
+              shiftKeys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'backspace']
             },
             {
               class: 'romaji-row2',
               keyClass: 'key-15px',
-              keys: ['caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'enter']
+              keys: ['caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'enter'],
+              shiftKeys: ['caps', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'enter']
             },
             {
               class: 'romaji-row4',
               keyClass: 'key-15px',
-              keys: ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/']
+              keys: ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+              shiftKeys: ['shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?']
             },
             {
               class: 'romaji-row5',
               keyClass: 'key-14px',
-              keys: [';', '\'', 'space', '[', ']']
+              keys: [';', '\'', 'space', '[', ']'],
+              shiftKeys: [':', '"', 'space', '{', '}']
             }
           ]
         }
@@ -90,11 +98,27 @@ export default {
         space: [1, 29, 1, 29]
       },
       uniqueKeyClass: {
-      }
+      },
+      shifting: false,
+      capsLocked: false
     }
   },
   methods: {
     keyPress: function (key) {
+      if (key === 'shift') {
+        this.shifting = !this.shifting
+        this.capsLocked = false
+      } else if (key === 'caps') {
+        this.capsLocked = !this.capsLocked
+        if (this.capsLocked) {
+          this.shifting = true
+        } else {
+          this.shifting = false
+        }
+      } else if (this.shifting && !this.capsLocked) {
+        this.shifting = false
+      }
+
       this.$emit('keyboard-key-press', key)
     }
   }
