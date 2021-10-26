@@ -8,6 +8,9 @@ const mapper = {
       const newImageSlices = {}
       const canvas = document.createElement('canvas')
 
+      const integerSuperSample = Math.floor(options.superSample)
+      const fractionalSuperSample = options.superSample / integerSuperSample
+
       if (canvas.getContext) {
         const context = canvas.getContext('2d')
         const image = new Image()
@@ -21,8 +24,8 @@ const mapper = {
 
               const superSample = tile.noSuperSample ? 1 : options.superSample
 
-              canvas.width = tile.w * superSample
-              canvas.height = tile.h * superSample
+              canvas.width = Math.floor(tile.w * superSample)
+              canvas.height = Math.floor(tile.h * superSample)
 
               const sourceX = tile.x + group.x
               const sourceY = tile.y + group.y
@@ -32,18 +35,27 @@ const mapper = {
               slice.backgroundRepeat = tile.backgroundRepeat
               slice.backgroundPosition = tile.backgroundPosition
               slice.alias = group.groupName + '-' + tile.alias
-              slice.top = tile.top * superSample + 'px'
-              slice.bottom = tile.bottom * superSample + 'px'
-              slice.left = tile.left * superSample + 'px'
-              slice.right = tile.right * superSample + 'px'
-              slice.offsetX = tile.offsetX * superSample
-              slice.offsetY = tile.offsetY * superSample
-              slice.w = sourceW * superSample
-              slice.h = sourceH * superSample
+              slice.top = Math.floor(tile.top * superSample) + 'px'
+              slice.bottom = Math.floor(tile.bottom * superSample) + 'px'
+              slice.left = Math.floor(tile.left * superSample) + 'px'
+              slice.right = Math.floor(tile.right * superSample) + 'px'
+              slice.offsetX = Math.floor(tile.offsetX * superSample)
+              slice.offsetY = Math.floor(tile.offsetY * superSample)
+              slice.w = Math.floor(sourceW * superSample)
+              slice.h = Math.floor(sourceH * superSample)
 
+              context.globalCompositeOperation = 'copy'
               context.imageSmoothingEnabled = false
+              const integerSuperSampleTile = tile.noSuperSample ? 1 : integerSuperSample
               context.drawImage(image, sourceX, sourceY, sourceW, sourceH,
-                0, 0, sourceW * superSample, sourceH * superSample)
+                0, 0, sourceW * integerSuperSampleTile, sourceH * integerSuperSampleTile)
+
+              if (!tile.noSuperSample && fractionalSuperSample > 1.01) {
+                context.imageSmoothingEnabled = true
+                // context.globalCompositeOperation = 'copy'
+                context.drawImage(canvas, 0, 0, sourceW * integerSuperSampleTile, sourceH * integerSuperSampleTile,
+                  0, 0, Math.floor(sourceW * superSample), Math.floor(sourceH * superSample))
+              }
               // const url = canvas.toDataURL()
               const blob = await getCanvasBlob(canvas)
               const url = URL.createObjectURL(blob)
