@@ -117,8 +117,10 @@ export default {
   },
   methods: {
     pointerDown: function (event) {
-      this.$refs.canvas.setPointerCapture(event.pointerId)
-      this.startStroke(event.offsetX / this.$global.superSample, event.offsetY / this.$global.superSample)
+      if (event.buttons & 1) {
+        this.$refs.canvas.setPointerCapture(event.pointerId)
+        this.startStroke(event.offsetX / this.$global.superSample, event.offsetY / this.$global.superSample)
+      }
     },
     pointerMove: function (event) {
       this.moveStroke(event.offsetX / this.$global.superSample, event.offsetY / this.$global.superSample)
@@ -183,6 +185,20 @@ export default {
       // TODO investigate canvas initial state (is it also transparent black?)
       this.canvasContext.clearRect(0, 0, this.width, this.height)
       this.textBufferClear()
+    },
+    elementOffset: function (el) {
+      const rect = el.getBoundingClientRect()
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      return {
+        top: rect.top + scrollTop,
+        left: rect.left + scrollLeft,
+        right: rect.right + scrollLeft,
+        bottom: rect.bottom + scrollTop
+      }
+    },
+    getCanvasGlobalPosition: function () {
+      return this.elementOffset(this.$refs.canvas)
     },
     textBufferSetStart: function (x, y) {
       this.textX = x

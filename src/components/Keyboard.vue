@@ -1,7 +1,8 @@
 <template>
   <w-plate normal-tile="main-foreground" :padding="0"
            :notch="[true, true, true, true]">
-    <div v-if="layouts[mode]" class="keyboard">
+    <div v-if="layouts[mode]" class="keyboard" ref="keyboard"
+         @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel">
       <template v-for="(section, index) in layouts[mode].sections" :key="index">
         <div :class="section.class">
           <template v-for="(key, keyIndex) in section.keys" :key="key">
@@ -21,6 +22,9 @@
         </div>
       </template>
     </div>
+    <div v-if="draggingSymbol" class="symbol-drag-box" :style="symbolDragBoxPosition">
+      <div>{{ draggingSymbol }}</div>
+    </div>
   </w-plate>
 </template>
 
@@ -30,7 +34,7 @@ import WButton from '@/widgets/Button'
 
 export default {
   name: 'Keyboard',
-  emits: ['keyboard-key-press'],
+  emits: ['keyboard-key-press', 'symbol-drag'],
   components: { WButton, WPlate },
   props: {
     mode: {
@@ -100,7 +104,23 @@ export default {
       uniqueKeyClass: {
       },
       shifting: false,
-      capsLocked: false
+      capsLocked: false,
+      draggingSymbol: null,
+      draggingEvent: null,
+      draggingCapturedElement: null,
+      clicking: false
+    }
+  },
+  computed: {
+    symbolDragBoxPosition: function () {
+      if (this.draggingSymbol) {
+        return {
+          top: this.draggingEvent.layerY + 'px',
+          left: this.draggingEvent.layerX + 'px'
+        }
+      } else {
+        return {}
+      }
     }
   },
   methods: {
@@ -120,6 +140,58 @@ export default {
       }
 
       this.$emit('keyboard-key-press', key)
+    },
+    pointerDown: function (event) {
+      if (event.buttons & 1) {
+        if (event.target.className === 'text') {
+          event.target.addEventListener('pointerleave', this.pointerLeave)
+          this.draggingCapturedElement = event.target
+          this.clicking = true
+        }
+      }
+    },
+    pointerLeave: function (event) {
+      if (this.draggingCapturedElement) {
+        this.draggingCapturedElement.removeEventListener('pointerleave', this.pointerLeave)
+        this.$refs.keyboard.setPointerCapture(event.pointerId)
+        if (this.clicking) {
+          this.draggingSymbol = this.draggingCapturedElement.innerText
+          if (this.draggingSymbol === '') {
+            this.draggingSymbol = null
+          }
+          this.draggingEvent = event
+        }
+      }
+    },
+    pointerMove: function (event) {
+      this.draggingEvent = event
+    },
+    pointerUp: function (event) {
+      if (this.draggingSymbol) {
+        this.$emit('symbol-drag', {
+          symbol: this.draggingSymbol,
+          event: event
+        })
+      }
+
+      this.$refs.keyboard.releasePointerCapture(event.pointerId)
+      if (this.draggingCapturedElement) {
+        this.draggingCapturedElement.releasePointerCapture(event.pointerId)
+        this.draggingCapturedElement = null
+      }
+      this.draggingEvent = null
+      this.draggingSymbol = null
+      this.clicking = false
+    },
+    pointerCancel: function (event) {
+      this.$refs.keyboard.releasePointerCapture(event.pointerId)
+      if (this.draggingCapturedElement) {
+        this.draggingCapturedElement.releasePointerCapture(event.pointerId)
+        this.draggingCapturedElement = null
+      }
+      this.draggingEvent = null
+      this.draggingSymbol = null
+      this.clicking = false
     }
   }
 }
@@ -128,6 +200,7 @@ export default {
 <style scoped>
 .keyboard {
   display: flex;
+  position: relative; /* necessary to make symbol dragging absolute positioning work! */
   flex-direction: column;
   padding-top: calc(1px * var(--global-ss));
   padding-left: calc(1px * var(--global-ss));
@@ -170,8 +243,28 @@ export default {
   margin-left: calc(1px * var(--global-ss));
 }
 
+/* hack to make text label entirely cover the button, otherwise symbol dragging could miss its intended target target*/
+.key-15px  .text {
+  padding-bottom: calc(1px * var(--global-ss));
+}
+
 .text {
   line-height: calc(14px * var(--global-ss));
+}
+
+.symbol-drag-box {
+  pointer-events: none;
+  position: absolute;
+  height: 0;
+  width: 0;
+  display: flex;
+  justify-content: center;
+  background-color: red;
+}
+
+.symbol-drag-box > * {
+  pointer-events: none;
+  line-height: 0;
 }
 /*.key-caps {*/
 /*  line-height: calc(14px * var(--global-ss));*/

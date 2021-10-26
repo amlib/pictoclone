@@ -42,7 +42,7 @@
         <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]" ref="user-message"/>
         <div class="main-background-bottom">
           <keyboard class="keyboard" :mode="keyboardMode"
-              @keyboard-key-press="handleKeyPress"/>
+              @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag"/>
           <div class="button-cluster">
             <w-button class="button-cluster-button" icon="send"
                       normal-tile="main-button" click-tile="main-color-fill"
@@ -84,6 +84,9 @@ export default {
   methods: {
     handleKeyPress: function (key) {
       this.$refs['user-message'].keyPress(key)
+    },
+    handleSymbolDrag: function (payload) {
+      this.$refs['user-message'].symbolDrop(payload)
     }
   }
 }

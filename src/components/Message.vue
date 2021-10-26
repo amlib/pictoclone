@@ -18,6 +18,7 @@
 <script>
 import WPlate from '@/widgets/Plate'
 import WDrawingCanvas from '@/widgets/DrawingCanvas'
+
 export default {
   name: 'Message',
   components: { WDrawingCanvas, WPlate },
@@ -96,6 +97,27 @@ export default {
     keyPressBackspace: function () {
       if (!this.$refs.drawing) { return }
       this.$refs.drawing.textBufferBackspace()
+    },
+    symbolDrop: function (payload) {
+      if (!this.$refs.drawing) { return }
+      const canvasPos = this.$refs.drawing.getCanvasGlobalPosition()
+      const ss = this.$global.superSample
+      const targetX = payload.event.pageX
+      const targetY = payload.event.pageY
+
+      if (targetX > canvasPos.left &&
+        targetX < (canvasPos.right - 5) &&
+        targetY > canvasPos.top &&
+        targetY < (canvasPos.bottom - 12)) {
+        this.$refs.drawing.textBufferMerge()
+        this.$refs.drawing.textBufferSetStart(
+          Math.round((targetX - canvasPos.left) / ss) - 3,
+          Math.round((targetY - canvasPos.top) / ss) + 5
+        )
+        this.$refs.drawing.textBufferAppend(payload.symbol)
+      } else {
+        // this.$emit('symbol-drop-rejected')
+      }
     }
   }
 }
