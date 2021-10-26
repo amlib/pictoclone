@@ -84,8 +84,6 @@ export default {
 
       if (this.specialKeys[key]) {
         this.specialKeys[key](key)
-      } else if (key === 'q') {
-        this.$refs.drawing.textBufferAppend('qqqqqqqqqqqqqq')
       } else {
         this.$refs.drawing.textBufferAppend(key)
       }
@@ -133,6 +131,7 @@ export default {
 }
 
 .message-area-user-tag {
+  user-select: none;
   position: absolute;
   left: 0;
   top: 0;

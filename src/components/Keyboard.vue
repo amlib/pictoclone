@@ -2,7 +2,7 @@
   <w-plate normal-tile="main-foreground" :padding="0"
            :notch="[true, true, true, true]">
     <div v-if="layouts[mode]" class="keyboard" ref="keyboard"
-         @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel">
+         @pointerdown="pointerDown" @pointermove="throttledPointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel">
       <template v-for="(section, index) in layouts[mode].sections" :key="index">
         <div :class="section.class">
           <template v-for="(key, keyIndex) in section.keys" :key="key">
@@ -22,7 +22,7 @@
         </div>
       </template>
     </div>
-    <div v-if="draggingSymbol" class="symbol-drag-box" :style="symbolDragBoxPosition">
+    <div v-if="draggingEvent" class="symbol-drag-box" :style="symbolDragBoxPosition">
       <div>{{ draggingSymbol }}</div>
     </div>
   </w-plate>
@@ -31,6 +31,7 @@
 <script>
 import WPlate from '@/widgets/Plate'
 import WButton from '@/widgets/Button'
+import { throttle } from 'lodash'
 
 export default {
   name: 'Keyboard',
@@ -107,8 +108,7 @@ export default {
       capsLocked: false,
       draggingSymbol: null,
       draggingEvent: null,
-      draggingCapturedElement: null,
-      clicking: false
+      draggingCapturedElement: null
     }
   },
   computed: {
@@ -122,6 +122,9 @@ export default {
         return {}
       }
     }
+  },
+  created: function () {
+    this.throttledPointerMove = throttle(this.pointerMove, 16, { leading: true })
   },
   methods: {
     keyPress: function (key) {
@@ -144,27 +147,36 @@ export default {
     pointerDown: function (event) {
       if (event.buttons & 1) {
         if (event.target.className === 'text') {
+          window.navigator.vibrate(33)
           event.target.addEventListener('pointerleave', this.pointerLeave)
+
+          // this is needed to make pointerLeave trigger on mobile:
+          // mobile seems to auto capture pointer?
+          event.target.releasePointerCapture(event.pointerId)
+
           this.draggingCapturedElement = event.target
-          this.clicking = true
         }
       }
     },
+    // triggered by element with text class dynamically registered in pointerDown
     pointerLeave: function (event) {
       if (this.draggingCapturedElement) {
+        window.navigator.vibrate(16)
         this.draggingCapturedElement.removeEventListener('pointerleave', this.pointerLeave)
         this.$refs.keyboard.setPointerCapture(event.pointerId)
-        if (this.clicking) {
-          this.draggingSymbol = this.draggingCapturedElement.innerText
-          if (this.draggingSymbol === '') {
-            this.draggingSymbol = null
-          }
-          this.draggingEvent = event
+        this.draggingSymbol = this.draggingCapturedElement.innerText
+        if (this.draggingSymbol === '') {
+          this.draggingSymbol = null
         }
       }
     },
     pointerMove: function (event) {
-      this.draggingEvent = event
+      if (this.draggingSymbol) {
+        // we dont want events relative to button text element or else we get wrong positions...
+        if (event.target.className === 'keyboard') {
+          this.draggingEvent = event
+        }
+      }
     },
     pointerUp: function (event) {
       if (this.draggingSymbol) {
@@ -179,9 +191,9 @@ export default {
         this.draggingCapturedElement.releasePointerCapture(event.pointerId)
         this.draggingCapturedElement = null
       }
+
       this.draggingEvent = null
       this.draggingSymbol = null
-      this.clicking = false
     },
     pointerCancel: function (event) {
       this.$refs.keyboard.releasePointerCapture(event.pointerId)
@@ -189,9 +201,9 @@ export default {
         this.draggingCapturedElement.releasePointerCapture(event.pointerId)
         this.draggingCapturedElement = null
       }
+
       this.draggingEvent = null
       this.draggingSymbol = null
-      this.clicking = false
     }
   }
 }
@@ -199,6 +211,8 @@ export default {
 
 <style scoped>
 .keyboard {
+  user-select: none;
+  touch-action: none;
   display: flex;
   position: relative; /* necessary to make symbol dragging absolute positioning work! */
   flex-direction: column;
@@ -254,12 +268,13 @@ export default {
 
 .symbol-drag-box {
   pointer-events: none;
+  user-select: none;
+  touch-action: none;
   position: absolute;
   height: 0;
   width: 0;
   display: flex;
   justify-content: center;
-  background-color: red;
 }
 
 .symbol-drag-box > * {

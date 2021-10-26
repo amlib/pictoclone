@@ -39,21 +39,23 @@
         </w-plate>
         <w-plate class="test2" normal-tile="main-inverted"
                  :notch="[true, true, true, true]"/>
-        <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]" ref="user-message"/>
-        <div class="main-background-bottom">
-          <keyboard class="keyboard" :mode="keyboardMode"
-              @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag"/>
-          <div class="button-cluster">
-            <w-button class="button-cluster-button" icon="send"
-                      normal-tile="main-button" click-tile="main-color-fill"
-                      :notch="[true, false, false, false]" :padding="3"/>
-            <w-button class="button-cluster-button" icon="copy"
-                      normal-tile="main-button" click-tile="main-color-fill"
-                      :padding="4" :style="`margin: ${$global.superSample * -1}px 0;`"/>
-            <w-button class="button-cluster-button" icon="clear"
-                      normal-tile="main-button" click-tile="main-color-fill"
-                      :notch="[false, false, false, true]"  :padding="4"
-                      @click="$refs['user-message'].clearDrawing()"/>
+        <div class="main-background-interface-context">
+          <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]" ref="user-message"/>
+          <div class="main-background-bottom">
+            <keyboard class="keyboard" :mode="keyboardMode"
+                      @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag"/>
+            <div class="button-cluster">
+              <w-button class="button-cluster-button" icon="send"
+                        normal-tile="main-button" click-tile="main-color-fill"
+                        :notch="[true, false, false, false]" :padding="3"/>
+              <w-button class="button-cluster-button" icon="copy"
+                        normal-tile="main-button" click-tile="main-color-fill"
+                        :padding="4" :style="`margin: ${$global.superSample * -1}px 0;`"/>
+              <w-button class="button-cluster-button" icon="clear"
+                        normal-tile="main-button" click-tile="main-color-fill"
+                        :notch="[false, false, false, true]"  :padding="4"
+                        @click="$refs['user-message'].clearDrawing()"/>
+            </div>
           </div>
         </div>
       </w-plate>
@@ -148,7 +150,15 @@ export default {
 }
 
 .main-background-wrapper {
-  contain: content; /* clips wrapped div that falls outside this one (trough usage of negative margin) */
+  /* clips wrapped div that falls outside this one, trough usage of negative margin
+   clips a pixel of the main buttons and 2 pixels of the main background plate,
+   thus eliminating right borders */
+  contain: paint;
+}
+
+.main-background-interface-context {
+  /* performance enhancement */
+  contain: layout paint style;
 }
 
 .main-background {
@@ -175,6 +185,8 @@ export default {
 
 .button-cluster-button {
   display: block;
+  margin-right: -2px;
+  contain: paint;
 }
 </style>
 
