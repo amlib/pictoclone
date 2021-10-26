@@ -1,17 +1,29 @@
 <template>
-  <canvas ref="canvas" :width="width" :height="height" class="canvas" v-bind="$attrs"
-          @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel"/>
+  <div class="canvas-wrapper" v-bind="$attrs">
+    <canvas ref="canvas-buffer" :width="width" :height="height" class="canvas canvas-buffer" :style="canvasStyle"/>
+    <canvas ref="canvas" :width="width" :height="height" class="canvas" :style="canvasStyle"
+            @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel"/>
+  </div>
 </template>
 
 <script>
 export default {
   name: 'WDrawingCanvas',
+  emits: ['text-buffer-line-break-aborted'],
   props: {
     width: {
       type: Number,
       required: true
     },
     height: {
+      type: Number,
+      required: true
+    },
+    targetWidth: {
+      type: Number,
+      required: true
+    },
+    targetHeight: {
       type: Number,
       required: true
     },
@@ -29,11 +41,27 @@ export default {
       type: String,
       required: false,
       default: '#000'
+    },
+    textFont: {
+      type: String,
+      required: false,
+      default: null
+    },
+    lineHeight: {
+      type: Number,
+      required: false,
+      default: 10
+    },
+    newLineXOffset: {
+      type: Number,
+      required: false,
+      default: 4
     }
   },
   data: function () {
     return {
       canvasContext: null,
+      canvasBufferContext: null,
       painting: false,
       stroking: false,
       beginPosition: { x: 0, y: 0 },
@@ -41,12 +69,22 @@ export default {
       brushes: [
         'brush-normal-1px',
         'brush-normal-2px'
-      ]
+      ],
+      textBuffer: [],
+      textBufferLineOffsets: [],
+      textX: 0,
+      textY: 0
     }
   },
   computed: {
     brush: function () {
       return this.brushType + '-' + this.brushSize + 'px'
+    },
+    canvasStyle: function () {
+      return {
+        width: this.targetWidth + 'px',
+        height: this.targetHeight + 'px'
+      }
     },
     brushesImages: function () {
       const images = {}
@@ -58,10 +96,24 @@ export default {
       })
 
       return images
+    },
+    textBufferLastLine: {
+      get: function () {
+        return this.textBuffer[this.textBuffer.length - 1]
+      },
+      set: function (newVal) {
+        this.textBuffer[this.textBuffer.length - 1] += newVal
+      }
+    },
+    textBufferLastLineY: function () {
+      return this.textY + (this.lineHeight * (this.textBuffer.length - 1))
     }
   },
   mounted: function () {
     this.canvasContext = this.$refs.canvas.getContext('2d')
+    this.canvasBufferContext = this.$refs['canvas-buffer'].getContext('2d')
+    this.canvasBufferContext.font = this.textFont
+    this.textBufferClear()
   },
   methods: {
     pointerDown: function (event) {
@@ -130,16 +182,96 @@ export default {
       // TODO this fills the canvas with rgba(0,0,0,0) transparent black, may cause problems when saving/sending picture
       // TODO investigate canvas initial state (is it also transparent black?)
       this.canvasContext.clearRect(0, 0, this.width, this.height)
+      this.textBufferClear()
+    },
+    textBufferSetStart: function (x, y) {
+      this.textX = x
+      this.textY = y
+    },
+    textBufferClear: function () {
+      this.canvasBufferContext.clearRect(0, 0, this.width, this.height)
+      this.textBuffer = []
+      this.textBufferLineOffsets = []
+    },
+    textBufferLinebreak: function () {
+      if ((this.textBufferLastLineY + this.lineHeight) > this.height) {
+        this.$emit('text-buffer-line-break-aborted')
+        return false
+      }
+      this.textBuffer.push('')
+      this.textBufferLineOffsets.push(this.newLineXOffset)
+      // this.redrawTextBuffer()
+      return true
+    },
+    textBufferBackspace: function () {
+      const newString = this.textBufferLastLine.substring(0, this.textBufferLastLine.length - 1)
+
+      if (newString == null || newString === '') {
+        this.textBuffer.pop()
+      } else {
+        this.textBuffer[this.textBuffer.length - 1] = newString
+      }
+
+      this.redrawTextBuffer()
+    },
+    textBufferAppend: function (text) {
+      if (this.textBuffer.length <= 0) {
+        this.textBuffer.push('')
+        this.textBufferLineOffsets.push(this.textX)
+      }
+
+      const textMetrics = this.canvasBufferContext.measureText(this.textBufferLastLine + text)
+      const totalWidth = this.textBufferLineOffsets[this.textBufferLineOffsets.length - 1] + Math.round(textMetrics.width)
+      if (totalWidth >= this.width) {
+        if (!this.textBufferLinebreak()) {
+          return
+        }
+      }
+
+      this.textBufferLastLine = text // computed will append
+      this.redrawTextBuffer()
+    },
+    redrawTextBuffer: function () {
+      this.canvasBufferContext.clearRect(0, 0, this.width, this.height)
+
+      let y = this.textY
+      for (let i = 0; i < this.textBuffer.length; ++i) {
+        const line = this.textBuffer[i]
+        const x = this.textBufferLineOffsets[i]
+        this.canvasBufferContext.fillText(line, x, y)
+        y += this.lineHeight
+      }
+    },
+    textBufferMerge: function () {
+      this.canvasContext.globalCompositeOperation = 'source-over'
+      this.canvasContext.drawImage(this.$refs['canvas-buffer'], 0, 0)
+      this.textBufferClear()
     }
   }
 }
 </script>
 
 <style scoped>
+.canvas-wrapper {
+  line-height: 0;
+  display: block;
+  position: relative;
+}
+
 .canvas {
   image-rendering: pixelated;
   touch-action:none; /* will keep screen from zooming or panning when touching in mobile */
 }
+
+.canvas-buffer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
 .brush-image {
   display: none;
   position: absolute;

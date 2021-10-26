@@ -8,8 +8,10 @@
             <w-button :text="key" :class="section.keyClass" :padding="0" no-borders
                       :normal-tile="uniqueKeyTile[key] ? 'keyboard-special' : 'keyboard-normal'"
                       click-tile="keyboard-highlight"
-                      icon-prefix-normal="icon-keyboard-normal" icon-prefix-highlight="icon-keyboard-highlight"
-                      :icon="uniqueKeyIcon[key] ? key : null" :icon-margin="uniqueKeyIconMargin[key]">
+                      icon-prefix-normal="icon-keyboard-normal"
+                      icon-prefix-highlight="icon-keyboard-highlight"
+                      :icon="uniqueKeyIcon[key] ? key : null" :icon-margin="uniqueKeyIconMargin[key]"
+                      @click="keyPress(key)">
               <div v-if="uniqueKeyIcon[key] == null" :class="uniqueKeyClass[key] ? uniqueKeyClass[key] : 'text'">{{ key }}</div>
             </w-button>
           </template>
@@ -25,6 +27,7 @@ import WButton from '@/widgets/Button'
 
 export default {
   name: 'Keyboard',
+  emits: ['keyboard-key-press'],
   components: { WButton, WPlate },
   props: {
     mode: {
@@ -88,6 +91,11 @@ export default {
       },
       uniqueKeyClass: {
       }
+    }
+  },
+  methods: {
+    keyPress: function (key) {
+      this.$emit('keyboard-key-press', key)
     }
   }
 }
