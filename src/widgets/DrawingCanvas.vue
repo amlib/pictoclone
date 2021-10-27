@@ -198,7 +198,15 @@ export default {
       }
     },
     getCanvasGlobalPosition: function () {
-      return this.elementOffset(this.$refs.canvas)
+      const elementOffset = this.elementOffset(this.$refs.canvas)
+      const realWidth = elementOffset.right - elementOffset.left
+      const realHeight = elementOffset.bottom - elementOffset.top
+
+      return {
+        ...elementOffset,
+        widthProportion: this.width / realWidth,
+        heightProportion: this.height / realHeight
+      }
     },
     textBufferSetStart: function (x, y) {
       this.textX = x

@@ -99,7 +99,7 @@ export default {
     symbolDrop: function (payload) {
       if (!this.$refs.drawing) { return }
       const canvasPos = this.$refs.drawing.getCanvasGlobalPosition()
-      const ss = this.$global.superSample
+
       const targetX = payload.event.pageX
       const targetY = payload.event.pageY
 
@@ -109,8 +109,8 @@ export default {
         targetY < (canvasPos.bottom - 12)) {
         this.$refs.drawing.textBufferMerge()
         this.$refs.drawing.textBufferSetStart(
-          Math.round((targetX - canvasPos.left) / ss) - 3,
-          Math.round((targetY - canvasPos.top) / ss) + 5
+          Math.round((targetX - canvasPos.left) * canvasPos.widthProportion) - 3,
+          Math.round((targetY - canvasPos.top) * canvasPos.heightProportion) + 5
         )
         this.$refs.drawing.textBufferAppend(payload.symbol)
       } else {
