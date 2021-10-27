@@ -91,7 +91,7 @@ export default {
     return {
       over: false,
       click: false,
-      mode: 'tile'
+      mode: 'scale'
     }
   },
   computed: {
@@ -177,7 +177,11 @@ export default {
                 notch = this.notch[2] ? '1' : '2'
               } else if (variant === 'bl') {
                 notch = this.notch[3] ? '1' : '2'
+              } else {
+                notch = '2'
               }
+            } else if (spec.notchable) {
+              notch = '2'
             }
 
             const tile = this.tileName + '-' + spec.name + notch + (variant && variant !== '' ? ('-' + variant) : '')
