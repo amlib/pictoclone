@@ -6,7 +6,7 @@ import mapper from './mapper'
 
 const main = async function () {
   const mapperOptions = {
-    superSample: 2,
+    superSample: 3,
     imageSource: 'tilemap.png'
   }
 

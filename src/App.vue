@@ -1,11 +1,11 @@
 <template>
-  <div id="nav" :style="getStyle">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/chat">Chat</router-link>
+  <div ref="view" class="view" :style="getViewStyle">
+    <router-view/>
   </div>
-  <router-view :style="getStyle"/>
 </template>
+
 <script>
+import { throttle } from 'lodash'
 
 export default {
   name: 'App',
@@ -13,9 +13,14 @@ export default {
     return {
       globalValues: {
         colorHueDeg: 220,
-        superSample: this.$superSample
+        superSample: this.$superSample,
+        autoScale: true
       },
-      patchingTiles: true // kludge for "glitchyness" when changing tiles
+      patchingTiles: true, // kludge for "glitchyness" when changing tiles
+      documentObserver: null,
+      viewObserver: null,
+      documentWidth: 1,
+      viewWidth: 1
     }
   },
   created: function () {
@@ -28,12 +33,35 @@ export default {
     //   this.setSuperSample(this.globalValues.superSample === 2 ? 1 : 2)
     // }, 1500)
   },
+  mounted: function () {
+    this.onResizeThrottled = throttle(this.onResize, 16, { leading: false, trailing: true })
+    this.documentObserver = new ResizeObserver(this.onResizeThrottled).observe(document.firstElementChild)
+    this.viewObserver = new ResizeObserver(this.onResizeThrottled).observe(this.$refs.view)
+  },
+  beforeUnmount: function () {
+    if (this.documentObserver) {
+      this.documentObserver.unobserve(document.firstElementChild.offsetWidth)
+    }
+    if (this.viewObserver) {
+      this.viewObserver.unobserve(this.$refs.view)
+    }
+    this.onResizeThrottled.cancel()
+    this.onResizeThrottled = undefined
+  },
   computed: {
-    getStyle: function () {
+    getScalingFactor: function () {
+      return this.documentWidth / Math.max(this.viewWidth, 256)
+    },
+    getViewStyle: function () {
       return {
         '--global-chd': this.globalValues.colorHueDeg + 'deg',
         '--global-ss': this.globalValues.superSample,
-        visibility: this.patchingTiles ? 'hidden' : null
+        '--global-sf': this.getScalingFactor,
+        '--global-isf': 1 / this.getScalingFactor,
+        visibility: this.patchingTiles ? 'hidden' : null,
+        marginLeft: this.globalValues.autoScale ? undefined : 'auto',
+        marginRight: this.globalValues.autoScale ? undefined : 'auto',
+        transform: this.globalValues.autoScale ? `scale(${this.getScalingFactor})` : undefined
       }
     }
   },
@@ -45,22 +73,35 @@ export default {
       setTimeout(() => {
         this.patchingTiles = false
       }, 150)
+    },
+    onResize: function () {
+      this.documentWidth = document.firstElementChild.offsetWidth
+      if (this.$refs.view) {
+        this.viewWidth = this.$refs.view.offsetWidth
+      }
     }
   }
 }
 </script>
 
 <style>
-/*#app {*/
-/*  font-family: Avenir, Helvetica, Arial, sans-serif;*/
-/*  -webkit-font-smoothing: antialiased;*/
-/*  -moz-osx-font-smoothing: grayscale;*/
-/*  text-align: center;*/
-/*  color: #2c3e50;*/
-/*}*/
+* {
+  font-family: NDS12, serif;
+  font-size: calc(10px * var(--global-ss));
+  font-smooth: never;
+  -webkit-font-smoothing : none;
+}
 
-#nav {
-  padding: 10px;
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  touch-action: pan-y;
+  overflow-x: hidden;
+  height: 100%;
 }
 
 #nav a {

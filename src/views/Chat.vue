@@ -1,5 +1,5 @@
 <template>
-  <div class="main">
+  <div class="main" :style="mainStyle">
     <div class="main-button-bar">
       <div class="main-button-bar-wrapper">
         <w-button class="closer" icon="arrow-up" :padding="0" no-borders/>
@@ -30,16 +30,26 @@
       </w-button-toggle>
     </div>
     <div class="main-background-wrapper">
-      <w-plate class="main-background" normal-tile="main-background"
-               :notch="[true, false, false, true]" :padding="3"
-               :stripe-mode=1 stripe-color="#bababa">
-        <w-plate class="test2" normal-tile="main-inverted"
-                 :notch="[true, true, true, true]">
-          Welcome to PICTOCLONE ☸
+      <div class="main-background-queue-container">
+        <w-plate class="main-background-queue-wrapper" normal-tile="main-background"
+                 :notch="[true, false, false, true]" :padding="3"
+                 :stripe-mode=1 stripe-color="#bababa">
+          <div class="main-background-queue">
+            <template v-for="m in [1,2,3,4,5]" :key="m">
+              <w-plate class="test2" normal-tile="main-inverted"
+                       :notch="[true, true, true, true]">
+                Welcome to PICTOCLONE ☸
+              </w-plate>
+              <w-plate class="test2" normal-tile="main-drawing-area" style="height: 90px" :stripe-mode="2" stripe-color="#fbbaba"
+                       :notch="[true, true, true, true]"/>
+            </template>
+          </div>
         </w-plate>
-        <w-plate class="test2" normal-tile="main-inverted"
-                 :notch="[true, true, true, true]"/>
-        <div class="main-background-interface-context">
+      </div>
+      <div class="main-background-interface-container" ref="main-background-interface">
+        <w-plate class="main-background-interface-wrapper" normal-tile="main-background"
+                 :notch="[true, false, false, true]" :padding="3"
+                 :stripe-mode=1 stripe-color="#bababa">
           <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]" ref="user-message"/>
           <div class="main-background-bottom">
             <keyboard class="keyboard" :mode="keyboardMode"
@@ -57,8 +67,8 @@
                         @click="$refs['user-message'].clearDrawing()"/>
             </div>
           </div>
-        </div>
-      </w-plate>
+        </w-plate>
+      </div>
     </div>
   </div>
 </template>
@@ -69,6 +79,8 @@ import WPlate from '@/widgets/Plate'
 import WButtonToggle from '@/widgets/ButtonToggle'
 import Message from '@/components/Message'
 import Keyboard from '@/components/Keyboard'
+import { throttle } from 'lodash'
+
 export default {
   name: 'Chat',
   components: { Keyboard, Message, WButtonToggle, WPlate, WButton },
@@ -80,8 +92,34 @@ export default {
       brushSizes: {
         'brush-big': 2,
         'brush-small': 1
+      },
+      documentObserver: null,
+      viewObserver: null,
+      documentHeight: 1,
+      viewHeight: 1
+    }
+  },
+  computed: {
+    mainStyle: function () {
+      return {
+        height: this.$global.autoScale ? `calc(${this.documentHeight}px * var(--global-isf))` : undefined
       }
     }
+  },
+  mounted: function () {
+    this.onResizeThrottled = throttle(this.onResize, 16, { leading: false, trailing: true })
+    this.documentObserver = new ResizeObserver(this.onResizeThrottled).observe(document.firstElementChild)
+    this.viewObserver = new ResizeObserver(this.onResizeThrottled).observe(this.$refs['main-background-interface'])
+  },
+  beforeUnmount: function () {
+    if (this.documentObserver) {
+      this.documentObserver.unobserve(document.firstElementChild.offsetWidth)
+    }
+    if (this.viewObserver) {
+      this.viewObserver.unobserve(this.$refs['main-background-interface'])
+    }
+    this.onResizeThrottled.cancel()
+    this.onResizeThrottled = undefined
   },
   methods: {
     handleKeyPress: function (key) {
@@ -89,6 +127,12 @@ export default {
     },
     handleSymbolDrag: function (payload) {
       this.$refs['user-message'].symbolDrop(payload)
+    },
+    onResize: function () {
+      this.documentHeight = document.firstElementChild.offsetHeight
+      if (this.$refs['main-background-interface']) {
+        this.viewHeight = this.$refs['main-background-interface'].offsetHeight
+      }
     }
   }
 }
@@ -98,7 +142,7 @@ export default {
 .test2 {
   display: block;
   color: white;
-  margin: calc(1px * var(--global-ss));
+  margin: calc(5px * var(--global-ss)) calc(1px * var(--global-ss));
   min-height: calc(12px * var(--global-ss));
 }
 
@@ -107,6 +151,7 @@ export default {
   flex-direction: row;
   background-color: #FBFBFB;
   max-width: max-content;
+  height: 100%;
 }
 
 .main-button-bar {
@@ -154,17 +199,43 @@ export default {
    clips a pixel of the main buttons and 2 pixels of the main background plate,
    thus eliminating right borders */
   contain: paint;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-.main-background-interface-context {
-  /* performance enhancement */
-  contain: layout paint style;
+.main-background-queue-container {
+  position: relative;
+  margin-top: calc(4px * var(--global-ss));
+  flex-grow: 1;
 }
 
-.main-background {
+.main-background-queue-wrapper {
+  contain: layout paint;
   margin-left: 0;
   margin-right: calc(-4px * var(--global-ss));
-  margin-top: calc(12px * var(--global-ss));
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-sizing: border-box;
+}
+
+.main-background-queue {
+  overflow-y: hidden;
+  height: 100%;
+  margin-left: calc(-1px * var(--global-ss));
+  margin-right: calc(1px * var(--global-ss));
+}
+
+.main-background-interface-wrapper {
+  /* performance enhancement */
+  contain: layout paint;
+  margin-left: 0;
+  margin-right: calc(-4px * var(--global-ss));
+  margin-top: calc(4px * var(--global-ss));
   margin-bottom: calc(4px * var(--global-ss));
 }
 
