@@ -115,8 +115,8 @@ export default {
     symbolDragBoxPosition: function () {
       if (this.draggingSymbol) {
         return {
-          top: this.draggingEvent.layerY + 'px',
-          left: this.draggingEvent.layerX + 'px'
+          top: this.draggingEvent.offsetY + 'px',
+          left: this.draggingEvent.offsetX + 'px'
         }
       } else {
         return {}
