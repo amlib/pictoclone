@@ -2,8 +2,8 @@
   <div class="main" :style="mainStyle">
     <div class="main-button-bar">
       <div class="main-button-bar-wrapper">
-        <w-button class="closer" icon="arrow-up" :padding="0" no-borders/>
-        <w-button class="closer" icon="arrow-down" :padding="0" no-borders/>
+        <w-button class="closer" icon="arrow-up" :padding="0" no-borders @click="onScrollUp"/>
+        <w-button class="closer" icon="arrow-down" :padding="0" no-borders @click="onScrollDown"/>
       </div>
       <div class="separator"></div>
       <w-button-toggle v-model="selectedTool" class="main-button-bar-wrapper"
@@ -34,18 +34,7 @@
         <w-plate class="main-queue-wrapper" normal-tile="main-background"
                  :notch="[true, true, true, true]" :padding="3"
                  :stripe-mode=1 stripe-color="#bababa">
-          <div class="main-queue">
-            <div class="queue-spacer"></div>
-            <template v-for="m in ['OLD', 'NEW']" :key="m">
-              <w-plate class="queue-entry" normal-tile="main-inverted"
-                       :notch="[true, true, true, true]">
-                Welcome to PICTOCLONE ☸ {{ m }}
-              </w-plate>
-              <w-plate class="queue-entry" normal-tile="main-drawing-area" style="height: 90px"
-                       :stripe-mode="2" stripe-color="#fbbaba"
-                       :notch="[true, true, true, true]"/>
-            </template>
-          </div>
+          <chat-queue ref="queue"/>
         </w-plate>
       </div>
       <div class="main-interface-container">
@@ -59,7 +48,8 @@
             <div class="button-cluster">
               <w-button class="button-cluster-button" icon="send"
                         normal-tile="main-button" click-tile="main-color-fill"
-                        :notch="[true, false, false, false]" :padding="3"/>
+                        :notch="[true, false, false, false]" :padding="3"
+                        @click="sendMessage"/>
               <w-button class="button-cluster-button" icon="copy"
                         normal-tile="main-button" click-tile="main-color-fill"
                         :padding="4" :style="`margin: ${$global.superSample * -1}px 0;`"/>
@@ -82,10 +72,11 @@ import WButtonToggle from '@/widgets/ButtonToggle'
 import Message from '@/components/Message'
 import Keyboard from '@/components/Keyboard'
 import { throttle } from 'lodash'
+import ChatQueue from '@/components/ChatQueue'
 
 export default {
   name: 'Chat',
-  components: { Keyboard, Message, WButtonToggle, WPlate, WButton },
+  components: { ChatQueue, Keyboard, Message, WButtonToggle, WPlate, WButton },
   data: function () {
     return {
       keyboardMode: 'romaji',
@@ -130,6 +121,21 @@ export default {
       // different from the one returned on App.vue when css scale is in effect
       this.documentHeight = document.firstElementChild.offsetHeight
       this.documentWidth = document.firstElementChild.offsetWidth
+    },
+    onScrollUp: function () {
+      this.$refs.queue.onScrollUp()
+    },
+    onScrollDown: function () {
+      this.$refs.queue.onScrollDown()
+    },
+    sendMessage: function () {
+      // fake send
+      const entry = {
+        type: 'message',
+        payload: null
+      }
+      this.$refs['user-message'].clearDrawing()
+      this.$refs.queue.addEntry(entry)
     }
   }
 }
@@ -232,33 +238,6 @@ export default {
 
 .landscape .main-queue-wrapper {
   margin-right: unset;
-}
-
-.main-queue {
-  overflow-y: auto;
-  /*overflow-y: hidden;*/
-  margin-left: calc(-1px * var(--global-ss));
-  margin-right: calc(1px * var(--global-ss));
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1
-}
-
-.queue-spacer {
-  flex-grow: 1;
-  min-height: 100%;
-}
-
-.queue-entry {
-  display: block;
-  color: gray;
-  margin: calc(1px * var(--global-ss)) calc(1px * var(--global-ss));
-  min-height: calc(12px * var(--global-ss));
-}
-
-.landscape .main-queue {
-  margin-left: calc(-2px * var(--global-ss));
-  margin-right: calc(-2px * var(--global-ss));
 }
 
 /* main-interface */
