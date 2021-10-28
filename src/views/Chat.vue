@@ -211,7 +211,7 @@ export default {
 .main-queue-container {
   contain: layout paint;
   position: relative;
-  margin-top: calc(4px * var(--global-ss));
+  margin-top: calc(-4px * var(--global-ss));
   margin-bottom: calc(0px * var(--global-ss));
   flex-grow: 1;
   width: calc(238px * var(--global-ss));
@@ -221,6 +221,7 @@ export default {
 .landscape .main-queue-container {
   margin-right: calc(2px * var(--global-ss));
   margin-bottom: calc(4px * var(--global-ss));
+  margin-top: calc(-4px * var(--global-ss));
 }
 
 .main-queue-wrapper {
@@ -251,6 +252,7 @@ export default {
 
 .landscape .main-interface-container {
   margin-left: calc(2px * var(--global-ss));
+  margin-top: calc(-8px * var(--global-ss));
 }
 
 .main-interface-wrapper {
