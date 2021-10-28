@@ -35,12 +35,13 @@
                  :notch="[true, true, true, true]" :padding="3"
                  :stripe-mode=1 stripe-color="#bababa">
           <div class="main-queue">
-            <template v-for="m in [1,2]" :key="m">
-              <w-plate class="test2" normal-tile="main-inverted"
+            <div class="queue-spacer"></div>
+            <template v-for="m in ['OLD', 'NEW']" :key="m">
+              <w-plate class="queue-entry" normal-tile="main-inverted"
                        :notch="[true, true, true, true]">
-                Welcome to PICTOCLONE ☸
+                Welcome to PICTOCLONE ☸ {{ m }}
               </w-plate>
-              <w-plate class="test2" normal-tile="main-drawing-area" style="height: 90px"
+              <w-plate class="queue-entry" normal-tile="main-drawing-area" style="height: 90px"
                        :stripe-mode="2" stripe-color="#fbbaba"
                        :notch="[true, true, true, true]"/>
             </template>
@@ -135,13 +136,6 @@ export default {
 </script>
 
 <style scoped>
-.test2 {
-  display: block;
-  color: white;
-  margin: calc(5px * var(--global-ss)) calc(1px * var(--global-ss));
-  min-height: calc(12px * var(--global-ss));
-}
-
 .main {
   display: flex;
   flex-direction: row;
@@ -226,13 +220,14 @@ export default {
 .main-queue-wrapper {
   margin-left: 0;
   margin-right: calc(-4px * var(--global-ss));
-  /*height: 100%; !*TEST if needed*!*/
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  box-sizing: border-box;
+  /*box-sizing: border-box;*/
+  display: flex;
+  flex-direction: column;
 }
 
 .landscape .main-queue-wrapper {
@@ -240,10 +235,25 @@ export default {
 }
 
 .main-queue {
-  overflow-y: hidden;
-  height: 100%;
+  overflow-y: auto;
+  /*overflow-y: hidden;*/
   margin-left: calc(-1px * var(--global-ss));
   margin-right: calc(1px * var(--global-ss));
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1
+}
+
+.queue-spacer {
+  flex-grow: 1;
+  min-height: 100%;
+}
+
+.queue-entry {
+  display: block;
+  color: gray;
+  margin: calc(1px * var(--global-ss)) calc(1px * var(--global-ss));
+  min-height: calc(12px * var(--global-ss));
 }
 
 .landscape .main-queue {
