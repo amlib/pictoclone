@@ -135,9 +135,14 @@ button {
 }
 
 .image {
-  image-rendering: pixelated;
   user-select: none;
   pointer-events: none;
+}
+.rendering-pixel .image {
+  image-rendering: pixelated;
+}
+.rendering-quality .image {
+  image-rendering: high-quality;
 }
 
 </style>

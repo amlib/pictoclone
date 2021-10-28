@@ -1,5 +1,8 @@
 <template>
-  <div ref="view" class="view" :style="getViewStyle">
+  <div :class="['view', this.renderingClass,
+      this.isLandscape ? 'landscape' : undefined,
+      this.globalValues.autoScale ? undefined : 'no-scale']"
+       :style="getViewStyle" ref="view">
     <router-view/>
   </div>
 </template>
@@ -16,11 +19,18 @@ export default {
         superSample: this.$superSample,
         autoScale: true
       },
+      // renderingClass: 'rendering-pixel', // should be used with no super sampling
+      renderingClass: 'quality', // use super sampling 2x or 3x with this
       patchingTiles: true, // kludge for "glitchyness" when changing tiles
       documentObserver: null,
       viewObserver: null,
       documentWidth: 1,
-      viewWidth: 1
+      documentHeight: 1,
+      viewWidth: 1,
+      viewHeight: 1,
+      portraitConstrainRatio: 8 / 9,
+      landscapeBreakpointRatio: 18 / 9,
+      landscapeConstrainRatio: 24 / 9
     }
   },
   created: function () {
@@ -49,20 +59,32 @@ export default {
     this.onResizeThrottled = undefined
   },
   computed: {
+    isLandscape: function () {
+      return (this.documentWidth / this.documentHeight) > (this.landscapeBreakpointRatio)
+    },
     getScalingFactor: function () {
-      return this.documentWidth / Math.max(this.viewWidth, 256)
+      const documentRatio = this.documentWidth / this.documentHeight
+      if (this.isLandscape) {
+        return this.documentWidth / this.viewWidth * Math.min((this.landscapeConstrainRatio / documentRatio), 1)
+      } else {
+        return this.documentWidth / this.viewWidth * Math.min((this.portraitConstrainRatio / documentRatio), 1)
+      }
     },
     getViewStyle: function () {
-      return {
+      const marginCompensation = (this.documentWidth - (this.viewWidth * this.getScalingFactor)) / 2
+      const obj = {
         '--global-chd': this.globalValues.colorHueDeg + 'deg',
         '--global-ss': this.globalValues.superSample,
         '--global-sf': this.getScalingFactor,
-        '--global-isf': 1 / this.getScalingFactor,
-        visibility: this.patchingTiles ? 'hidden' : null,
-        marginLeft: this.globalValues.autoScale ? undefined : 'auto',
-        marginRight: this.globalValues.autoScale ? undefined : 'auto',
-        transform: this.globalValues.autoScale ? `scale(${this.getScalingFactor})` : undefined
+        visibility: this.patchingTiles ? 'hidden' : null
       }
+
+      if (this.globalValues.autoScale) {
+        obj.marginLeft = marginCompensation + 'px'
+        obj.marginRight = undefined
+        obj.transform = `scale(${this.getScalingFactor})`
+      }
+      return obj
     }
   },
   methods: {
@@ -76,8 +98,10 @@ export default {
     },
     onResize: function () {
       this.documentWidth = document.firstElementChild.offsetWidth
+      this.documentHeight = document.firstElementChild.offsetHeight
       if (this.$refs.view) {
         this.viewWidth = this.$refs.view.offsetWidth
+        this.viewHeight = this.$refs.view.offsetHeight
       }
     }
   }
@@ -102,11 +126,30 @@ body {
   touch-action: pan-y;
   overflow-x: hidden;
   height: 100%;
+  background-color: black;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+#app {
+  height: 100%;
+  overflow: hidden;
+}
+
+.no-scale {
+  margin: 0 auto;
+}
+
+.view {
+  width: min-content;
+  transform-origin: top left;
+  height: 100%;
+}
+
+.globalColorHueTint {
+  filter: hue-rotate(var(--global-chd));
+}
+
+.pixel-rendering {
+  image-rendering: pixelated;
 }
 
 #nav a.router-link-exact-active {

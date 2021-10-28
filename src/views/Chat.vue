@@ -29,29 +29,30 @@
         { icon: 'symbols2', name: 'symbols2' }]">
       </w-button-toggle>
     </div>
-    <div class="main-background-wrapper">
-      <div class="main-background-queue-container">
-        <w-plate class="main-background-queue-wrapper" normal-tile="main-background"
-                 :notch="[true, false, false, true]" :padding="3"
+    <div class="main-wrapper">
+      <div class="main-queue-container">
+        <w-plate class="main-queue-wrapper" normal-tile="main-background"
+                 :notch="[true, true, true, true]" :padding="3"
                  :stripe-mode=1 stripe-color="#bababa">
-          <div class="main-background-queue">
-            <template v-for="m in [1,2,3,4,5]" :key="m">
+          <div class="main-queue">
+            <template v-for="m in [1,2]" :key="m">
               <w-plate class="test2" normal-tile="main-inverted"
                        :notch="[true, true, true, true]">
                 Welcome to PICTOCLONE ☸
               </w-plate>
-              <w-plate class="test2" normal-tile="main-drawing-area" style="height: 90px" :stripe-mode="2" stripe-color="#fbbaba"
+              <w-plate class="test2" normal-tile="main-drawing-area" style="height: 90px"
+                       :stripe-mode="2" stripe-color="#fbbaba"
                        :notch="[true, true, true, true]"/>
             </template>
           </div>
         </w-plate>
       </div>
-      <div class="main-background-interface-container" ref="main-background-interface">
-        <w-plate class="main-background-interface-wrapper" normal-tile="main-background"
+      <div class="main-interface-container">
+        <w-plate class="main-interface-wrapper" normal-tile="main-background"
                  :notch="[true, false, false, true]" :padding="3"
                  :stripe-mode=1 stripe-color="#bababa">
           <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]" ref="user-message"/>
-          <div class="main-background-bottom">
+          <div class="main-interface-bottom">
             <keyboard class="keyboard" :mode="keyboardMode"
                       @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag"/>
             <div class="button-cluster">
@@ -94,29 +95,24 @@ export default {
         'brush-small': 1
       },
       documentObserver: null,
-      viewObserver: null,
       documentHeight: 1,
-      viewHeight: 1
+      documentWidth: 1
     }
   },
   computed: {
     mainStyle: function () {
       return {
-        height: this.$global.autoScale ? `calc(${this.documentHeight}px * var(--global-isf))` : undefined
+        height: this.$global.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined
       }
     }
   },
   mounted: function () {
     this.onResizeThrottled = throttle(this.onResize, 16, { leading: false, trailing: true })
     this.documentObserver = new ResizeObserver(this.onResizeThrottled).observe(document.firstElementChild)
-    this.viewObserver = new ResizeObserver(this.onResizeThrottled).observe(this.$refs['main-background-interface'])
   },
   beforeUnmount: function () {
     if (this.documentObserver) {
       this.documentObserver.unobserve(document.firstElementChild.offsetWidth)
-    }
-    if (this.viewObserver) {
-      this.viewObserver.unobserve(this.$refs['main-background-interface'])
     }
     this.onResizeThrottled.cancel()
     this.onResizeThrottled = undefined
@@ -129,10 +125,10 @@ export default {
       this.$refs['user-message'].symbolDrop(payload)
     },
     onResize: function () {
+      // WARNING offsetHeight and offsetWidth returned by document.firstElementCHild may be
+      // different from the one returned on App.vue when css scale is in effect
       this.documentHeight = document.firstElementChild.offsetHeight
-      if (this.$refs['main-background-interface']) {
-        this.viewHeight = this.$refs['main-background-interface'].offsetHeight
-      }
+      this.documentWidth = document.firstElementChild.offsetWidth
     }
   }
 }
@@ -154,6 +150,8 @@ export default {
   height: 100%;
 }
 
+/* main-button-bar */
+
 .main-button-bar {
   display: flex;
   flex-direction: column;
@@ -167,7 +165,7 @@ export default {
 }
 
 .main-button-bar > .separator {
-  height: calc(1px * var(--global-ss));
+  min-height: calc(1px * var(--global-ss));
   background-image: linear-gradient(90deg, #ffffff 25%, #494949 25%, #494949 50%, #ffffff 50%, #ffffff 75%, #494949 75%, #494949 100%);
   background-size: calc(4px * var(--global-ss)) calc(4px * var(--global-ss));
 }
@@ -194,27 +192,41 @@ export default {
   margin-bottom: 0;
 }
 
-.main-background-wrapper {
-  /* clips wrapped div that falls outside this one, trough usage of negative margin
-   clips a pixel of the main buttons and 2 pixels of the main background plate,
-   thus eliminating right borders */
-  contain: paint;
+/* main-wrapper */
+
+.main-wrapper {
+  contain: paint layout;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 
-.main-background-queue-container {
-  position: relative;
-  margin-top: calc(4px * var(--global-ss));
-  flex-grow: 1;
+.landscape .main-wrapper {
+  flex-direction: row;
+  justify-content: unset;
 }
 
-.main-background-queue-wrapper {
+/* main-queue */
+
+.main-queue-container {
   contain: layout paint;
+  position: relative;
+  margin-top: calc(4px * var(--global-ss));
+  margin-bottom: calc(0px * var(--global-ss));
+  flex-grow: 1;
+  width: calc(238px * var(--global-ss));
+  max-width: calc(238px * var(--global-ss));
+}
+
+.landscape .main-queue-container {
+  margin-right: calc(2px * var(--global-ss));
+  margin-bottom: calc(4px * var(--global-ss));
+}
+
+.main-queue-wrapper {
   margin-left: 0;
   margin-right: calc(-4px * var(--global-ss));
-  height: 100%;
+  /*height: 100%; !*TEST if needed*!*/
   position: absolute;
   top: 0;
   left: 0;
@@ -223,23 +235,50 @@ export default {
   box-sizing: border-box;
 }
 
-.main-background-queue {
+.landscape .main-queue-wrapper {
+  margin-right: unset;
+}
+
+.main-queue {
   overflow-y: hidden;
   height: 100%;
   margin-left: calc(-1px * var(--global-ss));
   margin-right: calc(1px * var(--global-ss));
 }
 
-.main-background-interface-wrapper {
-  /* performance enhancement */
+.landscape .main-queue {
+  margin-left: calc(-2px * var(--global-ss));
+  margin-right: calc(-2px * var(--global-ss));
+}
+
+/* main-interface */
+
+.main-interface-container {
+  max-width: calc(238px * var(--global-ss));
+  /*align-self: end;*/
+  align-self: stretch;
+  display: flex;
+}
+
+.landscape .main-interface-container {
+  margin-left: calc(2px * var(--global-ss));
+}
+
+.main-interface-wrapper {
+  /* clips wrapped div that falls outside this one, trough usage of negative margin
+ clips a pixel of the main buttons and 2 pixels of the main background plate,
+ thus eliminating right borders */
   contain: layout paint;
   margin-left: 0;
   margin-right: calc(-4px * var(--global-ss));
   margin-top: calc(4px * var(--global-ss));
   margin-bottom: calc(4px * var(--global-ss));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-.main-background-bottom {
+.main-interface-bottom {
   display: flex;
   flex-direction: row;
   margin-bottom: calc(1px * var(--global-ss));
@@ -253,7 +292,6 @@ export default {
   display: inline-block;
   margin: 0 0;
 }
-
 .button-cluster-button {
   display: block;
   margin-right: -2px;

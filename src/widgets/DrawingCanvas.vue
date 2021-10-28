@@ -1,7 +1,7 @@
 <template>
   <div class="canvas-wrapper" v-bind="$attrs">
-    <canvas ref="canvas-buffer" :width="width" :height="height" class="canvas canvas-buffer" :style="canvasStyle"/>
-    <canvas ref="canvas" :width="width" :height="height" class="canvas" :style="canvasStyle"
+    <canvas ref="canvas-buffer" :width="width" :height="height" class="canvas canvas-buffer pixel-rendering" :style="canvasStyle"/>
+    <canvas ref="canvas" :width="width" :height="height" class="canvas pixel-rendering" :style="canvasStyle"
             @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel"/>
   </div>
 </template>
@@ -283,7 +283,6 @@ export default {
 }
 
 .canvas {
-  image-rendering: pixelated;
   touch-action:none; /* will keep screen from zooming or panning when touching in mobile */
 }
 

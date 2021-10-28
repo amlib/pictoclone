@@ -346,12 +346,18 @@ export default {
 }
 
 .plate-slice {
-  image-rendering: pixelated;
   position: absolute;
   top: 0;
   left: 0;
   bottom: 0;
   right: 0;
   z-index: -1;
+}
+
+.rendering-pixel .plate-slice {
+  image-rendering: pixelated;
+}
+.rendering-quality .plate-slice {
+  image-rendering: high-quality;
 }
 </style>
