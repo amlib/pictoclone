@@ -1,5 +1,5 @@
 <template>
-  <div class="queue" ref="queue">
+  <div class="queue" ref="queue" @scroll="onScrollThrottled">
     <div class="queue-spacer" ref="spacer"></div>
     <template v-for="(entry, index) in queue" :key="index">
       <div>
@@ -10,9 +10,10 @@
           </w-plate>
         </template>
         <template v-else-if="entry.type === 'message'">
-          <w-plate class="queue-entry" normal-tile="main-drawing-area" style="height: 90px"
+          <w-plate class="queue-entry" normal-tile="main-drawing-area" style="height: calc(30px * var(--global-ss))"
                    :stripe-mode="2" stripe-color="#fbbaba"
-                   :notch="[true, true, true, true]"/>
+                   :notch="[true, true, true, true]">
+          </w-plate>
         </template>
       </div>
     </template>
@@ -21,6 +22,7 @@
 
 <script>
 import WPlate from '@/widgets/Plate'
+import { throttle, debounce } from 'lodash'
 export default {
   name: 'ChatQueue',
   components: { WPlate },
@@ -51,19 +53,38 @@ export default {
     ]
     return {
       queue: demoQueue,
-      selectedEntryIndex: demoQueue.length - 1 // 0 = first on array/dom
+      selectedEntryIndex: demoQueue.length - 1, // 0 = first on array/ second on dom (due to spacer not counting)
+      scrolling: false,
+      scrollingUnlockTimeWindow: 600,
+      scrollingTimeStamp: 0
     }
   },
   computed: {
   },
   mounted: function () {
+    this.onScrollThrottled = throttle(this.onScroll, 50, { leading: false, trailing: true })
+    this.onUserStopScrollingDebounced = debounce(this.onUserStopScrolling, 200)
     this.scrollToEntry(this.selectedEntryIndex)
   },
+  beforeUnmount: function () {
+    this.onScrollThrottled.cancel()
+    this.onScrollThrottled = undefined
+  },
   methods: {
+    getEntrySizes: function () {
+      const children = this.$refs.queue.children
+      let sizes = []
+      // always starts one more because of spacer div
+      for (let i = 1; i <= children.length - 1; ++i) {
+        sizes[i - 1] = children[i].clientHeight
+      }
+
+      return sizes
+    },
     getEntryRangeSize: function (startIndex, endIndex) {
       const children = this.$refs.queue.children
       let size = 0
-      // always one more because of spacer div
+      // always starts one more because of spacer div
       for (let i = startIndex + 1; i <= endIndex + 1; ++i) {
         size += children[i].clientHeight
       }
@@ -71,24 +92,28 @@ export default {
       return size
     },
     scrollToEntry: function (entryIndex) {
+      this.scrolling = true
       const size = this.getEntryRangeSize(entryIndex + 1, this.queue.length - 1)
       this.$refs.queue.scrollTo(0, this.$refs.queue.scrollHeight - this.$refs.queue.clientHeight - size)
       this.selectedEntryIndex = entryIndex
+      this.scrollingTimeStamp = Date.now()
     },
     onScrollUp: function () {
       if (this.selectedEntryIndex <= 0) {
-        return
+        // return
+      } else {
+        this.selectedEntryIndex -= 1
       }
 
-      this.selectedEntryIndex -= 1
       this.scrollToEntry(this.selectedEntryIndex)
     },
     onScrollDown: function () {
       if (this.selectedEntryIndex >= this.queue.length - 1) {
-        return
+        // return
+      } else {
+        this.selectedEntryIndex += 1
       }
 
-      this.selectedEntryIndex += 1
       this.scrollToEntry(this.selectedEntryIndex)
     },
     addEntry: function (entry) {
@@ -97,6 +122,36 @@ export default {
       this.$nextTick(() => {
         this.scrollToEntry(this.selectedEntryIndex)
       })
+    },
+    onScroll: function (event) {
+      // Is there a better way to know if the scroll event was triggered from a user or programmatically (scrollTo)?
+      // currently discarding scroll events when time locked by scrollToEntry
+      if (this.scrolling) {
+        if (Date.now() < (this.scrollingTimeStamp + this.scrollingUnlockTimeWindow)) {
+          return
+        } else {
+          this.scrolling = false
+        }
+      }
+
+      const element = event.target
+      this.onUserStopScrollingDebounced(element)
+    },
+    onUserStopScrolling: function (element) {
+      const fromTheBottomPosition = element.scrollHeight - (element.clientHeight + element.scrollTop)
+
+      const sizes = this.getEntrySizes()
+      let entriesStackFromBottomPosition = 0
+      let index = sizes.length - 1
+      for (; index > 0; --index) {
+        entriesStackFromBottomPosition += sizes[index]
+        if (entriesStackFromBottomPosition > fromTheBottomPosition) {
+          break
+        }
+      }
+
+      // console.log('selected entry:', index, 'fromTheBottomPosition', fromTheBottomPosition, 'entriesStackFromBottomPosition', entriesStackFromBottomPosition, 'sinzes', sizes)
+      this.scrollToEntry(index)
     }
   }
 }
@@ -104,15 +159,20 @@ export default {
 
 <style scoped>
 .queue {
-  /*overflow-y: auto;*/
-  overflow-y: hidden;
   margin-left: calc(-1px * var(--global-ss));
   margin-right: calc(1px * var(--global-ss));
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   scroll-behavior: smooth;
-  touch-action: none;
+  overflow-y: auto;
+  scrollbar-width: none; /* hides scrollbar on mozilla */
+}
+
+/* hides scrollbar on chrome/webkit */
+.queue::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
 }
 
 .landscape .queue {
