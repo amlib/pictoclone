@@ -52,14 +52,16 @@ export default {
       }
     ]
     return {
-      queue: demoQueue,
-      selectedEntryIndex: demoQueue.length - 1, // 0 = first on array/ second on dom (due to spacer not counting)
-      scrolling: false,
-      scrollingUnlockTimeWindow: 600,
-      scrollingTimeStamp: 0
+      queue: demoQueue
     }
   },
   computed: {
+  },
+  created () {
+    this.scrollingTimeStamp = 0
+    this.selectedEntryIndex = this.queue.length - 1 // 0 = first on array/ second on dom (due to spacer not counting)
+    this.scrolling = false
+    this.scrollingUnlockTimeWindow = 600
   },
   mounted: function () {
     this.onScrollThrottled = throttle(this.onScroll, 50, { leading: false, trailing: true })
@@ -69,6 +71,8 @@ export default {
   beforeUnmount: function () {
     this.onScrollThrottled.cancel()
     this.onScrollThrottled = undefined
+    this.onUserStopScrollingDebounced.cancel()
+    this.onUserStopScrollingDebounced = undefined
   },
   methods: {
     getEntrySizes: function () {

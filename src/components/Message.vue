@@ -19,6 +19,12 @@
 import WPlate from '@/widgets/Plate'
 import WDrawingCanvas from '@/widgets/DrawingCanvas'
 
+// TODO define message core dimensions elsewhere
+const width = 228
+const height = 80
+const defaultTextX = 41
+const defaultTextY = 13
+
 export default {
   name: 'Message',
   components: { WDrawingCanvas, WPlate },
@@ -35,25 +41,24 @@ export default {
     }
   },
   data: function () {
-    // TODO define message core dimensions elsewhere
-    const width = 228
-    const height = 80
-    const defaultTextX = 41
-    const defaultTextY = 13
     return {
       width,
       height,
-      defaultTextX,
-      defaultTextY,
-      mode: 'edit',
-      specialKeys: {
-        enter: () => this.keyPressEnter(),
-        backspace: () => this.keyPressBackspace(),
-        space: () => this.keyPress(' '),
-        shift: () => {},
-        caps: () => {}
-      }
+      mode: 'edit'
     }
+  },
+  created () {
+    const specialKeys = {
+      enter: () => this.keyPressEnter(),
+      backspace: () => this.keyPressBackspace(),
+      space: () => this.keyPress(' '),
+      shift: () => {},
+      caps: () => {}
+    }
+
+    this.defaultTextX = defaultTextX
+    this.defaultTextY = defaultTextY
+    this.specialKeys = specialKeys
   },
   mounted: function () {
     if (this.mode === 'edit') {

@@ -33,6 +33,70 @@ import WPlate from '@/widgets/Plate'
 import WButton from '@/widgets/Button'
 import { throttle } from 'lodash'
 
+const layouts = {
+  romaji: {
+    sections: [
+      {
+        class: 'romaji-row1',
+        keyClass: 'key-14px',
+        keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+        shiftKeys: ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+']
+      },
+      {
+        class: 'romaji-row2',
+        keyClass: 'key-15px',
+        keys: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'backspace'],
+        shiftKeys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'backspace']
+      },
+      {
+        class: 'romaji-row2',
+        keyClass: 'key-15px',
+        keys: ['caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'enter'],
+        shiftKeys: ['caps', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'enter']
+      },
+      {
+        class: 'romaji-row4',
+        keyClass: 'key-15px',
+        keys: ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+        shiftKeys: ['shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?']
+      },
+      {
+        class: 'romaji-row5',
+        keyClass: 'key-14px',
+        keys: [';', '\'', 'space', '[', ']'],
+        shiftKeys: [':', '"', 'space', '{', '}']
+      }
+    ]
+  }
+}
+
+const uniqueKeyTile = {
+  backspace: true,
+  enter: true,
+  caps: true,
+  shift: true,
+  space: true
+}
+
+const uniqueKeyIcon = {
+  backspace: true,
+  enter: true,
+  caps: true,
+  shift: true,
+  space: true
+}
+
+const uniqueKeyIconMargin = {
+  backspace: [1, 1, 1, 1],
+  enter: [1, 1, 1, 1],
+  caps: [1, 1, 1, 1],
+  shift: [1, 1, 1, 1],
+  space: [1, 29, 1, 29]
+}
+
+const uniqueKeyClass = {
+}
+
 export default {
   name: 'Keyboard',
   emits: ['keyboard-key-press', 'symbol-drag'],
@@ -45,70 +109,10 @@ export default {
   },
   data: function () {
     return {
-      layouts: {
-        romaji: {
-          sections: [
-            {
-              class: 'romaji-row1',
-              keyClass: 'key-14px',
-              keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
-              shiftKeys: ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+']
-            },
-            {
-              class: 'romaji-row2',
-              keyClass: 'key-15px',
-              keys: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'backspace'],
-              shiftKeys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'backspace']
-            },
-            {
-              class: 'romaji-row2',
-              keyClass: 'key-15px',
-              keys: ['caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'enter'],
-              shiftKeys: ['caps', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'enter']
-            },
-            {
-              class: 'romaji-row4',
-              keyClass: 'key-15px',
-              keys: ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
-              shiftKeys: ['shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?']
-            },
-            {
-              class: 'romaji-row5',
-              keyClass: 'key-14px',
-              keys: [';', '\'', 'space', '[', ']'],
-              shiftKeys: [':', '"', 'space', '{', '}']
-            }
-          ]
-        }
-      },
-      uniqueKeyTile: {
-        backspace: true,
-        enter: true,
-        caps: true,
-        shift: true,
-        space: true
-      },
-      uniqueKeyIcon: {
-        backspace: true,
-        enter: true,
-        caps: true,
-        shift: true,
-        space: true
-      },
-      uniqueKeyIconMargin: {
-        backspace: [1, 1, 1, 1],
-        enter: [1, 1, 1, 1],
-        caps: [1, 1, 1, 1],
-        shift: [1, 1, 1, 1],
-        space: [1, 29, 1, 29]
-      },
-      uniqueKeyClass: {
-      },
       shifting: false,
       capsLocked: false,
       draggingSymbol: null,
-      draggingEvent: null,
-      draggingCapturedElement: null
+      draggingEvent: null
     }
   },
   computed: {
@@ -124,7 +128,19 @@ export default {
     }
   },
   created: function () {
+    this.layouts = layouts
+    this.uniqueKeyTile = uniqueKeyTile
+    this.uniqueKeyIcon = uniqueKeyIcon
+    this.uniqueKeyIconMargin = uniqueKeyIconMargin
+    this.uniqueKeyClass = uniqueKeyClass
+  },
+  mounted: function () {
+    this.draggingCapturedElement = null
     this.throttledPointerMove = throttle(this.pointerMove, 16, { leading: true })
+  },
+  beforeUnmount: function () {
+    this.throttledPointerMove.cancel()
+    this.throttledPointerMove = undefined
   },
   methods: {
     keyPress: function (key) {

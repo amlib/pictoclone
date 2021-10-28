@@ -74,6 +74,11 @@ import Keyboard from '@/components/Keyboard'
 import { throttle } from 'lodash'
 import ChatQueue from '@/components/ChatQueue'
 
+const brushSizes = {
+  'brush-big': 2,
+  'brush-small': 1
+}
+
 export default {
   name: 'Chat',
   components: { ChatQueue, Keyboard, Message, WButtonToggle, WPlate, WButton },
@@ -82,11 +87,6 @@ export default {
       keyboardMode: 'romaji',
       selectedTool: 'brush',
       brushSize: 'brush-big',
-      brushSizes: {
-        'brush-big': 2,
-        'brush-small': 1
-      },
-      documentObserver: null,
       documentHeight: 1,
       documentWidth: 1
     }
@@ -97,6 +97,9 @@ export default {
         height: this.$global.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined
       }
     }
+  },
+  created () {
+    this.brushSizes = brushSizes
   },
   mounted: function () {
     this.onResizeThrottled = throttle(this.onResize, 16, { leading: false, trailing: true })
@@ -117,7 +120,7 @@ export default {
       this.$refs['user-message'].symbolDrop(payload)
     },
     onResize: function () {
-      // WARNING offsetHeight and offsetWidth returned by document.firstElementCHild may be
+      // WARNING offsetHeight and offsetWidth returned by document.firstElementChild may be
       // different from the one returned on App.vue when css scale is in effect
       this.documentHeight = document.firstElementChild.offsetHeight
       this.documentWidth = document.firstElementChild.offsetWidth

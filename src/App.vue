@@ -10,6 +10,10 @@
 <script>
 import { throttle } from 'lodash'
 
+const portraitConstrainRatio = 8 / 9
+const landscapeBreakpointRatio = 18 / 9
+const landscapeConstrainRatio = 24 / 9
+
 export default {
   name: 'App',
   data: function () {
@@ -22,18 +26,16 @@ export default {
       // renderingClass: 'rendering-pixel', // should be used with no super sampling
       renderingClass: 'quality', // use super sampling 2x or 3x with this
       patchingTiles: true, // kludge for "glitchyness" when changing tiles
-      documentObserver: null,
-      viewObserver: null,
       documentWidth: 1,
       documentHeight: 1,
       viewWidth: 1,
-      viewHeight: 1,
-      portraitConstrainRatio: 8 / 9,
-      landscapeBreakpointRatio: 18 / 9,
-      landscapeConstrainRatio: 24 / 9
+      viewHeight: 1
     }
   },
   created: function () {
+    this.portraitConstrainRatio = portraitConstrainRatio
+    this.landscapeBreakpointRatio = landscapeBreakpointRatio
+    this.landscapeConstrainRatio = landscapeConstrainRatio
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
     // Since we get reactive across the entire app... uncomment for RGB mode lol
     // setInterval(() => { this.globalValues.colorHueDeg += 15 }, 50)

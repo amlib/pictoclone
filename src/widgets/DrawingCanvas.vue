@@ -7,6 +7,13 @@
 </template>
 
 <script>
+
+const brushType = 'brush-normal'
+const brushes = [
+  'brush-normal-1px',
+  'brush-normal-2px'
+]
+
 export default {
   name: 'WDrawingCanvas',
   emits: ['text-buffer-line-break-aborted'],
@@ -60,20 +67,10 @@ export default {
   },
   data: function () {
     return {
-      canvasContext: null,
-      canvasBufferContext: null,
-      painting: false,
-      stroking: false,
       beginPosition: { x: 0, y: 0 },
-      brushType: 'brush-normal',
-      brushes: [
-        'brush-normal-1px',
-        'brush-normal-2px'
-      ],
-      textBuffer: [],
-      textBufferLineOffsets: [],
-      textX: 0,
-      textY: 0
+      brushType: brushType,
+      brushes: brushes,
+      textBuffer: []
     }
   },
   computed: {
@@ -108,6 +105,13 @@ export default {
     textBufferLastLineY: function () {
       return this.textY + (this.lineHeight * (this.textBuffer.length - 1))
     }
+  },
+  created: function () {
+    this.painting = false
+    this.stroking = false
+    this.textBufferLineOffsets = []
+    this.textX = 0
+    this.textY = 0
   },
   mounted: function () {
     this.canvasContext = this.$refs.canvas.getContext('2d')
