@@ -11,7 +11,7 @@
         </template>
         <template v-else-if="entry.type === 'message'">
           <w-plate class="queue-entry" normal-tile="main-drawing-area" style="height: calc(30px * var(--global-ss))"
-                   :stripe-mode="2" stripe-color="#fbbaba"
+                   :stripe-mode="2"
                    :notch="[true, true, true, true]">
           </w-plate>
         </template>

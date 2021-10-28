@@ -6,13 +6,13 @@
        @pointerdown="clickFeedback ? onPointerDown() : null"
        @pointerup="clickFeedback ? onPointerUp() : null">
     <template v-if="mode === 'scale'">
-      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="scaledPlateStyle"/>
-      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" v-if="stripeMode" :style="scaledModeStripeStyle"/>
+      <div :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '' ]" :style="scaledPlateStyle"/>
+      <div v-if="stripeMode" :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '', 'scaled-mode-stripe-' + stripeMode ]" :style="scaledModeStripeStyle"/>
     </template>
     <template v-else-if="mode === 'tile'">
-      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="tiledStraightTBSlices"></div>
-      <div :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="tiledStraightLRSlices"></div>
-      <div v-if="!noBorders" :class="[ 'plate-slice', globalTint ? 'globalColorHueTint' : '' ]" :style="tiledCornerSlices"></div>
+      <div :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '' ]" :style="tiledStraightTBSlices"></div>
+      <div :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '' ]" :style="tiledStraightLRSlices"></div>
+      <div v-if="!noBorders" :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '' ]" :style="tiledCornerSlices"></div>
     </template>
     <slot></slot>
   </div>
@@ -80,11 +80,6 @@ export default {
       type: Number,
       required: false,
       default: null
-    },
-    stripeColor: {
-      type: String,
-      required: false,
-      defaults: '#bababa'
     }
   },
   data: function () {
@@ -117,27 +112,10 @@ export default {
       }
     },
     scaledModeStripeStyle: function () {
-      const ss = this.$global.superSample
       const obj = {}
 
       if (this.colorHueDeg != null) {
         obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
-
-      if (this.stripeMode === 1) {
-        obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 4}px, ${this.stripeColor} ${ss * 4}px, ${this.stripeColor} ${ss * 5}px, transparent ${ss * 5}px, transparent ${ss * 8}px)`
-        obj.backgroundPosition = 'bottom'
-        obj.backgroundRepeat = 'repeat-y'
-        obj.backgroundSize = `calc(100% - ${ss * 2}px) ${ss * 8}px`
-        obj.top = `${ss * 4}px`
-        obj.bottom = `${ss * 4}px`
-      } else if (this.stripeMode === 2) {
-        obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 16}px, ${this.stripeColor} ${ss * 16}px, ${this.stripeColor} ${ss * 17}px, transparent ${ss * 17}px, transparent ${ss * 32}px)`
-        obj.backgroundPosition = 'top'
-        obj.backgroundRepeat = 'repeat-y'
-        obj.backgroundSize = `calc(100% - ${ss * 6}px) ${ss * 32 - 1}px`
-        obj.top = `${ss * 4}px`
-        obj.bottom = `${ss * 4}px`
       }
 
       return obj
@@ -230,15 +208,15 @@ export default {
       }
 
       if (this.stripeMode === 1) {
-        obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 4}px, ${this.stripeColor} ${ss * 4}px, ${this.stripeColor} ${ss * 5}px, transparent ${ss * 5}px, transparent ${ss * 8}px)`
+        obj.backgroundImage = 'linear-gradient(0deg, #bababa calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 4px), #bababa calc(var(--global-ss) * 4px), #bababa calc(var(--global-ss) * 5px), transparent calc(var(--global-ss) * 5px), transparent calc(var(--global-ss) * 8px))'
         obj.backgroundPosition = 'bottom'
         obj.backgroundRepeat = 'repeat-y'
-        obj.backgroundSize = `calc(100% - ${ss * 2}px) ${ss * 8}px, auto, auto`
+        obj.backgroundSize = 'calc(100% - calc(var(--global-ss) * 2px)) calc(var(--global-ss) * 8px), auto, auto'
       } else if (this.stripeMode === 2) {
-        obj.backgroundImage = `linear-gradient(0deg, ${this.stripeColor} ${ss}px, transparent ${ss}px, transparent ${ss * 16}px, ${this.stripeColor} ${ss * 16}px, ${this.stripeColor} ${ss * 17}px, transparent ${ss * 17}px, transparent ${ss * 32}px)`
+        obj.backgroundImage = 'linear-gradient(0deg, #fbbaba calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 32px))'
         obj.backgroundPosition = 'top'
         obj.backgroundRepeat = 'repeat-y'
-        obj.backgroundSize = `calc(100% - ${ss * 6}px) ${ss * 32 - 1}px, auto, auto`
+        obj.backgroundSize = 'calc(100% - calc(var(--global-ss) * 6px)) calc(var(--global-ss) * 32px - 1px), auto, auto'
       }
 
       if (!this.noBorders) {
@@ -360,4 +338,36 @@ export default {
 .rendering-quality .plate-slice {
   image-rendering: high-quality;
 }
+
+.scaled-mode-stripe-1 {
+  background-image: linear-gradient(0deg, #bababa calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 4px), #bababa calc(var(--global-ss) * 4px), #bababa calc(var(--global-ss) * 5px), transparent calc(var(--global-ss) * 5px), transparent calc(var(--global-ss) * 8px));
+  background-position: bottom;
+  background-repeat: repeat-y;
+  background-size: calc(100% - (var(--global-ss) * 2px)) calc(var(--global-ss) * 8px);
+  top: calc(var(--global-ss) * 4px);
+  bottom: calc(var(--global-ss) * 4px);
+}
+
+.scaled-mode-stripe-2 {
+  background-image: linear-gradient(0deg, #fbbaba calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 32px));
+  background-position: top;
+  background-repeat: repeat-y;
+  background-size: calc(100% - (var(--global-ss) * 6px)) calc(var(--global-ss) * 32px - 1px);
+  top: calc(var(--global-ss) * 4px);
+  bottom: calc(var(--global-ss) * 4px);
+}
+
+/*.tiled-mode-stripe-1 {*/
+/*  background-image: linear-gradient(0deg, #bababa calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 4px), #bababa calc(var(--global-ss) * 4px), #bababa calc(var(--global-ss) * 5px), transparent calc(var(--global-ss) * 5px), transparent calc(var(--global-ss) * 8px));*/
+/*  background-position: bottom;*/
+/*  background-repeat: repeat-y;*/
+/*  background-size: calc(100% - calc(var(--global-ss) * 2px)) calc(var(--global-ss) * 8px), auto, auto;*/
+/*}*/
+
+/*.tiled-mode-stripe-2 {*/
+/*  background-image: linear-gradient(0deg, #fbbaba calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 32px));*/
+/*  background-position: top;*/
+/*  background-repeat: repeat-y;*/
+/*  background-size: calc(100% - calc(var(--global-ss) * 6px)) calc(var(--global-ss) * 32px - 1px), auto, auto;*/
+/*}*/
 </style>

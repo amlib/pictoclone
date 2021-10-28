@@ -146,7 +146,7 @@ body {
   height: 100%;
 }
 
-.globalColorHueTint {
+.global-color-hue-tint {
   filter: hue-rotate(var(--global-chd));
 }
 

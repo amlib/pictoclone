@@ -5,7 +5,7 @@
              :no-borders="noBorders" :padding="padding != null ? padding : 1" class="button-plate"
              @hovering="val => hovering = val" @clicking="val => clicking = val">
       <img v-if="icon" draggable="false"
-           :class="[ 'image', globalTint ? 'globalColorHueTint' : '' ]"
+           :class="[ 'image', globalTint ? 'global-color-hue-tint' : '' ]"
            :src="iconImageSrc" :style="iconStyle"/>
       <slot></slot>
     </w-plate>
