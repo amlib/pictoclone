@@ -11,6 +11,7 @@
 
 <script>
 import { throttle } from 'lodash'
+import { computed } from 'vue'
 
 const portraitConstrainRatio = 8 / 9
 const landscapeBreakpointRatio = 18 / 9
@@ -24,7 +25,8 @@ export default {
         colorHueDeg: 220,
         superSample: this.$superSample,
         autoScale: true,
-        mobileAssists: true
+        mobileAssists: true,
+        isLandscape: computed(() => this.isLandscape)
       },
       // renderingClass: 'rendering-pixel', // should be used with no super sampling
       renderingClass: 'rendering-quality', // use super sampling 2x or 3x with this
@@ -49,6 +51,7 @@ export default {
     // }, 1500)
   },
   mounted: function () {
+    this.$.root.appContext.config.globalProperties.$isLandscape = this.isLandscape
     this.onResizeThrottled = throttle(this.onResize, 16, { leading: false, trailing: true })
     this.documentObserver = new ResizeObserver(this.onResizeThrottled).observe(document.firstElementChild)
     this.viewObserver = new ResizeObserver(this.onResizeThrottled).observe(this.$refs.view)

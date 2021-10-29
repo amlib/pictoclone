@@ -16,6 +16,7 @@ module.exports = {
     'no-unused-vars': 'warn',
     'prefer-const': 'warn',
     'comma-dangle': 'warn',
-    'object-property-newline': 'off'
+    'object-property-newline': 'off',
+    'vue/no-unused-components': 'warn'
   }
 }

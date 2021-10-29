@@ -6,28 +6,7 @@
         <w-button class="closer" icon="arrow-down" :padding="0" no-borders @click="onScrollDown"/>
       </div>
       <div class="separator landscape-hide"></div>
-      <w-button-toggle v-model="selectedTool" class="button-bar-wrapper landscape-hide"
-      :common-options="{ class: 'closer', 'no-borders': true }"
-      :options="[
-        { icon: 'brush', name: 'brush' },
-        { icon: 'eraser', name: 'eraser' }]">
-      </w-button-toggle>
-      <w-button-toggle v-model="brushSize" class="button-bar-wrapper landscape-hide"
-        :common-options="{ class: 'closer', 'no-borders': true }"
-        :options="[
-        { icon: 'brush-big', name: 'brush-big' },
-        { icon: 'brush-small', name: 'brush-small' }]">
-      </w-button-toggle>
-      <div class="separator landscape-hide"></div>
-      <w-button-toggle v-model="keyboardMode" class="button-bar-wrapper landscape-hide"
-      :common-options="{ notch: [true, false, false, false] }"
-      :options="[
-        { icon: 'romaji', name: 'romaji' },
-        { icon: 'accents', name: 'accents' },
-        { icon: 'kana', name: 'kana' },
-        { icon: 'symbols1', name: 'symbols1' },
-        { icon: 'symbols2', name: 'symbols2' }]">
-      </w-button-toggle>
+      <div v-if="!$global.isLandscape" ref="buttons-mount"></div>
     </div>
     <div class="main-wrapper">
       <div class="main-queue-container">
@@ -38,28 +17,7 @@
         </w-plate>
       </div>
       <div class="button-bar portrait-hide">
-        <w-button-toggle v-model="selectedTool" class="button-bar-wrapper"
-                         :common-options="{ class: 'closer', 'no-borders': true }"
-                         :options="[
-        { icon: 'brush', name: 'brush' },
-        { icon: 'eraser', name: 'eraser' }]">
-        </w-button-toggle>
-        <w-button-toggle v-model="brushSize" class="button-bar-wrapper"
-                         :common-options="{ class: 'closer', 'no-borders': true }"
-                         :options="[
-        { icon: 'brush-big', name: 'brush-big' },
-        { icon: 'brush-small', name: 'brush-small' }]">
-        </w-button-toggle>
-        <div class="separator"></div>
-        <w-button-toggle v-model="keyboardMode" class="button-bar-wrapper"
-                         :common-options="{ notch: [true, false, false, false] }"
-                         :options="[
-        { icon: 'romaji', name: 'romaji' },
-        { icon: 'accents', name: 'accents' },
-        { icon: 'kana', name: 'kana' },
-        { icon: 'symbols1', name: 'symbols1' },
-        { icon: 'symbols2', name: 'symbols2' }]">
-        </w-button-toggle>
+        <div v-if="$global.isLandscape" ref="buttons-mount"></div>
       </div>
       <div class="main-interface-container">
         <w-plate class="main-interface-wrapper" normal-tile="main-background"
@@ -86,6 +44,30 @@
         </w-plate>
       </div>
     </div>
+    <teleport v-if="mounted" :to="$refs['buttons-mount']">
+      <w-button-toggle v-model="selectedTool" class="button-bar-wrapper"
+                       :common-options="{ class: 'closer', 'no-borders': true }"
+                       :options="[
+        { icon: 'brush', name: 'brush' },
+        { icon: 'eraser', name: 'eraser' }]">
+      </w-button-toggle>
+      <w-button-toggle v-model="brushSize" class="button-bar-wrapper"
+                       :common-options="{ class: 'closer', 'no-borders': true }"
+                       :options="[
+        { icon: 'brush-big', name: 'brush-big' },
+        { icon: 'brush-small', name: 'brush-small' }]">
+      </w-button-toggle>
+      <div class="separator"></div>
+      <w-button-toggle v-model="keyboardMode" class="button-bar-wrapper"
+                       :common-options="{ notch: [true, false, false, false] }"
+                       :options="[
+        { icon: 'romaji', name: 'romaji' },
+        { icon: 'accents', name: 'accents' },
+        { icon: 'kana', name: 'kana' },
+        { icon: 'symbols1', name: 'symbols1' },
+        { icon: 'symbols2', name: 'symbols2' }]">
+      </w-button-toggle>
+    </teleport>
   </div>
 </template>
 
@@ -109,11 +91,18 @@ export default {
     return {
       keyboardMode: 'romaji',
       selectedTool: 'brush',
-      brushSize: 'brush-big'
+      brushSize: 'brush-big',
+      mounted: false // is there a better way?
     }
   },
   created () {
     this.brushSizes = brushSizes
+  },
+  mounted: function () {
+    this.mounted = true
+  },
+  beforeUnmount: function () {
+    this.mounted = false
   },
   methods: {
     handleKeyPress: function (key) {
@@ -229,7 +218,6 @@ export default {
 }
 
 .landscape .main-queue-container {
-  margin-right: calc(2px * var(--global-ss));
   margin-bottom: calc(4px * var(--global-ss));
   margin-top: calc(-4px * var(--global-ss));
 }
@@ -261,7 +249,6 @@ export default {
 }
 
 .landscape .main-interface-container {
-  margin-left: calc(2px * var(--global-ss));
   margin-top: calc(-8px * var(--global-ss));
 }
 
