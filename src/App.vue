@@ -1,11 +1,11 @@
 <template>
   <div :class="['view',
       this.renderingClass,
-      this.isLandscape ? 'landscape' : undefined,
+      this.isLandscape ? 'landscape' : 'portrait',
       this.globalValues.autoScale ? undefined : 'no-scale',
       this.globalValues.mobileAssists ? 'mobile-assists' : undefined]"
-       :style="getViewStyle" ref="view">
-    <router-view/>
+       :style="getAppStyle" ref="view">
+    <router-view :style="getViewStyle"/>
   </div>
 </template>
 
@@ -14,7 +14,7 @@ import { throttle } from 'lodash'
 
 const portraitConstrainRatio = 8 / 9
 const landscapeBreakpointRatio = 18 / 9
-const landscapeConstrainRatio = 24 / 9
+const landscapeConstrainRatio = 26 / 9
 
 export default {
   name: 'App',
@@ -76,6 +76,11 @@ export default {
       }
     },
     getViewStyle: function () {
+      return {
+        height: this.$global.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined
+      }
+    },
+    getAppStyle: function () {
       const marginCompensation = (this.documentWidth - (this.viewWidth * this.getScalingFactor)) / 2
       const obj = {
         '--global-chd': this.globalValues.colorHueDeg + 'deg',

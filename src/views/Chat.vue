@@ -1,25 +1,25 @@
 <template>
-  <div class="main" :style="mainStyle">
-    <div class="main-button-bar">
-      <div class="main-button-bar-wrapper">
+  <div class="main">
+    <div class="button-bar">
+      <div class="button-bar-wrapper">
         <w-button class="closer" icon="arrow-up" :padding="0" no-borders @click="onScrollUp"/>
         <w-button class="closer" icon="arrow-down" :padding="0" no-borders @click="onScrollDown"/>
       </div>
-      <div class="separator"></div>
-      <w-button-toggle v-model="selectedTool" class="main-button-bar-wrapper"
+      <div class="separator landscape-hide"></div>
+      <w-button-toggle v-model="selectedTool" class="button-bar-wrapper landscape-hide"
       :common-options="{ class: 'closer', 'no-borders': true }"
       :options="[
         { icon: 'brush', name: 'brush' },
         { icon: 'eraser', name: 'eraser' }]">
       </w-button-toggle>
-      <w-button-toggle v-model="brushSize" class="main-button-bar-wrapper"
+      <w-button-toggle v-model="brushSize" class="button-bar-wrapper landscape-hide"
         :common-options="{ class: 'closer', 'no-borders': true }"
         :options="[
         { icon: 'brush-big', name: 'brush-big' },
         { icon: 'brush-small', name: 'brush-small' }]">
       </w-button-toggle>
-      <div class="separator"></div>
-      <w-button-toggle v-model="keyboardMode" class="main-button-bar-wrapper"
+      <div class="separator landscape-hide"></div>
+      <w-button-toggle v-model="keyboardMode" class="button-bar-wrapper landscape-hide"
       :common-options="{ notch: [true, false, false, false] }"
       :options="[
         { icon: 'romaji', name: 'romaji' },
@@ -36,6 +36,30 @@
                  :stripe-mode=1 stripe-color="#bababa">
           <chat-queue ref="queue"/>
         </w-plate>
+      </div>
+      <div class="button-bar portrait-hide">
+        <w-button-toggle v-model="selectedTool" class="button-bar-wrapper"
+                         :common-options="{ class: 'closer', 'no-borders': true }"
+                         :options="[
+        { icon: 'brush', name: 'brush' },
+        { icon: 'eraser', name: 'eraser' }]">
+        </w-button-toggle>
+        <w-button-toggle v-model="brushSize" class="button-bar-wrapper"
+                         :common-options="{ class: 'closer', 'no-borders': true }"
+                         :options="[
+        { icon: 'brush-big', name: 'brush-big' },
+        { icon: 'brush-small', name: 'brush-small' }]">
+        </w-button-toggle>
+        <div class="separator"></div>
+        <w-button-toggle v-model="keyboardMode" class="button-bar-wrapper"
+                         :common-options="{ notch: [true, false, false, false] }"
+                         :options="[
+        { icon: 'romaji', name: 'romaji' },
+        { icon: 'accents', name: 'accents' },
+        { icon: 'kana', name: 'kana' },
+        { icon: 'symbols1', name: 'symbols1' },
+        { icon: 'symbols2', name: 'symbols2' }]">
+        </w-button-toggle>
       </div>
       <div class="main-interface-container">
         <w-plate class="main-interface-wrapper" normal-tile="main-background"
@@ -71,7 +95,6 @@ import WPlate from '@/widgets/Plate'
 import WButtonToggle from '@/widgets/ButtonToggle'
 import Message from '@/components/Message'
 import Keyboard from '@/components/Keyboard'
-import { throttle } from 'lodash'
 import ChatQueue from '@/components/ChatQueue'
 
 const brushSizes = {
@@ -86,31 +109,11 @@ export default {
     return {
       keyboardMode: 'romaji',
       selectedTool: 'brush',
-      brushSize: 'brush-big',
-      documentHeight: 1,
-      documentWidth: 1
-    }
-  },
-  computed: {
-    mainStyle: function () {
-      return {
-        height: this.$global.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined
-      }
+      brushSize: 'brush-big'
     }
   },
   created () {
     this.brushSizes = brushSizes
-  },
-  mounted: function () {
-    this.onResizeThrottled = throttle(this.onResize, 16, { leading: false, trailing: true })
-    this.documentObserver = new ResizeObserver(this.onResizeThrottled).observe(document.firstElementChild)
-  },
-  beforeUnmount: function () {
-    if (this.documentObserver) {
-      this.documentObserver.unobserve(document.firstElementChild.offsetWidth)
-    }
-    this.onResizeThrottled.cancel()
-    this.onResizeThrottled = undefined
   },
   methods: {
     handleKeyPress: function (key) {
@@ -118,12 +121,6 @@ export default {
     },
     handleSymbolDrag: function (payload) {
       this.$refs['user-message'].symbolDrop(payload)
-    },
-    onResize: function () {
-      // WARNING offsetHeight and offsetWidth returned by document.firstElementChild may be
-      // different from the one returned on App.vue when css scale is in effect
-      this.documentHeight = document.firstElementChild.offsetHeight
-      this.documentWidth = document.firstElementChild.offsetWidth
     },
     onScrollUp: function () {
       this.$refs.queue.onScrollUp()
@@ -153,44 +150,54 @@ export default {
   height: 100%;
 }
 
-/* main-button-bar */
+.landscape .landscape-hide {
+  display: none;
+  visibility: collapse;
+}
 
-.main-button-bar {
+.portrait .portrait-hide {
+  display: none;
+  visibility: collapse;
+}
+
+/* button-bar */
+
+.button-bar {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 
-.main-button-bar-wrapper {
+.button-bar-wrapper {
   display: flex;
   flex-direction: column;
   row-gap: calc(1px * var(--global-ss));
 }
 
-.main-button-bar > .separator {
+.button-bar > .separator {
   min-height: calc(1px * var(--global-ss));
   background-image: linear-gradient(90deg, #ffffff 25%, #494949 25%, #494949 50%, #ffffff 50%, #ffffff 75%, #494949 75%, #494949 100%);
   background-size: calc(4px * var(--global-ss)) calc(4px * var(--global-ss));
 }
 
 /* also non scoped version */
-.main-button-bar-wrapper > button {
+.button-bar-wrapper > button {
   display: block;
   margin: calc(1px * var(--global-ss)) calc(2px * var(--global-ss));
 }
 
 /* also non scoped version */
-.main-button-bar-wrapper > button:first-child {
+.button-bar-wrapper > button:first-child {
   margin-top: calc(3px * var(--global-ss));
 }
 
 /* also non scoped version */
-.main-button-bar-wrapper > button:last-child {
+.button-bar-wrapper > button:last-child {
   margin-bottom: calc(3px * var(--global-ss));
 }
 
 /* also non scoped version */
-.main-button-bar-wrapper > .closer {
+.button-bar-wrapper > .closer {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -294,20 +301,20 @@ export default {
 </style>
 
 <style>
-.main-button-bar-wrapper > button {
+.button-bar-wrapper > button {
   display: block;
   margin: calc(1px * var(--global-ss)) calc(2px * var(--global-ss));
 }
 
-.main-button-bar-wrapper > button:first-child {
+.button-bar-wrapper > button:first-child {
   margin-top: calc(3px * var(--global-ss));
 }
 
-.main-button-bar-wrapper > button:last-child {
+.button-bar-wrapper > button:last-child {
   margin-bottom: calc(3px * var(--global-ss));
 }
 
-.main-button-bar-wrapper > .closer {
+.button-bar-wrapper > .closer {
   margin-top: 0;
   margin-bottom: 0;
 }
