@@ -206,25 +206,36 @@ export default {
   padding-bottom: calc(1px * var(--global-ss));
 }
 
+/* z-index necessary for key mobile-assits to work */
 .romaji-row1 {
   display: flex;
   flex-direction: row;
-  margin-left: calc(3px * var(--global-ss))
+  margin-left: calc(3px * var(--global-ss));
+  z-index: 4;
 }
 .romaji-row2 {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  z-index: 3;
+}
+.romaji-row3 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  z-index: 2;
 }
 .romaji-row4 {
   display: flex;
   flex-direction: row;
+  z-index: 1;
 }
 .romaji-row5 {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  margin-left: calc(12px * var(--global-ss))
+  margin-left: calc(12px * var(--global-ss));
+  z-index: 0;
 }
 
 .key-14px {
@@ -250,6 +261,16 @@ export default {
   line-height: calc(14px * var(--global-ss));
 }
 
+/* dilates keys bounds for better mobile typing assists */
+.mobile-assists .text {
+  position: absolute;
+  top: calc(-2px * var(--global-ss));
+  left: calc(-1px * var(--global-ss));
+  right: calc(-1px * var(--global-ss));
+  bottom: calc(-4px * var(--global-ss));
+  /*background-color: rgba(255,0,0,0.2);*/
+}
+
 .symbol-drag-box {
   pointer-events: none;
   user-select: none;
@@ -259,7 +280,7 @@ export default {
   width: 0;
   display: flex;
   justify-content: center;
-
+  z-index: 10;
 }
 
 .symbol-box-balloon {

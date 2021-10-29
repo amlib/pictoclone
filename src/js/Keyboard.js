@@ -14,7 +14,7 @@ const layouts = {
         shiftKeys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'backspace']
       },
       {
-        class: 'romaji-row2',
+        class: 'romaji-row3',
         keyClass: 'key-15px',
         keys: ['caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'enter'],
         shiftKeys: ['caps', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'enter']

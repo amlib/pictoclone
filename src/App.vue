@@ -1,7 +1,9 @@
 <template>
-  <div :class="['view', this.renderingClass,
+  <div :class="['view',
+      this.renderingClass,
       this.isLandscape ? 'landscape' : undefined,
-      this.globalValues.autoScale ? undefined : 'no-scale']"
+      this.globalValues.autoScale ? undefined : 'no-scale',
+      this.globalValues.mobileAssists ? 'mobile-assists' : undefined]"
        :style="getViewStyle" ref="view">
     <router-view/>
   </div>
