@@ -10,10 +10,7 @@
           </w-plate>
         </template>
         <template v-else-if="entry.type === 'message'">
-          <w-plate class="queue-entry" normal-tile="main-drawing-area" style="height: calc(30px * var(--global-ss))"
-                   :stripe-mode="2"
-                   :notch="[true, true, true, true]">
-          </w-plate>
+          <message :message-payload="entry.payload"/>
         </template>
       </div>
     </template>
@@ -23,9 +20,10 @@
 <script>
 import WPlate from '@/widgets/Plate'
 import { throttle, debounce } from 'lodash'
+import Message from '@/components/Message'
 export default {
   name: 'ChatQueue',
-  components: { WPlate },
+  components: { Message, WPlate },
   data: function () {
     const demoQueue = [
       {
@@ -33,10 +31,6 @@ export default {
         payload: {
           text: 'Welcome to PICTOCLONE ☸'
         }
-      },
-      {
-        type: 'message',
-        payload: null
       },
       {
         type: 'notification',
@@ -156,6 +150,10 @@ export default {
 
       // console.log('selected entry:', index, 'fromTheBottomPosition', fromTheBottomPosition, 'entriesStackFromBottomPosition', entriesStackFromBottomPosition, 'sinzes', sizes)
       this.scrollToEntry(index)
+    },
+    getSelectedMessage: function () {
+      const entry = this.queue[this.selectedEntryIndex]
+      return (entry && entry.type === 'message') ? entry.payload : null
     }
   }
 }
@@ -163,8 +161,8 @@ export default {
 
 <style scoped>
 .queue {
-  margin-left: calc(-1px * var(--global-ss));
-  margin-right: calc(1px * var(--global-ss));
+  margin-right: calc(2px * var(--global-ss));
+  margin-bottom: calc(-1px * var(--global-ss));
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -180,8 +178,7 @@ export default {
 }
 
 .landscape .queue {
-  margin-left: calc(-2px * var(--global-ss));
-  margin-right: calc(-2px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
 }
 
 .queue-spacer {
@@ -192,7 +189,7 @@ export default {
 .queue-entry {
   display: block;
   color: gray;
-  margin: calc(1px * var(--global-ss)) calc(1px * var(--global-ss));
+  margin: calc(1px * var(--global-ss)) 0;
   min-height: calc(12px * var(--global-ss));
 }
 

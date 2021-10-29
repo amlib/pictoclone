@@ -1,16 +1,14 @@
 <template>
   <w-plate class="message-area" normal-tile="main-drawing-area"
            :notch="[true, true, true, true]"
-           :stripe-mode=2 global-tint>
-    <w-drawing-canvas v-if="mode === 'edit'" :width="width" :height="height" ref="drawing"
+           :stripe-mode="edit ? 2 : null" global-tint>
+    <w-drawing-canvas v-if="edit" :width="messagePayload.width" :height="messagePayload.height" ref="drawing"
       class="drawing-area" :target-width="targetWidth" :target-height="targetHeight"
       :tool="selectedTool" :brush-size="brushSize" text-font="10px NDS12" :line-height="16"/>
-    <div v-else-if="mode === 'view'" class="drawing-area"
-         :style="{ width: targetWidth + 'px', height: targetHeight +'px' }">
-    </div>
-    <w-plate class="message-area-user-tag" normal-tile="main-color-background"
-             :notch="[true, false, true, false]" global-tint>
-      <div class="global-color-hue-tint">user...</div>
+    <div v-else class="drawing-area drawing-area-show pixel-rendering" :style="getViewStyle"/>
+    <w-plate :class="[isMessageOneSegment ? 'fill' : '', 'message-area-user-tag']" normal-tile="main-color-background"
+             :notch="[true, false, true, isMessageOneSegment]" global-tint>
+      <div class="global-color-hue-tint">{{ messagePayload.user }}</div>
     </w-plate>
   </w-plate>
 </template>
@@ -18,12 +16,7 @@
 <script>
 import WPlate from '@/widgets/Plate'
 import WDrawingCanvas from '@/widgets/DrawingCanvas'
-
-// TODO define message core dimensions elsewhere
-const width = 228
-const height = 80
-const defaultTextX = 41
-const defaultTextY = 13
+import { defaultTextX, defaultTextY, messageVerticalSegmentSize } from '@/js/Message'
 
 export default {
   name: 'Message',
@@ -38,13 +31,21 @@ export default {
       type: Number,
       required: false,
       default: null
+    },
+    messagePayload: {
+      type: Object,
+      required: false,
+      default: () => {}
+    },
+    edit: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data: function () {
     return {
-      width,
-      height,
-      mode: 'edit'
+      messageVerticalSegmentSize
     }
   },
   created () {
@@ -61,16 +62,26 @@ export default {
     this.specialKeys = specialKeys
   },
   mounted: function () {
-    if (this.mode === 'edit') {
+    if (this.edit) {
       this.$refs.drawing.textBufferSetStart(this.defaultTextX, this.defaultTextY)
     }
   },
   computed: {
+    isMessageOneSegment: function () {
+      return this.messagePayload.height <= messageVerticalSegmentSize
+    },
     targetWidth: function () {
-      return this.width * this.$global.superSample
+      return this.messagePayload.width * this.$global.superSample
     },
     targetHeight: function () {
-      return this.height * this.$global.superSample
+      return this.messagePayload.height * this.$global.superSample
+    },
+    getViewStyle: function () {
+      return {
+        width: `calc(${this.messagePayload.width}px * var(--global-ss))`,
+        height: `calc(${this.messagePayload.height}px * var(--global-ss))`,
+        backgroundImage: `url(${this.messagePayload.url})`
+      }
     }
   },
   methods: {
@@ -83,6 +94,41 @@ export default {
     textMerge: function () {
       this.$refs.drawing.textBufferMerge()
       this.$refs.drawing.textBufferSetStart(this.defaultTextX, this.defaultTextY)
+    },
+    getMessage: async function () {
+      this.textMerge()
+      const imageBounds = this.$refs.drawing.getImageBounds()
+
+      if (imageBounds.boundsTop === imageBounds.boundsBottom) {
+        throw new Error('empty')
+      }
+
+      // round cropping to segments
+      imageBounds.boundsTop = Math.floor(imageBounds.boundsTop / this.messageVerticalSegmentSize) * this.messageVerticalSegmentSize
+      imageBounds.boundsBottom = Math.ceil((imageBounds.boundsBottom + 1) / this.messageVerticalSegmentSize) * this.messageVerticalSegmentSize
+      imageBounds.boundsLeft = 0
+      imageBounds.boundsRight = imageBounds.imageWidth
+
+      // avoids cropped image from being obstructed by user tag
+      if (imageBounds.boundsTop >= this.messageVerticalSegmentSize) {
+        imageBounds.boundsTop = imageBounds.boundsTop - this.messageVerticalSegmentSize
+      }
+
+      const imagePayload = await this.$refs.drawing.getImage({
+        top: imageBounds.boundsTop,
+        bottom: imageBounds.boundsBottom,
+        left: imageBounds.boundsLeft,
+        right: imageBounds.boundsRight
+      })
+
+      return {
+        ...this.messagePayload,
+        ...imagePayload
+      }
+    },
+    pasteFromMessage: function (message) {
+      this.$refs.drawing.clear()
+      this.$refs.drawing.drawFromImageUrl(message.url)
     },
     keyPress: function (key) {
       if (!this.$refs.drawing) { return }
@@ -129,10 +175,10 @@ export default {
 <style scoped>
 .message-area {
   margin-top: calc(1px * var(--global-ss));
-  margin-bottom: calc(3px * var(--global-ss));
-  margin-right: calc(2px * var(--global-ss));
+  margin-bottom: calc(1px * var(--global-ss));
   position: relative;
   display: block;
+  max-width: min-content;
 }
 
 .message-area-user-tag {
@@ -140,13 +186,29 @@ export default {
   position: absolute;
   left: 0;
   top: 0;
-  padding: 0 calc(2px * var(--global-ss));
+  width: calc(61px * var(--global-ss));
   color: red;
 }
+
+.fill {
+  bottom: 0;
+}
+
+.message-area-user-tag > div {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .drawing-area {
   margin-top: calc(-1px * var(--global-ss));
   margin-bottom: calc(-2px * var(--global-ss));
   margin-left: calc(-1px * var(--global-ss));
   margin-right: calc(-1px * var(--global-ss));
+  background-size: contain;
+}
+
+.drawing-area-show {
+  margin-bottom: calc(-1px * var(--global-ss));
 }
 </style>

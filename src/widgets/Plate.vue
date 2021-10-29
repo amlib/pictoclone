@@ -353,8 +353,8 @@ export default {
   background-image: linear-gradient(0deg, #fbbaba calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 32px));
   background-position: top;
   background-repeat: repeat-y;
-  background-size: calc(100% - (var(--global-ss) * 6px)) calc(var(--global-ss) * 32px - 1px);
-  top: calc(var(--global-ss) * 4px);
+  background-size: calc(100% - (var(--global-ss) * 6px)) calc(var(--global-ss) * 32px);
+  top: calc(var(--global-ss) * 3px);
   bottom: calc(var(--global-ss) * 4px);
 }
 

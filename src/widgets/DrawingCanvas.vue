@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import { getCanvasBlob } from '@/js/Utils'
 
 const brushType = 'brush-normal'
 const brushes = [
@@ -274,6 +275,94 @@ export default {
       this.canvasContext.globalCompositeOperation = 'source-over'
       this.canvasContext.drawImage(this.$refs['canvas-buffer'], 0, 0)
       this.textBufferClear()
+    },
+    getImageBounds: function () {
+      const imageData = this.canvasContext.getImageData(0, 0, this.width, this.height)
+      const { data, height, width } = imageData
+
+      let lineOffset
+      let boundsTop = height
+      let boundsBottom = 0
+      let boundsLeft = width
+      let boundsRight = 0
+
+      for (let iy = 0; iy < height; ++iy) {
+        for (let ix = 0; ix < width; ++ix) {
+          lineOffset = (iy * width * 4) + (ix * 4)
+          if (data[lineOffset + 3]) { // only checks alpha
+            boundsTop = iy < boundsTop ? iy : boundsTop
+            boundsBottom = iy > boundsBottom ? iy : boundsBottom
+            boundsLeft = ix < boundsLeft ? ix : boundsLeft
+            boundsRight = ix > boundsRight ? ix : boundsRight
+          }
+        }
+      }
+
+      boundsTop = boundsTop < boundsBottom ? boundsTop : 0
+      boundsBottom = boundsBottom > boundsTop ? boundsBottom : 0
+      boundsLeft = boundsLeft < boundsRight ? boundsLeft : 0
+      boundsRight = boundsRight < boundsLeft ? boundsRight : 0
+
+      return {
+        boundsTop,
+        boundsBottom,
+        boundsLeft,
+        boundsRight,
+        boundsWidth: boundsRight - boundsLeft,
+        boundsHeight: boundsBottom - boundsTop,
+        imageWidth: width,
+        imageHeight: height
+      }
+    },
+    getImage: async function (crop) {
+      const imageData = {}
+      let canvasTarget
+
+      if (crop) {
+        const cropCanvas = document.createElement('canvas')
+
+        if (cropCanvas.getContext) {
+          const context = cropCanvas.getContext('2d')
+          const cropWidth = crop.right - crop.left
+          const cropHeight = crop.bottom - crop.top
+          cropCanvas.width = cropWidth
+          cropCanvas.height = cropHeight
+          context.globalCompositeOperation = 'copy'
+          context.imageSmoothingEnabled = false
+
+          context.drawImage(this.$refs.canvas, crop.left, crop.top, cropWidth, cropHeight,
+            0, 0, cropWidth, cropHeight)
+
+          canvasTarget = cropCanvas
+          imageData.width = cropWidth
+          imageData.height = cropHeight
+        } else {
+          throw new Error('Could not create canvas for cropping')
+        }
+      } else {
+        canvasTarget = this.$refs.canvas
+        imageData.width = this.width
+        imageData.height = this.height
+      }
+
+      const blob = await getCanvasBlob(canvasTarget)
+
+      if (crop) {
+        canvasTarget.remove()
+      }
+
+      return {
+        url: URL.createObjectURL(blob), // TODO revoke!!!
+        ...imageData
+      }
+    },
+    drawFromImageUrl: function (imageUrl) {
+      // TODO could return a promise
+      const image = new Image()
+      image.src = imageUrl
+      image.onload = () => {
+        this.canvasContext.drawImage(image, 0, 0)
+      }
     }
   }
 }

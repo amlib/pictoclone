@@ -1,4 +1,5 @@
 import { tileMap } from '@/mapper/tilemap'
+import { getCanvasBlob } from '@/js/Utils'
 
 let imageSlices
 
@@ -70,16 +71,21 @@ const mapper = {
             }
           }
 
+          canvas.remove()
+          image.remove()
           imageSlices = newImageSlices
           // console.log('all done:', imageSlices)
           resolve()
         }
         image.onerror = function (error) {
           console.warn('Could not load image', error)
+          canvas.remove()
+          image.remove()
           reject(error)
         }
       } else {
         console.warn('could not get canvas for mapper!')
+        canvas.remove()
         reject(new Error('could not get canvas context'))
       }
     })
@@ -94,14 +100,6 @@ const mapper = {
       return imageSlices[alias]
     }
   }
-}
-
-const getCanvasBlob = (canvas) => {
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      resolve(blob)
-    }, 'image/png')
-  })
 }
 
 export default mapper

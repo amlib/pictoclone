@@ -23,7 +23,9 @@
         <w-plate class="main-interface-wrapper" normal-tile="main-background"
                  :notch="[true, false, false, true]" :padding="3"
                  :stripe-mode=1 stripe-color="#bababa">
-          <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]" ref="user-message"/>
+          <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]"
+                   :edit="true" :message-payload="messagePayload"
+                   ref="user-message" class="user-message"/>
           <div class="main-interface-bottom">
             <keyboard class="keyboard" :mode="keyboardMode"
                       @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag"/>
@@ -34,7 +36,8 @@
                         @click="sendMessage"/>
               <w-button class="button-cluster-button" icon="copy"
                         normal-tile="main-button" click-tile="main-color-fill"
-                        :padding="4" :style="`margin: ${$global.superSample * -1}px 0;`"/>
+                        :padding="4" :style="`margin: ${$global.superSample * -1}px 0;`"
+                        @click="copySelectedMessage"/>
               <w-button class="button-cluster-button" icon="clear"
                         normal-tile="main-button" click-tile="main-color-fill"
                         :notch="[false, false, false, true]"  :padding="4"
@@ -78,6 +81,7 @@ import WButtonToggle from '@/widgets/ButtonToggle'
 import Message from '@/components/Message'
 import Keyboard from '@/components/Keyboard'
 import ChatQueue from '@/components/ChatQueue'
+import { messageWidth, messageHeight } from '@/js/Message'
 
 const brushSizes = {
   'brush-big': 2,
@@ -92,6 +96,11 @@ export default {
       keyboardMode: 'romaji',
       selectedTool: 'brush',
       brushSize: 'brush-big',
+      messagePayload: {
+        user: 'User 123',
+        width: messageWidth,
+        height: messageHeight
+      },
       mounted: false // is there a better way?
     }
   },
@@ -117,14 +126,30 @@ export default {
     onScrollDown: function () {
       this.$refs.queue.onScrollDown()
     },
-    sendMessage: function () {
-      // fake send
-      const entry = {
-        type: 'message',
-        payload: null
+    copySelectedMessage: function () {
+      const message = this.$refs.queue.getSelectedMessage()
+      if (message) {
+        this.$refs['user-message'].pasteFromMessage(message)
       }
-      this.$refs['user-message'].clearDrawing()
-      this.$refs.queue.addEntry(entry)
+    },
+    sendMessage: async function () {
+      try {
+        const payload = await this.$refs['user-message'].getMessage()
+
+        const entry = {
+          type: 'message',
+          payload: payload
+        }
+
+        this.$refs['user-message'].clearDrawing()
+
+        // fake send
+        this.$refs.queue.addEntry(entry)
+      } catch (e) {
+        if (e.message === 'empty') {
+          // dummy
+        }
+      }
     }
   }
 }
@@ -269,7 +294,11 @@ export default {
 .main-interface-bottom {
   display: flex;
   flex-direction: row;
+  margin-top: calc(2px * var(--global-ss));
   margin-bottom: calc(1px * var(--global-ss));
+}
+.user-message {
+  margin-top: calc(0px * var(--global-ss));
 }
 .keyboard {
   margin-left: calc(1px * var(--global-ss));
