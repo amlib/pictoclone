@@ -2,7 +2,7 @@
   <w-plate normal-tile="main-foreground" :padding="0" v-bind="$attrs"
            :notch="[true, true, true, true]">
     <div v-if="layouts[mode]" :class="['keyboard', mode]" ref="keyboard"
-         @pointerdown="pointerDown" @pointermove="throttledPointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel">
+         @pointerdown="pointerDown" @pointermove="pointerMoveThrottled" @pointerup="pointerUp" @pointercancel="pointerCancel">
       <template v-for="(section, index) in layouts[mode].sections" :key="index">
         <div :class="section.class">
           <template v-for="(key, keyIndex) in section.keys" :key="key">
@@ -80,13 +80,13 @@ export default {
   },
   mounted: function () {
     this.draggingCapturedElement = null
-    this.throttledPointerMove = throttle(this.pointerMove, 16, { leading: true })
+    this.pointerMoveThrottled = throttle(this.pointerMove, 16, { leading: true })
     this.hideTypingBubbleDbounced = debounce(this.hideTypingBubble, 500)
     this.startKeyRepeatDebounced = debounce(this.startKeyRepeat, 750)
   },
   beforeUnmount: function () {
-    this.throttledPointerMove.cancel()
-    this.throttledPointerMove = undefined
+    this.pointerMoveThrottled.cancel()
+    this.pointerMoveThrottled = undefined
     this.hideTypingBubbleDbounced.cancel()
     this.hideTypingBubbleDbounced = undefined
     this.startKeyRepeatDebounced.cancel()
@@ -148,7 +148,7 @@ export default {
     },
     pointerDown: function (event) {
       if (event.buttons & 1) {
-        if (event.target.className === 'text') {
+        if (event.target.classList[0] === 'text') {
           event.target.addEventListener('pointerleave', this.pointerLeave)
 
           // this is needed to make pointerLeave trigger on mobile:
