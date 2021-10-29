@@ -1,7 +1,7 @@
 <template>
   <w-plate normal-tile="main-foreground" :padding="0" v-bind="$attrs"
            :notch="[true, true, true, true]">
-    <div v-if="layouts[mode]" class="keyboard" ref="keyboard"
+    <div v-if="layouts[mode]" :class="['keyboard', mode]" ref="keyboard"
          @pointerdown="pointerDown" @pointermove="throttledPointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel">
       <template v-for="(section, index) in layouts[mode].sections" :key="index">
         <div :class="section.class">
@@ -82,7 +82,7 @@ export default {
     this.draggingCapturedElement = null
     this.throttledPointerMove = throttle(this.pointerMove, 16, { leading: true })
     this.hideTypingBubbleDbounced = debounce(this.hideTypingBubble, 500)
-    this.startKeyRepeatDebounced = debounce(this.startKeyRepeat, 650)
+    this.startKeyRepeatDebounced = debounce(this.startKeyRepeat, 750)
   },
   beforeUnmount: function () {
     this.throttledPointerMove.cancel()
@@ -105,6 +105,9 @@ export default {
           this.keyRepeatInterval = null
           return
         }
+        window.navigator.vibrate(40)
+      } else {
+        window.navigator.vibrate(15)
       }
 
       if (key === 'shift') {
@@ -124,10 +127,11 @@ export default {
       this.$emit('keyboard-key-press', key)
     },
     keyDown: function (key, event) {
+      window.navigator.vibrate(10)
       if (!this.uniqueKeyIcon[key]) {
         const button = event.target
         this.typingBubbleOffsetX = Math.round(button.offsetParent.offsetLeft + button.offsetWidth / 2)
-        this.typingBubbleOffsetY = Math.round((button.offsetParent.offsetTop))
+        this.typingBubbleOffsetY = Math.round((button.offsetParent.offsetTop) + button.offsetHeight / 2)
         this.typingBubbleSymbol = key
         this.hideTypingBubbleDbounced()
       }
@@ -145,7 +149,6 @@ export default {
     pointerDown: function (event) {
       if (event.buttons & 1) {
         if (event.target.className === 'text') {
-          window.navigator.vibrate(40)
           event.target.addEventListener('pointerleave', this.pointerLeave)
 
           // this is needed to make pointerLeave trigger on mobile:
@@ -153,15 +156,13 @@ export default {
           event.target.releasePointerCapture(event.pointerId)
 
           this.draggingCapturedElement = event.target
-        } else if (event.target.parentElement && event.target.parentElement.parentElement.nodeName) {
-          window.navigator.vibrate(80)
         }
       }
     },
     // triggered by element with text class dynamically registered in pointerDown
     pointerLeave: function (event) {
       if (this.draggingCapturedElement) {
-        window.navigator.vibrate(20)
+        window.navigator.vibrate(80)
         this.startKeyRepeatDebounced.cancel()
         if (this.keyRepeatInterval) {
           clearInterval(this.keyRepeatInterval)
@@ -179,7 +180,7 @@ export default {
     pointerMove: function (event) {
       if (this.draggingSymbol) {
         // we dont want events relative to button text element or else we get wrong positions...
-        if (event.target.className === 'keyboard') {
+        if (event.target.classList[0] === 'keyboard') {
           // kludge for firefox, sometimes offsetX and offsetY would jump to 0,0
           if (event.offsetX !== 0 && event.offsetY !== 0) {
             this.draggingShow = true
@@ -234,30 +235,30 @@ export default {
 }
 
 /* z-index necessary for key mobile-assists to work */
-.romaji-row1 {
+.romaji .row1 {
   display: flex;
   flex-direction: row;
   margin-left: calc(3px * var(--global-ss));
-  z-index: 4;
+  z-index: 2;
 }
-.romaji-row2 {
+.romaji .row2 {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   z-index: 3;
 }
-.romaji-row3 {
+.romaji .row3 {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   z-index: 2;
 }
-.romaji-row4 {
+.romaji .row4 {
   display: flex;
   flex-direction: row;
   z-index: 1;
 }
-.romaji-row5 {
+.romaji .row5 {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -291,12 +292,18 @@ export default {
 /* dilates keys bounds for better mobile typing assists */
 .mobile-assists .text {
   position: absolute;
-  top: calc(-2px * var(--global-ss));
+  padding-top: calc(3px * var(--global-ss));
+  top: calc(-3px * var(--global-ss));
   left: calc(-1px * var(--global-ss));
   right: calc(-1px * var(--global-ss));
   bottom: calc(-4px * var(--global-ss));
-  line-height: calc(17px * var(--global-ss));
   /*background-color: rgba(255,0,0,0.2);*/
+}
+
+.mobile-assists .romaji .row1 .text {
+  padding-top: calc(5px * var(--global-ss));
+  top: calc(-5px * var(--global-ss));
+  bottom: calc(-1px * var(--global-ss));
 }
 
 .symbol-drag-box {
