@@ -77,7 +77,7 @@ export default {
   methods: {
     getEntrySizes: function () {
       const children = this.$refs.queue.children
-      let sizes = []
+      const sizes = []
       // always starts one more because of spacer div
       for (let i = 1; i <= children.length - 1; ++i) {
         sizes[i - 1] = children[i].clientHeight

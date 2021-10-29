@@ -1,5 +1,5 @@
 <template>
-  <w-plate normal-tile="main-foreground" :padding="0"
+  <w-plate normal-tile="main-foreground" :padding="0" v-bind="$attrs"
            :notch="[true, true, true, true]">
     <div v-if="layouts[mode]" class="keyboard" ref="keyboard"
          @pointerdown="pointerDown" @pointermove="throttledPointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel">
@@ -12,9 +12,9 @@
                       icon-prefix-normal="icon-keyboard-normal"
                       icon-prefix-highlight="icon-keyboard-highlight"
                       :icon="uniqueKeyIcon[key] ? key : null" :icon-margin="uniqueKeyIconMargin[key]"
-                      @click="keyPress(shifting ? section.shiftKeys[keyIndex] : key)"
+                      @pointerdown="(event) => keyDown(shifting ? section.shiftKeys[keyIndex] : key, event)" @pointerup="(event) => keyUp(shifting ? section.shiftKeys[keyIndex] : key, event)"
                       :toggled="(key === 'shift' && shifting && !capsLocked) || (key === 'caps' && capsLocked)">
-              <div v-if="uniqueKeyIcon[key] == null" :class="uniqueKeyClass[key] ? uniqueKeyClass[key] : 'text'">
+              <div v-if="uniqueKeyIcon[key] == null" class="text">
                 {{ shifting ? section.shiftKeys[keyIndex] : key }}
               </div>
             </w-button>
@@ -22,8 +22,20 @@
         </div>
       </template>
     </div>
-    <div v-if="draggingEvent" class="symbol-drag-box" :style="symbolDragBoxPosition">
-      <div>{{ draggingSymbol }}</div>
+    <div v-show="draggingShow" class="symbol-drag-box"
+         :style="{ left: this.draggingOffsetX + 'px', top: this.draggingOffsetY + 'px' }">
+      <w-plate v-if="$global.mobileAssists" class="symbol-box-balloon" :padding="0" global-tint
+               normal-tile="main-color-fill" :notch="[false, false, true, true]">
+        {{ draggingSymbol }}
+      </w-plate>
+      <div class="symbol-drag-box-char">{{ draggingSymbol }}</div>
+    </div>
+    <div v-show="typingBubbleSymbol && $global.mobileAssists" class="symbol-drag-box"
+         :style="{ left: this.typingBubbleOffsetX + 'px', top: this.typingBubbleOffsetY + 'px' }">
+      <w-plate class="symbol-box-balloon" :padding="0" global-tint
+               normal-tile="main-color-fill" :notch="[false, false, true, true]">
+        {{ typingBubbleSymbol }}
+      </w-plate>
     </div>
   </w-plate>
 </template>
@@ -31,8 +43,8 @@
 <script>
 import WPlate from '@/widgets/Plate'
 import WButton from '@/widgets/Button'
-import { throttle } from 'lodash'
-import { layouts, uniqueKeyTile, uniqueKeyIcon, uniqueKeyIconMargin, uniqueKeyClass } from '@/js/Keyboard'
+import { throttle, debounce } from 'lodash'
+import { layouts, uniqueKeyTile, uniqueKeyIcon, uniqueKeyIconMargin } from '@/js/Keyboard'
 
 export default {
   name: 'Keyboard',
@@ -49,38 +61,35 @@ export default {
       shifting: false,
       capsLocked: false,
       draggingSymbol: null,
-      draggingEvent: null
+      typingBubbleSymbol: null,
+      draggingOffsetX: 0,
+      draggingOffsetY: 0,
+      typingBubbleOffsetX: 0,
+      typingBubbleOffsetY: 0,
+      draggingShow: false
     }
   },
   computed: {
-    symbolDragBoxPosition: function () {
-      if (this.draggingSymbol) {
-        return {
-          top: this.draggingEvent.offsetY + 'px',
-          left: this.draggingEvent.offsetX + 'px'
-        }
-      } else {
-        return {}
-      }
-    }
   },
   created: function () {
-    this.layouts = layouts
+    this.layouts = Object.freeze(layouts)
     this.uniqueKeyTile = uniqueKeyTile
     this.uniqueKeyIcon = uniqueKeyIcon
     this.uniqueKeyIconMargin = uniqueKeyIconMargin
-    this.uniqueKeyClass = uniqueKeyClass
   },
   mounted: function () {
     this.draggingCapturedElement = null
     this.throttledPointerMove = throttle(this.pointerMove, 16, { leading: true })
+    this.hideTypingBubbleDbounced = debounce(this.hideTypingBubble, 500)
   },
   beforeUnmount: function () {
     this.throttledPointerMove.cancel()
     this.throttledPointerMove = undefined
+    this.hideTypingBubbleDbounced.cancel()
+    this.hideTypingBubbleDbounced = undefined
   },
   methods: {
-    keyPress: function (key) {
+    keyUp: function (key, event) {
       if (key === 'shift') {
         this.shifting = !this.shifting
         this.capsLocked = false
@@ -97,10 +106,24 @@ export default {
 
       this.$emit('keyboard-key-press', key)
     },
+    keyDown: function (key, event) {
+      if (this.uniqueKeyIcon[key]) {
+        return
+      }
+      const button = event.target
+      this.typingBubbleOffsetX = Math.round(button.offsetParent.offsetLeft + button.offsetWidth / 2)
+      this.typingBubbleOffsetY = Math.round((button.offsetParent.offsetTop))
+      this.typingBubbleSymbol = key
+      this.hideTypingBubbleDbounced()
+    },
+    hideTypingBubble: function () {
+      this.typingBubbleSymbol = null
+    },
     pointerDown: function (event) {
       if (event.buttons & 1) {
+        console.log(event.target)
         if (event.target.className === 'text') {
-          window.navigator.vibrate(33)
+          window.navigator.vibrate(40)
           event.target.addEventListener('pointerleave', this.pointerLeave)
 
           // this is needed to make pointerLeave trigger on mobile:
@@ -108,13 +131,16 @@ export default {
           event.target.releasePointerCapture(event.pointerId)
 
           this.draggingCapturedElement = event.target
+        } else if (event.target.parentElement && event.target.parentElement.parentElement.nodeName) {
+          window.navigator.vibrate(80)
         }
       }
     },
     // triggered by element with text class dynamically registered in pointerDown
     pointerLeave: function (event) {
       if (this.draggingCapturedElement) {
-        window.navigator.vibrate(16)
+        this.hideTypingBubbleDbounced.flush()
+        window.navigator.vibrate(20)
         this.draggingCapturedElement.removeEventListener('pointerleave', this.pointerLeave)
         this.$refs.keyboard.setPointerCapture(event.pointerId)
         this.draggingSymbol = this.draggingCapturedElement.innerText
@@ -127,7 +153,12 @@ export default {
       if (this.draggingSymbol) {
         // we dont want events relative to button text element or else we get wrong positions...
         if (event.target.className === 'keyboard') {
-          this.draggingEvent = event
+          // kludge for firefox, sometimes offsetX and offsetY would jump to 0,0
+          if (event.offsetX !== 0 && event.offsetY !== 0) {
+            this.draggingShow = true
+            this.draggingOffsetX = event.offsetX
+            this.draggingOffsetY = event.offsetY
+          }
         }
       }
     },
@@ -145,7 +176,7 @@ export default {
         this.draggingCapturedElement = null
       }
 
-      this.draggingEvent = null
+      this.draggingShow = false
       this.draggingSymbol = null
     },
     pointerCancel: function (event) {
@@ -155,7 +186,7 @@ export default {
         this.draggingCapturedElement = null
       }
 
-      this.draggingEvent = null
+      this.draggingShow = false
       this.draggingSymbol = null
     }
   }
@@ -228,9 +259,20 @@ export default {
   width: 0;
   display: flex;
   justify-content: center;
+
 }
 
-.symbol-drag-box > * {
+.symbol-box-balloon {
+  pointer-events: none;
+  position: absolute;
+  height: calc(40px * var(--global-ss) - 0.5em);
+  width: calc(17px * var(--global-ss));
+  top: calc(-40px * var(--global-ss) - 0.5em);
+  text-align: center;
+  line-height: calc(16px * var(--global-ss));
+}
+
+.symbol-drag-box-char {
   pointer-events: none;
   line-height: 0;
 }

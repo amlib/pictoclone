@@ -59,7 +59,4 @@ const uniqueKeyIconMargin = {
   space: [1, 29, 1, 29]
 }
 
-const uniqueKeyClass = {
-}
-
-export { layouts, uniqueKeyTile, uniqueKeyIcon, uniqueKeyIconMargin, uniqueKeyClass }
+export { layouts, uniqueKeyTile, uniqueKeyIcon, uniqueKeyIconMargin }

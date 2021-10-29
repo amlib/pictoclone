@@ -21,10 +21,11 @@ export default {
       globalValues: {
         colorHueDeg: 220,
         superSample: this.$superSample,
-        autoScale: true
+        autoScale: true,
+        mobileAssists: true
       },
       // renderingClass: 'rendering-pixel', // should be used with no super sampling
-      renderingClass: 'quality', // use super sampling 2x or 3x with this
+      renderingClass: 'rendering-quality', // use super sampling 2x or 3x with this
       patchingTiles: true, // kludge for "glitchyness" when changing tiles
       documentWidth: 1,
       documentHeight: 1,

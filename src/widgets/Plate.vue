@@ -200,7 +200,8 @@ export default {
       return obj
     },
     tiledStraightLRSlices: function () {
-      const ss = this.$global.superSample
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
       const obj = {}
 
       if (this.colorHueDeg != null) {
