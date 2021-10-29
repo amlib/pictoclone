@@ -76,20 +76,37 @@ export default {
     this.uniqueKeyTile = uniqueKeyTile
     this.uniqueKeyIcon = uniqueKeyIcon
     this.uniqueKeyIconMargin = uniqueKeyIconMargin
+    this.keyRepeatInterval = null
   },
   mounted: function () {
     this.draggingCapturedElement = null
     this.throttledPointerMove = throttle(this.pointerMove, 16, { leading: true })
     this.hideTypingBubbleDbounced = debounce(this.hideTypingBubble, 500)
+    this.startKeyRepeatDebounced = debounce(this.startKeyRepeat, 650)
   },
   beforeUnmount: function () {
     this.throttledPointerMove.cancel()
     this.throttledPointerMove = undefined
     this.hideTypingBubbleDbounced.cancel()
     this.hideTypingBubbleDbounced = undefined
+    this.startKeyRepeatDebounced.cancel()
+    this.startKeyRepeatDebounced = undefined
+
+    if (this.keyRepeatInterval) {
+      clearInterval(this.keyRepeatInterval)
+    }
   },
   methods: {
-    keyUp: function (key, event) {
+    keyUp: function (key, event, fromRepeat = false) {
+      if (!fromRepeat) {
+        this.startKeyRepeatDebounced.cancel()
+        if (this.keyRepeatInterval) {
+          clearInterval(this.keyRepeatInterval)
+          this.keyRepeatInterval = null
+          return
+        }
+      }
+
       if (key === 'shift') {
         this.shifting = !this.shifting
         this.capsLocked = false
@@ -107,21 +124,26 @@ export default {
       this.$emit('keyboard-key-press', key)
     },
     keyDown: function (key, event) {
-      if (this.uniqueKeyIcon[key]) {
-        return
+      if (!this.uniqueKeyIcon[key]) {
+        const button = event.target
+        this.typingBubbleOffsetX = Math.round(button.offsetParent.offsetLeft + button.offsetWidth / 2)
+        this.typingBubbleOffsetY = Math.round((button.offsetParent.offsetTop))
+        this.typingBubbleSymbol = key
+        this.hideTypingBubbleDbounced()
       }
-      const button = event.target
-      this.typingBubbleOffsetX = Math.round(button.offsetParent.offsetLeft + button.offsetWidth / 2)
-      this.typingBubbleOffsetY = Math.round((button.offsetParent.offsetTop))
-      this.typingBubbleSymbol = key
-      this.hideTypingBubbleDbounced()
+
+      if (!this.uniqueKeyIcon[key] || key === 'enter' || key === 'backspace' || key === 'space') {
+        this.startKeyRepeatDebounced(key)
+      }
+    },
+    startKeyRepeat: function (key) {
+      this.keyRepeatInterval = setInterval(() => this.keyUp(key, null, true), 50)
     },
     hideTypingBubble: function () {
       this.typingBubbleSymbol = null
     },
     pointerDown: function (event) {
       if (event.buttons & 1) {
-        console.log(event.target)
         if (event.target.className === 'text') {
           window.navigator.vibrate(40)
           event.target.addEventListener('pointerleave', this.pointerLeave)
@@ -139,8 +161,13 @@ export default {
     // triggered by element with text class dynamically registered in pointerDown
     pointerLeave: function (event) {
       if (this.draggingCapturedElement) {
-        this.hideTypingBubbleDbounced.flush()
         window.navigator.vibrate(20)
+        this.startKeyRepeatDebounced.cancel()
+        if (this.keyRepeatInterval) {
+          clearInterval(this.keyRepeatInterval)
+          this.keyRepeatInterval = null
+        }
+        this.hideTypingBubbleDbounced.flush()
         this.draggingCapturedElement.removeEventListener('pointerleave', this.pointerLeave)
         this.$refs.keyboard.setPointerCapture(event.pointerId)
         this.draggingSymbol = this.draggingCapturedElement.innerText
@@ -206,7 +233,7 @@ export default {
   padding-bottom: calc(1px * var(--global-ss));
 }
 
-/* z-index necessary for key mobile-assits to work */
+/* z-index necessary for key mobile-assists to work */
 .romaji-row1 {
   display: flex;
   flex-direction: row;
@@ -268,6 +295,7 @@ export default {
   left: calc(-1px * var(--global-ss));
   right: calc(-1px * var(--global-ss));
   bottom: calc(-4px * var(--global-ss));
+  line-height: calc(17px * var(--global-ss));
   /*background-color: rgba(255,0,0,0.2);*/
 }
 

@@ -43,7 +43,7 @@ export default {
     // Since we get reactive across the entire app... uncomment for RGB mode lol
     // setInterval(() => { this.globalValues.colorHueDeg += 15 }, 50)
 
-    setTimeout(() => { this.patchingTiles = false }, 200)
+    setTimeout(() => { this.patchingTiles = false }, 100)
     // setInterval(() => {
     //   this.setSuperSample(this.globalValues.superSample === 2 ? 1 : 2)
     // }, 1500)
