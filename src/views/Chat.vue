@@ -1,6 +1,8 @@
 <template>
   <div class="main">
     <div class="button-bar">
+      <div id="mini-queue" class="mini-queue"/>
+      <div class="separator"></div>
       <div class="button-bar-wrapper">
         <w-button class="closer" icon="arrow-up" :padding="0" no-borders @click="onScrollUp"/>
         <w-button class="closer" icon="arrow-down" :padding="0" no-borders @click="onScrollDown"/>
@@ -13,7 +15,7 @@
         <w-plate class="main-queue-wrapper" normal-tile="main-background"
                  :notch="[true, true, true, true]" :padding="3"
                  :stripe-mode=1 stripe-color="#bababa">
-          <chat-queue ref="queue"/>
+          <chat-queue ref="queue" attach-mini-queue="#mini-queue"/>
         </w-plate>
       </div>
       <div class="button-bar portrait-hide">
@@ -34,9 +36,9 @@
                         normal-tile="main-button" click-tile="main-color-fill"
                         :notch="[true, false, false, false]" :padding="3"
                         @click="sendMessage"/>
-              <w-button class="button-cluster-button" icon="copy"
+              <w-button class="button-cluster-button middle-button" icon="copy"
                         normal-tile="main-button" click-tile="main-color-fill"
-                        :padding="4" :style="`margin: ${$global.superSample * -1}px 0;`"
+                        :padding="4"
                         @click="copySelectedMessage"/>
               <w-button class="button-cluster-button" icon="clear"
                         normal-tile="main-button" click-tile="main-color-fill"
@@ -98,6 +100,7 @@ export default {
       brushSize: 'brush-big',
       messagePayload: {
         user: 'User 123',
+        color: '#0000ff',
         width: messageWidth,
         height: messageHeight
       },
@@ -192,6 +195,12 @@ export default {
   min-height: calc(1px * var(--global-ss));
   background-image: linear-gradient(90deg, #ffffff 25%, #494949 25%, #494949 50%, #ffffff 50%, #ffffff 75%, #494949 75%, #494949 100%);
   background-size: calc(4px * var(--global-ss)) calc(4px * var(--global-ss));
+}
+
+.mini-queue {
+  margin-left: calc(2px * var(--global-ss));
+  margin-right: calc(2px * var(--global-ss));
+  margin-bottom: calc(2px * var(--global-ss));
 }
 
 /* also non scoped version */
@@ -313,6 +322,9 @@ export default {
   display: block;
   margin-right: -2px;
   contain: paint;
+}
+.middle-button {
+  margin: calc(var(--global-ss) * -1px) 0;
 }
 </style>
 
