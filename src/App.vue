@@ -13,10 +13,6 @@
 import { throttle } from 'lodash'
 import { computed } from 'vue'
 
-const portraitConstrainRatio = 8 / 9
-const landscapeBreakpointRatio = 18 / 9
-const landscapeConstrainRatio = 26 / 9
-
 export default {
   name: 'App',
   data: function () {
@@ -38,9 +34,6 @@ export default {
     }
   },
   created: function () {
-    this.portraitConstrainRatio = portraitConstrainRatio
-    this.landscapeBreakpointRatio = landscapeBreakpointRatio
-    this.landscapeConstrainRatio = landscapeConstrainRatio
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
     // Since we get reactive across the entire app... uncomment for RGB mode lol
     // setInterval(() => { this.globalValues.colorHueDeg += 15 }, 50)
@@ -68,14 +61,14 @@ export default {
   },
   computed: {
     isLandscape: function () {
-      return (this.documentWidth / this.documentHeight) > (this.landscapeBreakpointRatio)
+      return (this.documentWidth / this.documentHeight) > (this.$route.meta.landscapeBreakpointRatio)
     },
     getScalingFactor: function () {
       const documentRatio = this.documentWidth / this.documentHeight
       if (this.isLandscape) {
-        return this.documentWidth / this.viewWidth * Math.min((this.landscapeConstrainRatio / documentRatio), 1)
+        return this.documentWidth / this.viewWidth * Math.min((this.$route.meta.landscapeConstrainRatio / documentRatio), 1)
       } else {
-        return this.documentWidth / this.viewWidth * Math.min((this.portraitConstrainRatio / documentRatio), 1)
+        return this.documentWidth / this.viewWidth * Math.min((this.$route.meta.portraitConstrainRatio / documentRatio), 1)
       }
     },
     getViewStyle: function () {

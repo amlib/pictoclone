@@ -5,12 +5,14 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    meta: { portraitConstrainRatio: 11.5 / 9, landscapeBreakpointRatio: 99999, landscapeConstrainRatio: 11.5 / 9 }
   },
   {
     path: '/chat',
     name: 'Chat',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Chat.vue')
+    component: () => import(/* webpackChunkName: "chat" */ '../views/Chat.vue'),
+    meta: { portraitConstrainRatio: 8 / 9, landscapeBreakpointRatio: 18 / 9, landscapeConstrainRatio: 26 / 9 }
   }
 ]
 

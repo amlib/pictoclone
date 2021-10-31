@@ -368,6 +368,175 @@ const keyboardMap = [
   }
 ]
 
+const thinFrame = [
+  {
+    x: 0, y: 0, w: 2, h: 2, alias: 'corner1-tl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 2, y: 0, w: 2, h: 2, alias: 'corner1-tr',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 4, y: 0, w: 2, h: 2, alias: 'corner1-bl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 6, y: 0, w: 2, h: 2, alias: 'corner1-br',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 0, y: 0, w: 2, h: 2, alias: 'corner2-tl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 2, y: 0, w: 2, h: 2, alias: 'corner2-tr',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 4, y: 0, w: 2, h: 2, alias: 'corner2-bl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 6, y: 0, w: 2, h: 2, alias: 'corner2-br',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 8, y: 0, w: 2, h: 2, alias: 'straight-t',
+    backgroundRepeat: 'repeat-x', backgroundPosition: 'top',
+    top: 0, left: 2, bottom: 0, right: 2, offsetX: 0, offsetY: 2
+  },
+  {
+    x: 10, y: 0, w: 2, h: 2, alias: 'straight-r',
+    backgroundRepeat: 'repeat-y', backgroundPosition: 'right',
+    top: 2, left: 0, bottom: 2, right: 0, offsetX: 2, offsetY: 0
+  },
+  {
+    x: 12, y: 0, w: 2, h: 2, alias: 'straight-b',
+    backgroundRepeat: 'repeat-x', backgroundPosition: 'bottom',
+    top: 0, left: 2, bottom: 0, right: 2, offsetX: 0, offsetY: 2
+  },
+  {
+    x: 14, y: 0, w: 2, h: 2, alias: 'straight-l',
+    backgroundRepeat: 'repeat-y', backgroundPosition: 'left',
+    top: 2, left: 0, bottom: 2, right: 0, offsetX: 2, offsetY: 0
+  },
+  {
+    x: 16, y: 0, w: 2, h: 2, alias: 'center',
+    backgroundRepeat: 'repeat', backgroundPosition: null,
+    top: 0, left: 2, bottom: 0, right: 2, offsetX: 2, offsetY: 2
+  }
+]
+
+const largeBeveledButton = [
+  {
+    x: 0, y: 0, w: 3, h: 3, alias: 'corner1-tl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 3, y: 0, w: 3, h: 3, alias: 'corner1-tr',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 6, y: 0, w: 3, h: 3, alias: 'corner1-bl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 9, y: 0, w: 3, h: 3, alias: 'corner1-br',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 0, y: 0, w: 3, h: 3, alias: 'corner2-tl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 3, y: 0, w: 3, h: 3, alias: 'corner2-tr',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 6, y: 0, w: 3, h: 3, alias: 'corner2-bl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 9, y: 0, w: 3, h: 3, alias: 'corner2-br',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 12, y: 0, w: 3, h: 3, alias: 'straight-t',
+    backgroundRepeat: 'repeat-x', backgroundPosition: 'top',
+    top: 0, left: 3, bottom: 0, right: 3, offsetX: 0, offsetY: 3
+  },
+  {
+    x: 15, y: 0, w: 3, h: 3, alias: 'straight-r',
+    backgroundRepeat: 'repeat-y', backgroundPosition: 'right',
+    top: 3, left: 0, bottom: 3, right: 0, offsetX: 3, offsetY: 0
+  },
+  {
+    x: 18, y: 0, w: 3, h: 3, alias: 'straight-b',
+    backgroundRepeat: 'repeat-x', backgroundPosition: 'bottom',
+    top: 0, left: 3, bottom: 0, right: 3, offsetX: 0, offsetY: 3
+  },
+  {
+    x: 21, y: 0, w: 3, h: 3, alias: 'straight-l',
+    backgroundRepeat: 'repeat-y', backgroundPosition: 'left',
+    top: 3, left: 0, bottom: 3, right: 0, offsetX: 3, offsetY: 0
+  },
+  {
+    x: 0, y: 6, w: 1, h: 12, alias: 'center',
+    backgroundRepeat: 'repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 3, offsetY: 3
+  }
+]
+
+const gridBackground = [
+  {
+    x: 0, y: 0, w: 16, h: 16, alias: 'blank',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 16, y: 0, w: 16, h: 16, alias: 'input-pre-border-left',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 32, y: 0, w: 16, h: 16, alias: 'input-border-left',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 48, y: 0, w: 16, h: 16, alias: 'input',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 64, y: 0, w: 16, h: 16, alias: 'input-post-border-right',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 80, y: 0, w: 16, h: 16, alias: 'input-caret',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  }
+]
+
 const tileMap = [
   {
     groupName: 'main-button', x: 0, y: 0,
@@ -440,6 +609,31 @@ const tileMap = [
   {
     groupName: 'icon-keyboard-highlight', x: 0, y: 190,
     map: cloneDeep(keyboardMap)
+  },
+  {
+    groupName: 'thin-frame', x: 4, y: 247,
+    map: cloneDeep(thinFrame)
+  },
+  {
+    groupName: 'beveled-button', x: 4, y: 249,
+    map: cloneDeep(thinFrame)
+  },
+  {
+    groupName: 'beveled-button-highlight', x: 4, y: 251,
+    map: cloneDeep(thinFrame)
+  },
+  {
+    groupName: 'large-beveled-button', x: 0, y: 241,
+    map: cloneDeep(largeBeveledButton)
+  },
+  {
+    groupName: 'large-beveled-button-inverted', x: 0, y: 244,
+    // eslint-disable-next-line no-return-assign
+    map: cloneDeep(largeBeveledButton).map(a => a.alias === 'center' ? (a.x = 2, a.y = 3, a) : a)
+  },
+  {
+    groupName: 'grid-background', x: 0, y: 259,
+    map: cloneDeep(gridBackground)
   }
 ]
 

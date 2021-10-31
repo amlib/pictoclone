@@ -7,7 +7,7 @@
              :tile-name="toggled || clicking ? activeTile : normalTile"
              :padding="platePadding" class="button-plate">
       <slot></slot>
-      <div class="plate-icon" :style="iconBase"></div>
+      <div v-if="icon" class="plate-icon" :style="iconBase"></div>
     </w-plate>
     <slot v-if="!normalTile"></slot>
   </button>
@@ -163,10 +163,7 @@ export default {
 <style scoped>
 .button {
   padding: unset;
-  min-width: 8px;
-  min-height: 8px;
   border: none;
-  line-height: 0;
   position: relative;
   background-repeat: no-repeat;
   background-position: center;

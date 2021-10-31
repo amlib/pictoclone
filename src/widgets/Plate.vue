@@ -258,11 +258,8 @@ export default {
 
 <style scoped>
 .plate {
-  display: block;
   position: relative;
   z-index: 0;
-  min-height: inherit; /* will this cause problems? */
-  min-width: inherit;
 }
 
 .plate-slice {
