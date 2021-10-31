@@ -12,7 +12,8 @@
                       icon-prefix-normal="icon-keyboard-normal"
                       icon-prefix-highlight="icon-keyboard-highlight"
                       :icon="uniqueKeyIcon[key] ? key : null" :icon-margin="uniqueKeyIconMargin[key]"
-                      @pointerdown="(event) => keyDown(shifting ? section.shiftKeys[keyIndex] : key, event)" @pointerup="(event) => keyUp(shifting ? section.shiftKeys[keyIndex] : key, event)"
+                      @pointerdown="(event) => keyDown(shifting ? section.shiftKeys[keyIndex] : key, event)"
+                      @pointerup="(event) => keyUp(shifting ? section.shiftKeys[keyIndex] : key, event)"
                       :toggled="(key === 'shift' && shifting && !capsLocked) || (key === 'caps' && capsLocked)">
               <div v-if="uniqueKeyIcon[key] == null" class="text">
                 {{ shifting ? section.shiftKeys[keyIndex] : key }}
@@ -33,7 +34,8 @@
     <div v-show="typingBubbleSymbol && $global.mobileAssists" class="symbol-drag-box"
          :style="{ left: this.typingBubbleOffsetX + 'px', top: this.typingBubbleOffsetY + 'px' }">
       <w-plate class="symbol-box-balloon" :padding="0" global-tint
-               tile-name="main-color-fill" :notch="[false, false, true, true]">
+               :tile-name="typingBubbleHighlight ? 'main-color-fill' : 'main-button'"
+               :notch="[false, false, true, true]">
         {{ typingBubbleSymbol }}
       </w-plate>
     </div>
@@ -61,11 +63,12 @@ export default {
       shifting: false,
       capsLocked: false,
       draggingSymbol: null,
-      typingBubbleSymbol: null,
       draggingOffsetX: 0,
       draggingOffsetY: 0,
+      typingBubbleSymbol: null,
       typingBubbleOffsetX: 0,
       typingBubbleOffsetY: 0,
+      typingBubbleHighlight: false,
       draggingShow: false
     }
   },
@@ -81,12 +84,15 @@ export default {
   mounted: function () {
     this.draggingCapturedElement = null
     this.pointerMoveThrottled = throttle(this.pointerMove, 16, { leading: true })
+    this.unhighlightTypingBubbleDbounced = debounce(this.unhighlightTypingBubble, 150)
     this.hideTypingBubbleDbounced = debounce(this.hideTypingBubble, 500)
     this.startKeyRepeatDebounced = debounce(this.startKeyRepeat, 750)
   },
   beforeUnmount: function () {
     this.pointerMoveThrottled.cancel()
     this.pointerMoveThrottled = undefined
+    this.unhighlightTypingBubbleDbounced.cancel()
+    this.unhighlightTypingBubbleDbounced = undefined
     this.hideTypingBubbleDbounced.cancel()
     this.hideTypingBubbleDbounced = undefined
     this.startKeyRepeatDebounced.cancel()
@@ -97,6 +103,22 @@ export default {
     }
   },
   methods: {
+    keyDown: function (key, event) {
+      window.navigator.vibrate(15)
+      if (!this.uniqueKeyIcon[key]) {
+        const button = event.target
+        this.typingBubbleOffsetX = Math.round(button.offsetParent.offsetLeft + button.offsetWidth / 2)
+        this.typingBubbleOffsetY = Math.round((button.offsetParent.offsetTop) + button.offsetHeight / 2)
+        this.typingBubbleSymbol = key
+        this.typingBubbleHighlight = true
+        this.unhighlightTypingBubbleDbounced()
+        this.hideTypingBubbleDbounced()
+      }
+
+      if (!this.uniqueKeyIcon[key] || key === 'enter' || key === 'backspace' || key === 'space') {
+        this.startKeyRepeatDebounced(key)
+      }
+    },
     keyUp: function (key, event, fromRepeat = false) {
       if (!fromRepeat) {
         this.startKeyRepeatDebounced.cancel()
@@ -126,22 +148,11 @@ export default {
 
       this.$emit('keyboard-key-press', key)
     },
-    keyDown: function (key, event) {
-      window.navigator.vibrate(10)
-      if (!this.uniqueKeyIcon[key]) {
-        const button = event.target
-        this.typingBubbleOffsetX = Math.round(button.offsetParent.offsetLeft + button.offsetWidth / 2)
-        this.typingBubbleOffsetY = Math.round((button.offsetParent.offsetTop) + button.offsetHeight / 2)
-        this.typingBubbleSymbol = key
-        this.hideTypingBubbleDbounced()
-      }
-
-      if (!this.uniqueKeyIcon[key] || key === 'enter' || key === 'backspace' || key === 'space') {
-        this.startKeyRepeatDebounced(key)
-      }
-    },
     startKeyRepeat: function (key) {
       this.keyRepeatInterval = setInterval(() => this.keyUp(key, null, true), 50)
+    },
+    unhighlightTypingBubble: function () {
+      this.typingBubbleHighlight = false
     },
     hideTypingBubble: function () {
       this.typingBubbleSymbol = null

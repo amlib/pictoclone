@@ -148,10 +148,10 @@ export default {
       }
     },
     onPointerUp: function () {
-      setTimeout(() => { this.clicking = false }, 100)
+      setTimeout(() => { this.clicking = false }, 150)
     },
     onPointerLeave: function () {
-      setTimeout(() => { this.clicking = false }, 100)
+      setTimeout(() => { this.clicking = false }, 150)
     },
     onPointerCancel: function () {
       this.clicking = false
