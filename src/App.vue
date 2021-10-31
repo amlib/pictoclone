@@ -165,6 +165,14 @@ body {
   image-rendering: pixelated;
 }
 
+.simple-button-normal {
+  background-color: #A2A2A2;
+}
+
+.simple-button-active {
+  background-color: #FB3041;
+}
+
 #nav a.router-link-exact-active {
   color: #42b983;
 }

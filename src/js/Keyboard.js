@@ -52,11 +52,11 @@ const uniqueKeyIcon = {
 }
 
 const uniqueKeyIconMargin = {
-  backspace: [1, 1, 1, 1],
-  enter: [1, 1, 1, 1],
-  caps: [1, 1, 1, 1],
-  shift: [1, 1, 1, 1],
-  space: [1, 29, 1, 29]
+  backspace: [1, 1],
+  enter: [1, 1],
+  caps: [1, 1],
+  shift: [1, 1],
+  space: [1, 29]
 }
 
 export { layouts, uniqueKeyTile, uniqueKeyIcon, uniqueKeyIconMargin }

@@ -1,10 +1,5 @@
 <template>
-  <div class="plate" :style="plateStyle"
-       @pointerenter="hoverFeedback ? onPointerEnter() : null"
-       @pointerleave="onPointerLeave"
-       @pointercancel="onPointerLeave"
-       @pointerdown="clickFeedback ? onPointerDown() : null"
-       @pointerup="clickFeedback ? onPointerUp() : null">
+  <div class="plate" :style="plateStyle">
     <template v-if="mode === 'scale'">
       <div :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '' ]" :style="scaledPlateStyle"/>
       <div v-if="stripeMode" :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '', 'scaled-mode-stripe-' + stripeMode ]" :style="scaledModeStripeStyle"/>
@@ -23,7 +18,6 @@ import { tileSpec } from '@/mapper/tilemap'
 
 export default {
   name: 'WPlate',
-  emits: ['clicking', 'hovering', 'click'],
   props: {
     padding: {
       type: Number,
@@ -51,30 +45,10 @@ export default {
       required: false,
       default: null
     },
-    hoverFeedback: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    clickFeedback: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    normalTile: {
+    tileName: {
       type: String,
       required: false,
       default: 'main-button'
-    },
-    hoverTile: {
-      type: String,
-      required: false,
-      default: 'main-highlight'
-    },
-    clickTile: {
-      type: String,
-      required: false,
-      default: 'main-color-fill'
     },
     stripeMode: {
       type: Number,
@@ -95,15 +69,6 @@ export default {
         return this.$global.superSample * 4
       } else {
         return this.$global.superSample * this.padding
-      }
-    },
-    tileName: function () {
-      if (this.click) {
-        return this.clickTile
-      } else if (this.over) {
-        return this.hoverTile
-      } else {
-        return this.normalTile
       }
     },
     plateStyle: function () {
@@ -255,30 +220,6 @@ export default {
     }
   },
   methods: {
-    onPointerDown: function () {
-      this.click = true
-      this.$emit('clicking', this.click)
-    },
-    onPointerUp: function () {
-      this.click = false
-      this.$emit('clicking', this.click)
-      this.$emit('click')
-    },
-    onPointerEnter: function () {
-      this.over = true
-      this.$emit('hovering', this.over)
-    },
-    onPointerLeave: function () {
-      if (this.hoverFeedback) {
-        this.over = false
-        this.$emit('hovering', this.over)
-      }
-
-      if (this.clickFeedback) {
-        this.click = false
-        this.$emit('clicking', this.click)
-      }
-    },
     getSlice: function (alias) {
       const obj = {}
       const img = this.$tileMap(alias)

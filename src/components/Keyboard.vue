@@ -1,14 +1,14 @@
 <template>
-  <w-plate normal-tile="main-foreground" :padding="0" v-bind="$attrs"
+  <w-plate tile-name="main-foreground" :padding="0" v-bind="$attrs"
            :notch="[true, true, true, true]">
     <div v-if="layouts[mode]" :class="['keyboard', mode]" ref="keyboard"
          @pointerdown="pointerDown" @pointermove="pointerMoveThrottled" @pointerup="pointerUp" @pointercancel="pointerCancel">
       <template v-for="(section, index) in layouts[mode].sections" :key="index">
         <div :class="section.class">
           <template v-for="(key, keyIndex) in section.keys" :key="key">
-            <w-button :text="key" :class="section.keyClass" :padding="0" no-borders
-                      :normal-tile="uniqueKeyTile[key] ? 'keyboard-special' : 'keyboard-normal'"
-                      click-tile="keyboard-highlight"
+            <w-button :text="key" :class="section.keyClass"
+                      :normal-class="uniqueKeyTile[key] ? 'keyboard-spbutton-normal' : 'keyboard-button-normal'"
+                      :active-class="uniqueKeyTile[key] ? 'keyboard-spbutton-active' : 'keyboard-button-active'"
                       icon-prefix-normal="icon-keyboard-normal"
                       icon-prefix-highlight="icon-keyboard-highlight"
                       :icon="uniqueKeyIcon[key] ? key : null" :icon-margin="uniqueKeyIconMargin[key]"
@@ -25,7 +25,7 @@
     <div v-show="draggingShow" class="symbol-drag-box"
          :style="{ left: this.draggingOffsetX + 'px', top: this.draggingOffsetY + 'px' }">
       <w-plate v-if="$global.mobileAssists" class="symbol-box-balloon" :padding="0" global-tint
-               normal-tile="main-color-fill" :notch="[false, false, true, true]">
+               tile-name="main-color-fill" :notch="[false, false, true, true]">
         {{ draggingSymbol }}
       </w-plate>
       <div class="symbol-drag-box-char">{{ draggingSymbol }}</div>
@@ -33,7 +33,7 @@
     <div v-show="typingBubbleSymbol && $global.mobileAssists" class="symbol-drag-box"
          :style="{ left: this.typingBubbleOffsetX + 'px', top: this.typingBubbleOffsetY + 'px' }">
       <w-plate class="symbol-box-balloon" :padding="0" global-tint
-               normal-tile="main-color-fill" :notch="[false, false, true, true]">
+               tile-name="main-color-fill" :notch="[false, false, true, true]">
         {{ typingBubbleSymbol }}
       </w-plate>
     </div>
@@ -231,7 +231,7 @@ export default {
   padding-top: calc(1px * var(--global-ss));
   padding-left: calc(1px * var(--global-ss));
   padding-right: calc(2px * var(--global-ss));
-  padding-bottom: calc(1px * var(--global-ss));
+  padding-bottom: calc(2px * var(--global-ss));
 }
 
 /* z-index necessary for key mobile-assists to work */
@@ -332,9 +332,20 @@ export default {
   pointer-events: none;
   line-height: 0;
 }
-/*.key-caps {*/
-/*  line-height: calc(14px * var(--global-ss));*/
-/*  font-size: calc(6px * var(--global-ss));*/
-/*  font-weight: bold;*/
-/*}*/
+
+.keyboard-button-normal {
+  background-color: #EBEBEB
+}
+
+.keyboard-button-active {
+  background-color: #fb9aa2;
+}
+
+.keyboard-spbutton-normal {
+  background-color: #cbcbcb
+}
+
+.keyboard-spbutton-active {
+  background-color: #fb9aa2;
+}
 </style>

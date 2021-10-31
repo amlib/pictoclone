@@ -1,12 +1,12 @@
 <template>
-  <w-plate class="message-area" normal-tile="main-drawing-area"
+  <w-plate class="message-area" tile-name="main-drawing-area"
            :notch="[true, true, true, true]"
            :stripe-mode="edit ? 2 : null" global-tint>
     <w-drawing-canvas v-if="edit" :width="messagePayload.width" :height="messagePayload.height" ref="drawing"
       class="drawing-area" :target-width="targetWidth" :target-height="targetHeight"
       :tool="selectedTool" :brush-size="brushSize" text-font="10px NDS12" :line-height="16"/>
     <div v-else class="drawing-area drawing-area-show pixel-rendering" :style="getViewStyle"/>
-    <w-plate :class="[isMessageOneSegment ? 'fill' : '', 'message-area-user-tag']" normal-tile="main-color-background"
+    <w-plate :class="[isMessageOneSegment ? 'fill' : '', 'message-area-user-tag']" tile-name="main-color-background"
              :notch="[true, false, true, isMessageOneSegment]" global-tint>
       <div class="global-color-hue-tint">{{ messagePayload.user }}</div>
     </w-plate>

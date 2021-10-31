@@ -5,7 +5,7 @@
     <template v-for="(entry, index) in queue" :key="index">
       <div>
         <template v-if="entry.type === 'notification'">
-          <w-plate class="queue-entry" normal-tile="main-inverted"
+          <w-plate class="queue-entry" tile-name="main-inverted"
                    :notch="[true, true, true, true]">
            {{ entry.payload.text }}
           </w-plate>
@@ -71,7 +71,7 @@ export default {
     })
 
     this.scrollToEntryDebounced = debounce(this.scrollToEntry, 66, { maxWait: 333 })
-    this.onScrollThrottled = throttle(this.onScroll, 133, { leading: false, trailing: true })
+    this.onScrollThrottled = throttle(this.onScroll, 133, { leading: true, trailing: true })
 
     this.visibility = {}
     this.pointerX = null

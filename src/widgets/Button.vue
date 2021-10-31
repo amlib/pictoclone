@@ -1,14 +1,15 @@
 <template>
-  <button>
-    <w-plate click-feedback :color-hue-deg="colorHueDeg" :global-tint="globalTint" :notch="notch"
-             :normal-tile="toggled ? clickTile : normalTile" :click-tile="clickTile"
-             :no-borders="noBorders" :padding="padding != null ? padding : 1" class="button-plate"
-             @hovering="val => hovering = val" @clicking="val => clicking = val">
-      <img v-if="icon" draggable="false"
-           :class="[ 'image', globalTint ? 'global-color-hue-tint' : '' ]"
-           :src="iconImageSrc" :style="iconStyle"/>
+  <button :style="buttonStyle" :class="['button',
+      globalTint ? 'global-color-hue-tint' : '',
+      clicking || toggled ? activeClass : normalClass]"
+      @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="onPointerCancel" @pointerleave="onPointerLeave">
+    <w-plate v-if="normalTile" :global-tint="false" :notch="plateNotch"
+             :tile-name="toggled || clicking ? activeTile : normalTile"
+             :padding="platePadding" class="button-plate">
       <slot></slot>
+      <div class="plate-icon" :style="iconBase"></div>
     </w-plate>
+    <slot v-if="!normalTile"></slot>
   </button>
 </template>
 
@@ -23,7 +24,7 @@ export default {
       required: false,
       default: null
     },
-    // margin in clockwise order: top right bottom left
+    // margin as [ top-bottom, left-right ]
     iconMargin: {
       type: Array,
       required: false,
@@ -39,10 +40,15 @@ export default {
       required: false,
       default: 'icon-color-fill'
     },
-    text: {
+    normalClass: {
       type: String,
       required: false,
-      default: null
+      default: ''
+    },
+    activeClass: {
+      type: String,
+      required: false,
+      default: ''
     },
     colorHueDeg: {
       type: Number,
@@ -54,94 +60,127 @@ export default {
       required: false,
       default: true
     },
-    noBorders: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    notch: {
-      type: Array,
-      required: false,
-      default: null
-    },
-    padding: {
-      type: Number,
-      required: false,
-      default: null
-    },
-    normalTile: {
-      type: String,
-      required: false,
-      default: 'small-button'
-    },
-    clickTile: {
-      type: String,
-      required: false,
-      default: 'small-button-highlight'
-    },
     toggled: {
       type: Boolean,
       required: false,
       default: false
+    },
+    // props for w-plate
+    plateNotch: {
+      type: Array,
+      required: false,
+      default: null
+    },
+    platePadding: {
+      type: Number,
+      required: false,
+      default: null
+    },
+    // passing normalTile props activates w-plate mode
+    normalTile: {
+      type: String,
+      required: false,
+      default: null
+    },
+    activeTile: {
+      type: String,
+      required: false,
+      default: null
     }
   },
   data: function () {
     return {
-      clicking: false,
-      hovering: false
+      clicking: false
     }
   },
   created: function () {
-    // this.$watch(() => this.$global.superSample, () => {
-    //   this.key += 1
-    // })
   },
   computed: {
-    iconImageSrc: function () {
-      // eslint-disable-next-line no-unused-expressions
-      this.$global.superSample
-      if (this.clicking || this.toggled) {
-        return this.$tileMap(this.iconPrefixHighlight + '-' + this.icon).url
-      } else {
-        return this.$tileMap(this.iconPrefixNormal + '-' + this.icon).url
-      }
-    },
-    iconStyle: function () {
+    iconBase: function () {
       const obj = {}
       const ss = this.$global.superSample
+      let tile
 
-      if (this.colorHueDeg) {
-        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
+      if (this.clicking || this.toggled) {
+        tile = this.$tileMap(this.iconPrefixHighlight + '-' + this.icon)
+      } else {
+        tile = this.$tileMap(this.iconPrefixNormal + '-' + this.icon)
       }
 
       if (this.iconMargin) {
-        obj.margin = `${this.iconMargin[0] * ss}px ${this.iconMargin[1] * ss}px ${this.iconMargin[2] * ss}px ${this.iconMargin[3] * ss}px`
+        const margin = this.iconMargin
+        obj.width = `${tile.w + margin[1] * 2 * ss}px`
+        obj.height = `${tile.h + margin[0] * 2 * ss}px`
+      } else {
+        obj.width = `${tile.w}px`
+        obj.height = `${tile.h}px`
+      }
+
+      obj.backgroundImage = `url(${tile.url})`
+      obj.backgroundImage = `url(${tile.url})`
+
+      return obj
+    },
+    buttonStyle: function () {
+      let obj
+
+      if (this.icon && !this.normalTile) {
+        obj = this.iconBase
+      } else {
+        obj = {}
+      }
+
+      if (this.normalTile) {
+        obj.backgroundColor = 'unset'
+      }
+
+      if (this.colorHueDeg) {
+        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
       }
 
       return obj
     }
   },
   methods: {
+    onPointerDown: function (event) {
+      if (event.buttons & 1) {
+        this.clicking = true
+      }
+    },
+    onPointerUp: function () {
+      setTimeout(() => { this.clicking = false }, 100)
+    },
+    onPointerLeave: function () {
+      setTimeout(() => { this.clicking = false }, 100)
+    },
+    onPointerCancel: function () {
+      this.clicking = false
+    }
   }
 }
 </script>
 
 <style scoped>
-button {
+.button {
   padding: unset;
-  background-color: unset;
+  min-width: 8px;
+  min-height: 8px;
   border: none;
   line-height: 0;
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
-.image {
-  user-select: none;
-  pointer-events: none;
+.plate-icon {
+  background-repeat: no-repeat;
+  background-position: center;
 }
-.rendering-pixel .image {
+
+.rendering-pixel button {
   image-rendering: pixelated;
 }
-.rendering-quality .image {
+.rendering-quality button {
   image-rendering: high-quality;
 }
 

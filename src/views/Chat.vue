@@ -4,25 +4,29 @@
       <div id="mini-queue" class="mini-queue"/>
       <div class="separator"></div>
       <div class="button-bar-wrapper">
-        <w-button class="closer" icon="arrow-up" :padding="0" no-borders @click="onScrollUp"/>
-        <w-button class="closer" icon="arrow-down" :padding="0" no-borders @click="onScrollDown"/>
+        <w-button class="closer" icon="arrow-up" :plate-padding="0"
+                  normal-class="simple-button-normal" active-class="simple-button-active"
+                  @click="onScrollUp"/>
+        <w-button class="closer" icon="arrow-down" :plate-padding="0"
+                  normal-class="simple-button-normal" active-class="simple-button-active"
+                  @click="onScrollDown"/>
       </div>
       <div class="separator landscape-hide"></div>
-      <div v-if="!$global.isLandscape" ref="buttons-mount"></div>
+      <div ref="buttons-mount-a"></div>
     </div>
     <div class="main-wrapper">
       <div class="main-queue-container">
-        <w-plate class="main-queue-wrapper" normal-tile="main-background"
+        <w-plate class="main-queue-wrapper" tile-name="main-background"
                  :notch="[true, true, true, true]" :padding="3"
                  :stripe-mode=1 stripe-color="#bababa">
           <chat-queue ref="queue" attach-mini-queue="#mini-queue"/>
         </w-plate>
       </div>
       <div class="button-bar portrait-hide">
-        <div v-if="$global.isLandscape" ref="buttons-mount"></div>
+        <div ref="buttons-mount-b"></div>
       </div>
       <div class="main-interface-container">
-        <w-plate class="main-interface-wrapper" normal-tile="main-background"
+        <w-plate class="main-interface-wrapper" tile-name="main-background"
                  :notch="[true, false, false, true]" :padding="3"
                  :stripe-mode=1 stripe-color="#bababa">
           <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]"
@@ -33,38 +37,40 @@
                       @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag"/>
             <div class="button-cluster">
               <w-button class="button-cluster-button" icon="send"
-                        normal-tile="main-button" click-tile="main-color-fill"
-                        :notch="[true, false, false, false]" :padding="3"
+                        normal-tile="main-button" active-tile="main-color-fill"
+                        :plate-notch="[true, false, false, false]" :plate-padding="3"
                         @click="sendMessage"/>
               <w-button class="button-cluster-button middle-button" icon="copy"
-                        normal-tile="main-button" click-tile="main-color-fill"
-                        :padding="4"
+                        normal-tile="main-button" active-tile="main-color-fill"
+                        :plate-padding="4"
                         @click="copySelectedMessage"/>
               <w-button class="button-cluster-button" icon="clear"
-                        normal-tile="main-button" click-tile="main-color-fill"
-                        :notch="[false, false, false, true]"  :padding="4"
+                        normal-tile="main-button" active-tile="main-color-fill"
+                        :plate-notch="[false, false, false, true]"  :plate-padding="4"
                         @click="$refs['user-message'].clearDrawing()"/>
             </div>
           </div>
         </w-plate>
       </div>
     </div>
-    <teleport v-if="mounted" :to="$refs['buttons-mount']">
+    <div id="park">
+    </div>
+    <teleport v-if="mounted" :to="$refs[$global.isLandscape ? 'buttons-mount-b' : 'buttons-mount-a']">
       <w-button-toggle v-model="selectedTool" class="button-bar-wrapper"
-                       :common-options="{ class: 'closer', 'no-borders': true }"
+                       :common-options="{ class: 'closer', 'normal-class': 'simple-button-normal', 'active-class': 'simple-button-active', iconMargin: [1, 1] }"
                        :options="[
         { icon: 'brush', name: 'brush' },
         { icon: 'eraser', name: 'eraser' }]">
       </w-button-toggle>
       <w-button-toggle v-model="brushSize" class="button-bar-wrapper"
-                       :common-options="{ class: 'closer', 'no-borders': true }"
+                       :common-options="{ class: 'closer', 'normal-class': 'simple-button-normal', 'active-class': 'simple-button-active', iconMargin: [1, 1] }"
                        :options="[
         { icon: 'brush-big', name: 'brush-big' },
         { icon: 'brush-small', name: 'brush-small' }]">
       </w-button-toggle>
       <div class="separator"></div>
       <w-button-toggle v-model="keyboardMode" class="button-bar-wrapper"
-                       :common-options="{ notch: [true, false, false, false] }"
+                       :common-options="{ 'plate-notch': [true, false, false, false], 'normal-tile': 'small-button', 'active-tile': 'small-button-highlight', 'plate-padding': 1 }"
                        :options="[
         { icon: 'romaji', name: 'romaji' },
         { icon: 'accents', name: 'accents' },
