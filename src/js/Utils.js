@@ -6,4 +6,6 @@ const getCanvasBlob = (canvas) => {
   })
 }
 
-export { getCanvasBlob }
+const asyncSetTimeout = delay => new Promise(resolve => setTimeout(resolve, delay))
+
+export { getCanvasBlob, asyncSetTimeout }

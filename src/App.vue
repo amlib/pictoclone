@@ -12,6 +12,7 @@
 <script>
 import { throttle } from 'lodash'
 import { computed } from 'vue'
+import { colorsHex, colorsHexFaded } from '@/js/Colors'
 
 export default {
   name: 'App',
@@ -22,7 +23,9 @@ export default {
         superSample: this.$superSample,
         autoScale: true,
         mobileAssists: true,
-        isLandscape: computed(() => this.isLandscape)
+        isLandscape: computed(() => this.isLandscape),
+        userColorIndex: 2,
+        userName: 'amlib'
       },
       // renderingClass: 'rendering-pixel', // should be used with no super sampling
       renderingClass: 'rendering-quality', // use super sampling 2x or 3x with this
@@ -78,7 +81,10 @@ export default {
     },
     getAppStyle: function () {
       const marginCompensation = (this.documentWidth - (this.viewWidth * this.getScalingFactor)) / 2
+      const colorIndex = this.globalValues.userColorIndex
       const obj = {
+        '--global-c1': colorsHex[colorIndex],
+        '--global-c2': colorsHexFaded[colorIndex],
         '--global-chd': this.globalValues.colorHueDeg + 'deg',
         '--global-ss': this.globalValues.superSample,
         '--global-sf': this.getScalingFactor,

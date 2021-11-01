@@ -1,5 +1,5 @@
 <template>
-  <div class="background" :style="getStyle">
+  <div>
     <text-input v-model="userName" class="name-field"/>
     <div class="keyboard-wrapper">
       <div class="keyboard-buttons-wrapper">
@@ -27,6 +27,7 @@ import TextInput from '@/widgets/TextInput'
 export default {
   name: 'HomeName',
   components: { TextInput, WButtonToggle, Keyboard },
+  emits: ['name-selected', 'done', 'back'],
   data: function () {
     return {
       keyboardMode: 'romaji',
@@ -34,13 +35,6 @@ export default {
     }
   },
   computed: {
-    getStyle: function () {
-      const obj = {}
-      const tile = this.$tileMap('grid-background-blank')
-      obj.backgroundImage = `url(${tile.url})`
-
-      return obj
-    }
   },
   created: function () {
     const specialKeys = {
@@ -67,20 +61,23 @@ export default {
       if (this.userName.length > 0) {
         this.userName = this.userName.substring(0, this.userName.length - 1)
       }
+    },
+    done: async function () {
+      // this.mainTransitionEndCallback = () => this.$emit('done')
+      this.$emit('name-selected', this.userName)
+      this.faded = true
+      this.$emit('done')
+    },
+    back: async function () {
+      // this.mainTransitionEndCallback = () => this.$emit('back')
+      this.faded = true
+      this.$emit('back')
     }
   }
 }
 </script>
 
 <style scoped>
-.plate {
-  align-self: center;
-}
-
-.background {
-  background-position: 0 calc(7px * var(--global-ss));
-}
-
 .keyboard-wrapper {
   display: flex;
   flex-direction: row;
