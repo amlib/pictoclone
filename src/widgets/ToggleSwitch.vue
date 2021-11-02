@@ -22,6 +22,7 @@
 <script>
 import WPlate from '@/widgets/Plate'
 import WButton from '@/widgets/Button'
+import { watch } from 'vue'
 
 const defaultOptions = function () {
   return [
@@ -74,9 +75,9 @@ export default {
     }
   },
   mounted: function () {
-    if (this.modelValue) {
-      this.selectedIndex = this.options.findIndex(o => o.value === this.modelValue)
-    }
+    watch(() => this.modelValue, (newVal) => {
+      this.selectedIndex = this.options.findIndex(o => o.value === newVal)
+    }, { immediate: true })
   },
   methods: {
     toggle: function () {
@@ -112,6 +113,8 @@ export default {
   display: flex;
   flex-direction: column;
   position: relative;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .toggle-switch-description {
@@ -143,6 +146,10 @@ export default {
 .text-selected {
   opacity: 1.0;
   color: var(--global-c1);
+  position: relative;
+  text-shadow: 0 calc(-0.5px * var(--global-ss)) 0 black,
+    calc(-0.5px * var(--global-ss)) calc(-0.5px * var(--global-ss)) 0 black,
+    0 calc(0.5px * var(--global-ss)) 0 rgba(255,255,255,.4);
 }
 
 .text-recommended {

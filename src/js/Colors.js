@@ -37,6 +37,26 @@ const colorsHexFaded = [
 ]
 
 // from pure red
+const colorsCssHueDeg = {
+  '#61829A': 203,
+  '#BA4900': 54,
+  '#FB0018': 351,
+  '#FB8AFB': 300,
+  '#FB9200': 65,
+  '#F3E300': 70,
+  '#AAFB00': 73,
+  '#00FB00': 93,
+  '#00A238': 166,
+  '#49DB8A': 164,
+  '#30BAF3': 191,
+  '#0059F3': 210,
+  '#000092': 250,
+  '#8A00D3': 266,
+  '#D300EB': 273,
+  '#FB0092': 334
+}
+
+// from pure red
 const colorsCssFilter = {
   '#61829A': 'hue-rotate(203deg) brightness(1.7) saturate(0.24)',
   '#BA4900': 'hue-rotate(54deg) brightness(1.45)',
@@ -56,4 +76,4 @@ const colorsCssFilter = {
   '#FB0092': 'hue-rotate(334deg) saturate(2.8) brightness(0.98)'
 }
 
-export { colorsHex, colorsHexFaded, colorsCssFilter }
+export { colorsHex, colorsHexFaded, colorsCssHueDeg, colorsCssFilter }

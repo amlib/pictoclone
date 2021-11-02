@@ -1,34 +1,38 @@
 <template>
-  <w-plate tile-name="main-background" :stripe-mode=1 stripe-color="#bababa" :padding="0">
-    <div class="background">
-      <div class="top">
-        {{ views[view].topHint }}
-      </div>
-      <div class="middle" :style="middleStyle" @scroll="onMiddleScrollThrottled" ref="middle">
-        <div v-show="scrollUpIndicator || scrollDownIndicator" :class="['scroll-indicator', scrollUpIndicator ? 'scroll-up-indicator' : 'scroll-down-indicator']" :style="getIndicatorStyle"/>
-        <component :is="views[view].component" ref="component"
-                   @done="onDoneCompleted" @back="onBackCompleted"
-                   @color-selected="colorSelected" @name-selected="nameSelected"/>
-      </div>
-      <div class="bottom">
-        <w-button class="text-button" :plate-padding="3"
-                  normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
-                  @click="onBackThrottled">
-          Back
-        </w-button>
-        <w-button class="text-button" :plate-padding="3"
-                  normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
-                  @click="onDoneThrottled">
-          Confirm
-        </w-button>
-      </div>
+  <div class="background" :style="componentStyle">
+    <div class="top">
+      {{ views[view].topHint }}
     </div>
-  </w-plate>
+    <div class="middle" @scroll="onMiddleScrollThrottled" ref="middle">
+      <div class="scroll-up-wrapper">
+        <div :class="['scroll-indicator', 'scroll-up-indicator', scrollUpIndicator ? '' : 'scroll-hide']"
+             :style="scrollUpStyle"/>
+      </div>
+      <div class="scroll-down-wrapper">
+        <div :class="['scroll-indicator', 'scroll-down-indicator', scrollDownIndicator ? '' : 'scroll-hide']"
+             :style="scrollDownStyle"/>
+      </div>
+      <component :is="views[view].component" ref="component" :style="componentStyle" class="component"
+                 @done="onDoneCompleted" @back="onBackCompleted"
+                 @color-selected="colorSelected" @name-selected="nameSelected"/>
+    </div>
+    <div class="bottom">
+      <w-button class="text-button" :plate-padding="3"
+                normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
+                @click="onBackThrottled">
+        Back
+      </w-button>
+      <w-button class="text-button" :plate-padding="3"
+                normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
+                @click="onDoneThrottled">
+        Next
+      </w-button>
+    </div>
+  </div>
 </template>
 
 <script>
 import WButton from '@/widgets/Button'
-import WPlate from '@/widgets/Plate'
 import { defineAsyncComponent, shallowRef } from 'vue'
 import { throttle } from 'lodash'
 
@@ -49,7 +53,7 @@ const views = {
 
 export default {
   name: 'Home',
-  components: { WPlate, WButton },
+  components: { WButton },
   data: function () {
     return {
       view: undefined,
@@ -61,28 +65,28 @@ export default {
     }
   },
   computed: {
-    middleStyle: function () {
+    componentStyle: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
       const obj = {}
       const tile = this.$tileMap('grid-background-blank')
       obj.backgroundImage = `url(${tile.url})`
 
       return obj
     },
-    getIndicatorStyle: function () {
-      const obj = {}
-      let tile
-
-      if (this.scrollUpIndicator) {
-        tile = this.$tileMap('icon-normal-arrow-up')
-      } else if (this.scrollDownIndicator) {
-        tile = this.$tileMap('icon-normal-arrow-down')
+    scrollUpStyle: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
+      return {
+        backgroundImage: `url(${this.$tileMap('icon-normal-arrow-up').url})`
       }
-
-      if (tile) {
-        obj.backgroundImage = `url(${tile.url})`
+    },
+    scrollDownStyle: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
+      return {
+        backgroundImage: `url(${this.$tileMap('icon-normal-arrow-down').url})`
       }
-
-      return obj
     }
   },
   created: function () {
@@ -118,7 +122,13 @@ export default {
       this.$refs.component.done()
     },
     onBack: function () {
+      if (this.view === 'name') {
+        return
+      }
       this.$refs.component.back()
+    },
+    goToChat: function () {
+      this.$router.push('/chat')
     },
     onDoneCompleted: function () {
       if (this.view === 'name') {
@@ -126,42 +136,56 @@ export default {
       } else if (this.view === 'color') {
         this.view = 'options'
       } else if (this.view === 'options') {
-        this.view = 'name'
+        this.goToChat()
+        return
       }
-      setTimeout(this.checkComponentSize, 120)
+
+      this.$refs.middle.scrollTo(0, 0)
+      setTimeout(this.checkComponentSize, 333)
     },
     onBackCompleted: function () {
       if (this.view === 'name') {
-        this.view = 'options'
+        return
       } else if (this.view === 'color') {
         this.view = 'name'
       } else if (this.view === 'options') {
         this.view = 'color'
       }
-      setTimeout(this.checkComponentSize, 120)
+      setTimeout(this.checkComponentSize, 333)
     },
     checkComponentSize: function () {
       const element = this.$refs.middle
-      console.log('checkComponentSize', element.scrollHeight, element.offsetHeight)
-      if (element.scrollHeight - element.offsetHeight !== 0) {
-        this.scrollUpIndicator = false
-        this.scrollDownIndicator = true
+      if (element) {
+        const scrollSlack = element.scrollHeight - element.offsetHeight
+        if (scrollSlack > 3 || scrollSlack < -3) {
+          this.scrollUpIndicator = false
+          this.scrollDownIndicator = true
+        } else {
+          this.scrollUpIndicator = false
+          this.scrollDownIndicator = false
+        }
       } else {
         this.scrollUpIndicator = false
         this.scrollDownIndicator = false
       }
     },
     onMiddleScroll: function (event) {
-      if (event.target.scrollHeight - event.target.offsetHeight !== 0) {
-        if (event.target.scrollTop > 0) {
-          this.scrollUpIndicator = true
-          this.scrollDownIndicator = false
-        } else {
+      const scrollSlack = event.target.scrollHeight - event.target.offsetHeight
+      if (scrollSlack > 3 || scrollSlack < -3) {
+        if (event.target.scrollTop === 0) {
           this.scrollUpIndicator = false
           this.scrollDownIndicator = true
+        } else if (Math.round(event.target.scrollTop) < Math.round(event.target.scrollHeight - event.target.offsetHeight)) {
+          this.scrollUpIndicator = true
+          this.scrollDownIndicator = true
+        } else {
+          this.scrollUpIndicator = true
+          this.scrollDownIndicator = false
         }
+      } else {
+        this.scrollUpIndicator = false
+        this.scrollDownIndicator = false
       }
-      console.log(event.target.scrollTop, event.target.scrollHeight, event.target.offsetHeight)
     }
   }
 }
@@ -190,7 +214,6 @@ export default {
 }
 
 .middle {
-  background-position: 0 calc(7px * var(--global-ss));
   height: 100%;
   overflow: auto;
   position: relative;
@@ -203,6 +226,10 @@ export default {
   background: transparent;
 }
 
+.component {
+  background-position: 0 calc(7px * var(--global-ss));
+}
+
 .scroll-indicator {
   width: calc(14px * var(--global-ss));
   height: calc(11px * var(--global-ss));
@@ -212,21 +239,33 @@ export default {
   animation-iteration-count: infinite;
   animation-direction: alternate;
   animation-timing-function: ease-in-out;
+  transition: filter 0.1s;
+  position: absolute;
+}
+
+.scroll-up-wrapper {
+  top: 0;
+  position: sticky;
 }
 
 .scroll-up-indicator {
-  margin-left: auto;
-  top: 0;
-  position: sticky;
-  margin-bottom: -40px;
+  right: 0;
   animation-name: highlight-up;
 }
 
+.scroll-down-wrapper {
+  top: 100%;
+  position: sticky;
+}
+
 .scroll-down-indicator {
-  bottom: 0;
   right: 0;
-  position: absolute;
+  bottom: 0;
   animation-name: highlight-down;
+}
+
+.scroll-hide {
+  filter: opacity(0);
 }
 
 @keyframes highlight-up {
@@ -262,5 +301,12 @@ export default {
 .text-button {
   min-width: calc(60px * var(--global-ss));
   /*line-height: calc(20px * var(--global-ss));*/
+}
+
+.rendering-pixel .background {
+  image-rendering: pixelated;
+}
+.rendering-quality .background {
+  image-rendering: smooth;
 }
 </style>

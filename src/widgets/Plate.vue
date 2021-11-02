@@ -275,7 +275,7 @@ export default {
   image-rendering: pixelated;
 }
 .rendering-quality .plate-slice {
-  image-rendering: high-quality;
+  image-rendering: smooth;
 }
 
 .scaled-mode-stripe-1 {

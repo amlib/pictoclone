@@ -2,7 +2,8 @@
   <div :class="['main', faded ? 'main-fade' : '']" @transitionend.self="mainTransitionEnd">
     <template v-for="(setting, index) in settingsArray" :key="index">
       <w-toggle-switch v-model="settings[setting].value" :options="settings[setting].options" :ref="(el) => setSettingRef(el, index)"
-                       :class="['switch', this.settingsDisplay[index] ? '' : 'switch-hidden']">
+                       :class="['switch', this.settingsDisplay[index] ? '' : 'switch-hidden']"
+                       @update:modelValue="(val) => settings[setting].onChange(val)">
         {{ settings[setting].description }}
       </w-toggle-switch>
     </template>
@@ -64,6 +65,18 @@ const superSamplingOptions = [
   }
 ]
 
+const upscaleStyleOptions = [
+  {
+    description: 'Sharp',
+    value: 'rendering-pixel'
+  },
+  {
+    description: 'Smooth',
+    value: 'rendering-quality',
+    recommended: true
+  }
+]
+
 const genericOptions = [
   {
     description: 'ON',
@@ -83,40 +96,46 @@ export default {
   data: function () {
     return {
       settingsArray: [
-        'vibration', 'orientation', 'sound', 'autoScale', 'mobileAssists', 'superSampling'
+        'vibration', 'orientation', 'sound', 'autoScale', 'mobileAssists', 'upscaleStyle', 'superSampling'
       ],
       settings: {
         vibration: {
-          value: 1,
           options: vibrationOptions,
-          description: 'Rumble'
+          description: 'Rumble',
+          onChange: this.changeVibration
         },
         orientation: {
-          value: 0,
           options: orientationOptions,
-          description: 'Orient.'
+          description: 'Orient.',
+          onChange: this.changeOrientation
         },
         sound: {
-          value: true,
           options: undefined,
-          description: 'Sound'
+          description: 'Sound',
+          onChange: this.changeSound
         },
         autoScale: {
-          value: true,
           options: genericOptions,
-          description: 'Auto Scale'
+          description: 'Auto Scale',
+          onChange: this.changeAutoScale
         },
         mobileAssists: {
-          value: true,
           options: genericOptions,
-          description: 'Mobile Assists'
+          description: 'Mobile Assists',
+          onChange: this.changeMobileAssists
+        },
+        upscaleStyle: {
+          options: upscaleStyleOptions,
+          description: 'Bitmap Upscale',
+          onChange: this.changeUpscaleStyle
         },
         superSampling: {
-          value: 2,
           options: superSamplingOptions,
-          description: 'Super Sampling'
+          description: 'Super Sampling',
+          onChange: this.changeSuperSampling
         }
       },
+      vibration: undefined,
       settingsRefs: [],
       settingsDisplay: [],
       faded: true
@@ -127,6 +146,14 @@ export default {
   created: function () {
   },
   mounted: function () {
+    this.settings.vibration.value = this.$global.vibration
+    this.settings.orientation.value = 0 // TODO
+    this.settings.sound.value = this.$global.sound
+    this.settings.autoScale.value = this.$global.autoScale
+    this.settings.mobileAssists.value = this.$global.mobileAssists
+    this.settings.upscaleStyle.value = this.$global.renderingClass
+    this.settings.superSampling.value = this.$global.superSample
+
     setTimeout(() => { this.faded = false }, 16)
     this.settingsDisplayEffect([...Array(Object.keys(this.settings).length).keys()], true)
   },
@@ -158,6 +185,27 @@ export default {
         await asyncSetTimeout(66)
         this.settingsDisplay[displayOrder[i]] = value
       }
+    },
+    changeVibration: function (val) {
+      this.$global.vibration = val
+    },
+    changeSound: function (val) {
+      this.$global.sound = val
+    },
+    changeOrientation: function (val) {
+      // TODO
+    },
+    changeAutoScale: function (val) {
+      this.$global.autoScale = val
+    },
+    changeMobileAssists: function (val) {
+      this.$global.mobileAssists = val
+    },
+    changeUpscaleStyle: function (val) {
+      this.$global.renderingClass = val
+    },
+    changeSuperSampling: function (val) {
+      this.$global.setSuperSample(val)
     }
   }
 }
@@ -169,9 +217,8 @@ export default {
   flex-direction: row;
   /*justify-content: space-between;*/
   flex-wrap: wrap;
-  margin-top: calc(0px * var(--global-ss));
-  margin-left: calc(8px * var(--global-ss));
-  margin-right: calc(7px * var(--global-ss));
+  padding-left: calc(8px * var(--global-ss));
+  padding-right: calc(7px * var(--global-ss));
   align-items: center;
   transition: opacity 0.25s linear, transform 0.25s linear;
 }

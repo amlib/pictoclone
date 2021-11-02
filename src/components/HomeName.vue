@@ -92,6 +92,10 @@ export default {
 
 <style scoped>
 .main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
   transition: opacity 0.25s linear, transform 0.25s linear;
 }
 
@@ -104,6 +108,7 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  padding-bottom: calc(13px * var(--global-ss));
 }
 
 .landscape .keyboard-wrapper {
@@ -137,7 +142,7 @@ export default {
 }
 
 .name-field {
-  margin-top:  calc(7px * var(--global-ss));
-  margin-bottom:  calc(15px * var(--global-ss));
+  padding-top:  calc(23px * var(--global-ss));
+  padding-bottom:  calc(10px * var(--global-ss));
 }
 </style>

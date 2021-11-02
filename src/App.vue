@@ -1,6 +1,6 @@
 <template>
   <div :class="['view',
-      this.renderingClass,
+      this.globalValues.renderingClass,
       this.isLandscape ? 'landscape' : 'portrait',
       this.globalValues.autoScale ? undefined : 'no-scale',
       this.globalValues.mobileAssists ? 'mobile-assists' : undefined]"
@@ -12,7 +12,7 @@
 <script>
 import { throttle } from 'lodash'
 import { computed } from 'vue'
-import { colorsHex, colorsHexFaded } from '@/js/Colors'
+import { colorsCssHueDeg, colorsHex, colorsHexFaded } from '@/js/Colors'
 
 export default {
   name: 'App',
@@ -21,14 +21,17 @@ export default {
       globalValues: {
         colorHueDeg: 220,
         superSample: this.$superSample,
+        setSuperSample: this.setSuperSample,
         autoScale: true,
         mobileAssists: true,
         isLandscape: computed(() => this.isLandscape),
-        userColorIndex: 2,
-        userName: 'amlib'
+        userColorIndex: 0,
+        userName: 'amlib',
+        vibration: 0,
+        sound: true,
+        // renderingClass: 'rendering-pixel', // should be used with no super sampling
+        renderingClass: 'rendering-quality' // use super sampling 2x or 3x with this
       },
-      // renderingClass: 'rendering-pixel', // should be used with no super sampling
-      renderingClass: 'rendering-quality', // use super sampling 2x or 3x with this
       patchingTiles: true, // kludge for "glitchyness" when changing tiles
       documentWidth: 1,
       documentHeight: 1,
@@ -82,10 +85,12 @@ export default {
     getAppStyle: function () {
       const marginCompensation = (this.documentWidth - (this.viewWidth * this.getScalingFactor)) / 2
       const colorIndex = this.globalValues.userColorIndex
+
       const obj = {
         '--global-c1': colorsHex[colorIndex],
         '--global-c2': colorsHexFaded[colorIndex],
-        '--global-chd': this.globalValues.colorHueDeg + 'deg',
+        // '--global-cf': colorsCssFilter[colorsHex[colorIndex]],
+        '--global-chd': colorsCssHueDeg[colorsHex[colorIndex]] + 'deg',
         '--global-ss': this.globalValues.superSample,
         '--global-sf': this.getScalingFactor,
         visibility: this.patchingTiles ? 'hidden' : null
@@ -106,7 +111,7 @@ export default {
       this.globalValues.superSample = newValue
       setTimeout(() => {
         this.patchingTiles = false
-      }, 150)
+      }, 100)
     },
     onResize: function () {
       this.documentWidth = document.firstElementChild.offsetWidth
@@ -159,6 +164,10 @@ body {
 .global-color-hue-tint {
   filter: hue-rotate(var(--global-chd));
 }
+
+/*.global-color-tint {*/
+/*  filter: var(--global-cf);*/
+/*}*/
 
 .pixel-rendering {
   image-rendering: pixelated;

@@ -167,7 +167,7 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-top: calc(7px * var(--global-ss));
+  padding-top: calc(7px * var(--global-ss));
   transition: opacity 0.25s linear, transform 0.25s linear;
 }
 

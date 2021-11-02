@@ -44,6 +44,8 @@ export default {
       return this.modelValue.length
     },
     getPreBorderLeft: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
       const obj = {}
       const tile = this.$tileMap('grid-background-input-pre-border-left')
       obj.backgroundImage = `url(${tile.url})`
@@ -51,6 +53,8 @@ export default {
       return obj
     },
     getBorderLeftStyle: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
       const obj = {}
       const tile = this.$tileMap('grid-background-input-border-left')
       obj.backgroundImage = `url(${tile.url})`
@@ -58,6 +62,8 @@ export default {
       return obj
     },
     getInputStyle: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
       const obj = {}
       const tile = this.$tileMap('grid-background-input')
       obj.backgroundImage = `url(${tile.url})`
@@ -65,6 +71,8 @@ export default {
       return obj
     },
     getPostBorderRight: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
       const obj = {}
       const tile = this.$tileMap('grid-background-input-post-border-right')
       obj.backgroundImage = `url(${tile.url})`
@@ -72,6 +80,8 @@ export default {
       return obj
     },
     getCaretStyle: function () {
+      // eslint-disable-next-line no-unused-expressions
+      this.$global.superSample
       const obj = {}
       const tile = this.$tileMap('grid-background-input-caret')
       obj.backgroundImage = `url(${tile.url})`

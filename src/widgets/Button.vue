@@ -187,7 +187,7 @@ export default {
   image-rendering: pixelated;
 }
 .rendering-quality button {
-  image-rendering: high-quality;
+  image-rendering: smooth;
 }
 
 </style>
