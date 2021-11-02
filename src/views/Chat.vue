@@ -1,7 +1,16 @@
 <template>
   <div class="main">
     <div class="button-bar">
-      <div id="mini-queue" class="mini-queue"/>
+      <div class="button-bar-wrapper">
+        <w-button :plate-padding="0" style="line-height: calc(15px * var(--global-ss))"
+                  normal-tile="beveled-button" active-tile="beveled-button-highlight"
+                  @click="onClose">
+          X
+        </w-button>
+      </div>
+      <div class="mini-queue-wrapper">
+        <div id="mini-queue" class="mini-queue"/>
+      </div>
       <div class="separator"></div>
       <div class="button-bar-wrapper">
         <w-button class="closer" icon="arrow-up" :plate-padding="0"
@@ -105,8 +114,8 @@ export default {
       selectedTool: 'brush',
       brushSize: 'brush-big',
       messagePayload: {
-        user: 'User 123',
-        color: '#0000ff',
+        user: this.$global.userName,
+        colorIndex: this.$global.userColorIndex,
         width: messageWidth,
         height: messageHeight
       },
@@ -159,6 +168,9 @@ export default {
           // dummy
         }
       }
+    },
+    onClose: function () {
+      this.$router.push('/')
     }
   }
 }
@@ -183,6 +195,28 @@ export default {
   visibility: collapse;
 }
 
+/* mini-queue */
+
+.mini-queue-wrapper {
+  overflow-y: hidden;
+  margin-left: calc(2px * var(--global-ss));
+  margin-right: calc(2px * var(--global-ss));
+  margin-bottom: calc(2px * var(--global-ss));
+  position: relative;
+  flex-grow: 1;
+}
+
+.mini-queue {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  top: auto;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
 /* button-bar */
 
 .button-bar {
@@ -201,12 +235,6 @@ export default {
   min-height: calc(1px * var(--global-ss));
   background-image: linear-gradient(90deg, #ffffff 25%, #494949 25%, #494949 50%, #ffffff 50%, #ffffff 75%, #494949 75%, #494949 100%);
   background-size: calc(4px * var(--global-ss)) calc(4px * var(--global-ss));
-}
-
-.mini-queue {
-  margin-left: calc(2px * var(--global-ss));
-  margin-right: calc(2px * var(--global-ss));
-  margin-bottom: calc(2px * var(--global-ss));
 }
 
 /* also non scoped version */

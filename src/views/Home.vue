@@ -90,7 +90,7 @@ export default {
     }
   },
   created: function () {
-    this.view = 'options'
+    this.view = 'name'
   },
   mounted: function () {
     this.onBackThrottled = throttle(this.onBack, 666, { leading: true })

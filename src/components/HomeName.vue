@@ -13,7 +13,7 @@
         { icon: 'symbols2', name: 'symbols2' }]">
         </w-button-toggle>
       </div>
-      <keyboard class="keyboard" :mode="keyboardMode"
+      <keyboard class="keyboard" :mode="keyboardMode" :symbol-drop="false"
                 @keyboard-key-press="keyPress"/>
     </div>
   </div>

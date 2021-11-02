@@ -56,6 +56,11 @@ export default {
     mode: {
       type: String,
       required: true
+    },
+    symbolDrop: {
+      type: Boolean,
+      required: false,
+      default: true
     }
   },
   data: function () {
@@ -182,9 +187,11 @@ export default {
         this.hideTypingBubbleDbounced.flush()
         this.draggingCapturedElement.removeEventListener('pointerleave', this.pointerLeave)
         this.$refs.keyboard.setPointerCapture(event.pointerId)
-        this.draggingSymbol = this.draggingCapturedElement.innerText
-        if (this.draggingSymbol === '') {
-          this.draggingSymbol = null
+        if (this.symbolDrop) {
+          this.draggingSymbol = this.draggingCapturedElement.innerText
+          if (this.draggingSymbol === '') {
+            this.draggingSymbol = null
+          }
         }
       }
     },

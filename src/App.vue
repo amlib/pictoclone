@@ -5,7 +5,12 @@
       this.globalValues.autoScale ? undefined : 'no-scale',
       this.globalValues.mobileAssists ? 'mobile-assists' : undefined]"
        :style="getAppStyle" ref="view">
-    <router-view :style="getViewStyle"/>
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" :style="getViewStyle"/>
+      </transition>
+    </router-view> vue-router.esm-bundler.js:72
+
   </div>
 </template>
 
@@ -19,13 +24,13 @@ export default {
   data: function () {
     return {
       globalValues: {
-        colorHueDeg: 220,
+        colorHueDeg: computed(() => this.colorHueDeg),
         superSample: this.$superSample,
         setSuperSample: this.setSuperSample,
         autoScale: true,
         mobileAssists: true,
         isLandscape: computed(() => this.isLandscape),
-        userColorIndex: 0,
+        userColorIndex: 2,
         userName: 'amlib',
         vibration: 0,
         sound: true,
@@ -42,12 +47,14 @@ export default {
   created: function () {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
     // Since we get reactive across the entire app... uncomment for RGB mode lol
-    // setInterval(() => { this.globalValues.colorHueDeg += 15 }, 50)
-
-    setTimeout(() => { this.patchingTiles = false }, 100)
     // setInterval(() => {
-    //   this.setSuperSample(this.globalValues.superSample === 2 ? 1 : 2)
-    // }, 1500)
+    //   this.globalValues.userColorIndex += 1
+    //   if (this.globalValues.userColorIndex > colorsHex.length - 1) {
+    //     this.globalValues.userColorIndex = 0
+    //   }
+    // }, 100)
+
+    setTimeout(() => { this.patchingTiles = false }, 300)
   },
   mounted: function () {
     this.$.root.appContext.config.globalProperties.$isLandscape = this.isLandscape
@@ -68,6 +75,10 @@ export default {
   computed: {
     isLandscape: function () {
       return (this.documentWidth / this.documentHeight) > (this.$route.meta.landscapeBreakpointRatio)
+    },
+    colorHueDeg: function () {
+      const colorIndex = this.globalValues.userColorIndex
+      return colorsCssHueDeg[colorsHex[colorIndex]]
     },
     getScalingFactor: function () {
       const documentRatio = this.documentWidth / this.documentHeight
@@ -140,15 +151,14 @@ html {
 body {
   margin: 0;
   padding: 0;
-  touch-action: pan-y;
-  overflow-x: hidden;
+  touch-action: auto;
   height: 100%;
   background-color: black;
 }
 
 #app {
   height: 100%;
-  overflow: hidden;
+  overflow-y: hidden;
 }
 
 .no-scale {
@@ -179,6 +189,16 @@ body {
 
 .simple-button-active {
   background-color: #FB3041;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 #nav a.router-link-exact-active {

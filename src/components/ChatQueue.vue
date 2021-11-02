@@ -18,7 +18,7 @@
     <teleport v-if="mounted && attachMiniQueue" :to="attachMiniQueue">
       <template v-for="(entry, index) in queue" :key="index">
         <div class="mini-entry"
-             :style="{ backgroundColor: !entry.visible ? '#b2c3db' : (entry.type === 'message' ? entry.payload.color : '#415969') }"/>
+             :style="{ backgroundColor: !entry.visible ? '#b2c3db' : (entry.type === 'message' ? colorsHex[entry.payload.colorIndex] : '#415969') }"/>
       </template>
     </teleport>
   </div>
@@ -28,6 +28,7 @@
 import WPlate from '@/widgets/Plate'
 import { throttle, debounce } from 'lodash'
 import Message from '@/components/Message'
+import { colorsHex } from '@/js/Colors'
 
 export default {
   name: 'ChatQueue',
@@ -49,6 +50,7 @@ export default {
   },
   created () {
     this.selectedEntryIndex = this.queue.length - 1 // 0 = first on array/ second on dom (due to spacer not counting)
+    this.colorsHex = colorsHex
   },
   mounted: function () {
     this.addEntry({
@@ -263,7 +265,7 @@ export default {
 .mini-entry {
   height: calc(2px * var(--global-ss));
   margin-top: calc(2px * var(--global-ss));
-  margin-bottom: calc(2px * var(--global-ss));
+  /*margin-bottom: calc(2px * var(--global-ss));*/
 }
 
 .mini-entry-not-visible {

@@ -40,7 +40,7 @@ const colorsHexFaded = [
 const colorsCssHueDeg = {
   '#61829A': 203,
   '#BA4900': 54,
-  '#FB0018': 351,
+  '#FB0018': 358,
   '#FB8AFB': 300,
   '#FB9200': 65,
   '#F3E300': 70,
@@ -76,4 +76,19 @@ const colorsCssFilter = {
   '#FB0092': 'hue-rotate(334deg) saturate(2.8) brightness(0.98)'
 }
 
-export { colorsHex, colorsHexFaded, colorsCssHueDeg, colorsCssFilter }
+const rainbowBrushColors = [
+  '#FB0018',
+  '#FB9200',
+  '#ffef00',
+  '#b7ff00',
+  '#1fff1f',
+  '#00ff59',
+  '#00b4ff',
+  '#005dff',
+  '#0000ff',
+  '#a800ff',
+  '#e600ff',
+  '#ff0094'
+]
+
+export { colorsHex, colorsHexFaded, colorsCssHueDeg, colorsCssFilter, rainbowBrushColors }

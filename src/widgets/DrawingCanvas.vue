@@ -1,5 +1,6 @@
 <template>
   <div class="canvas-wrapper" v-bind="$attrs">
+    <canvas ref="canvas-buffer2" :width="width" :height="height" class="canvas canvas-buffer2 pixel-rendering" :style="canvasStyle"/>
     <canvas ref="canvas-buffer" :width="width" :height="height" class="canvas canvas-buffer pixel-rendering" :style="canvasStyle"/>
     <canvas ref="canvas" :width="width" :height="height" class="canvas pixel-rendering" :style="canvasStyle"
             @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel"/>
@@ -8,6 +9,7 @@
 
 <script>
 import { getCanvasBlob } from '@/js/Utils'
+import { rainbowBrushColors } from '@/js/Colors'
 
 const brushType = 'brush-normal'
 const brushes = [
@@ -64,13 +66,16 @@ export default {
       type: Number,
       required: false,
       default: 4
+    },
+    rainbowBrush: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data: function () {
     return {
       beginPosition: { x: 0, y: 0 },
-      brushType: brushType,
-      brushes: brushes,
       textBuffer: []
     }
   },
@@ -108,6 +113,10 @@ export default {
     }
   },
   created: function () {
+    this.brushType = brushType
+    this.brushes = brushes
+    this.rainbowBrushColors = rainbowBrushColors
+    this.rainbowBrushColorIndex = 0
     this.painting = false
     this.stroking = false
     this.textBufferLineOffsets = []
@@ -118,6 +127,7 @@ export default {
     this.canvasContext = this.$refs.canvas.getContext('2d')
     this.canvasBufferContext = this.$refs['canvas-buffer'].getContext('2d')
     this.canvasBufferContext.font = this.textFont
+    this.canvasBuffer2Context = this.$refs['canvas-buffer2'].getContext('2d')
     this.textBufferClear()
   },
   methods: {
@@ -157,16 +167,39 @@ export default {
     moveStroke: function (x, y) {
       if (this.painting) {
         this.stroking = true
+
         const destPosition = { x: Math.round(x), y: Math.round(y) }
         const dist = Math.min(this.distanceBetween(this.beginPosition, destPosition), 100)
         const angle = this.angleBetween(this.beginPosition, destPosition)
         const halfSizeOfBrush = Math.floor(this.brushSize / 2)
 
         const target = this.brushSize >= 2 ? Math.floor(dist) : Math.ceil(dist)
+
+        let canvasTarget
+        if (this.rainbowBrush) {
+          this.rainbowBrushColorIndex += 1
+          if (this.rainbowBrushColorIndex > this.rainbowBrushColors.length - 1) {
+            this.rainbowBrushColorIndex = 0
+          }
+
+          this.canvasBuffer2Context.globalCompositeOperation = 'source-over'
+          this.canvasBuffer2Context.clearRect(0, 0, this.width, this.height)
+          canvasTarget = this.canvasBuffer2Context
+        } else {
+          canvasTarget = this.canvasContext
+        }
+
         for (let i = 0; i < target; i++) {
           const x = this.beginPosition.x + (Math.sin(angle) * i) - halfSizeOfBrush
           const y = this.beginPosition.y + (Math.cos(angle) * i) - halfSizeOfBrush
-          this.canvasContext.drawImage(this.brushesImages[this.brush], Math.round(x), Math.round(y))
+          canvasTarget.drawImage(this.brushesImages[this.brush], Math.round(x), Math.round(y))
+        }
+
+        if (this.rainbowBrush) {
+          this.canvasBuffer2Context.globalCompositeOperation = 'source-in'
+          this.canvasBuffer2Context.fillStyle = this.rainbowBrushColors[this.rainbowBrushColorIndex]
+          this.canvasBuffer2Context.fillRect(0, 0, this.width, this.height)
+          this.canvasContext.drawImage(this.$refs['canvas-buffer2'], 0, 0)
         }
 
         this.beginPosition = destPosition
@@ -175,6 +208,10 @@ export default {
     endStroke: function (x, y) {
       if (!this.stroking) {
         this.canvasContext.drawImage(this.brushesImages[this.brush], this.beginPosition.x, this.beginPosition.y)
+      } else {
+        if (this.rainbowBrush) {
+          this.canvasBuffer2Context.clearRect(0, 0, this.width, this.height)
+        }
       }
       this.painting = false
       this.stroking = false
@@ -233,7 +270,10 @@ export default {
       return true
     },
     textBufferBackspace: function () {
-      const newString = this.textBufferLastLine.substring(0, this.textBufferLastLine.length - 1)
+      let newString
+      if (this.textBufferLastLine) {
+        newString = this.textBufferLastLine.substring(0, this.textBufferLastLine.length - 1)
+      }
 
       if (newString == null || newString === '') {
         this.textBuffer.pop()
@@ -386,6 +426,16 @@ export default {
   right: 0;
   bottom: 0;
   pointer-events: none;
+}
+
+.canvas-buffer2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  /*visibility: hidden;*/
 }
 
 .brush-image {
