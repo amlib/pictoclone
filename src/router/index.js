@@ -6,7 +6,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
-    meta: { portraitConstrainRatio: 11.5 / 9, landscapeBreakpointRatio: 99999, landscapeConstrainRatio: 11.5 / 9 }
+    meta: { portraitConstrainRatio: 11.5 / 9, landscapeBreakpointRatio: 18 / 9, landscapeConstrainRatio: 23 / 9 }
   },
   {
     path: '/chat',

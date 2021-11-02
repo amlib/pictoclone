@@ -5,7 +5,7 @@
       @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="onPointerCancel" @pointerleave="onPointerLeave">
     <w-plate v-if="normalTile" :global-tint="false" :notch="plateNotch"
              :tile-name="toggled || clicking ? activeTile : normalTile"
-             :padding="platePadding" class="button-plate">
+             :padding="platePadding" :class="['button-plate', expandPlate ? 'plate-expand' : '']">
       <slot></slot>
       <div v-if="icon" class="plate-icon" :style="iconBase"></div>
     </w-plate>
@@ -86,6 +86,11 @@ export default {
       type: String,
       required: false,
       default: null
+    },
+    expandPlate: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data: function () {
@@ -172,6 +177,10 @@ export default {
 .plate-icon {
   background-repeat: no-repeat;
   background-position: center;
+}
+
+.plate-expand {
+  display: contents;
 }
 
 .rendering-pixel button {

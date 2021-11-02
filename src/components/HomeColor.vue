@@ -1,28 +1,26 @@
 <template>
-  <div>
-    <div :class="['main', faded ? 'main-fade' : '']" :style="mainStyle" @transitionend="mainTransitionEnd">
-      <w-plate class="colors-window" tile-name="thin-frame" :padding="2">
-        <div class="window-colors-content">
-          <div class="selected-color-box" :style="selectedColorBoxStyle" @transitionend.stop="colorBoxTransitionEnd"/>
-          <template v-for="(row, rowIndex) in colorsRows" :key="rowIndex">
-            <div class="color-row">
-              <template v-for="(color, cIndex) in colors.filter((c, i) => Math.floor(i / colorsPerRow) === rowIndex)" :key="cIndex">
-                <div class="color-frame color-frame-margin"
-                     :ref="(el) => setColorRef(el, rowIndex * colorsPerRow + cIndex)"
-                     :style="{ backgroundColor: color, visibility: this.colorSwatchDisplay[rowIndex * colorsPerRow + cIndex] ? undefined : 'hidden' }"
-                     @click="setColorIndex(rowIndex * colorsPerRow + cIndex)"/>
-              </template>
-            </div>
-          </template>
-        </div>
-      </w-plate>
-      <w-plate class="selected-color-window" tile-name="thin-frame" :padding="2">
-        <div class="window-header">Selected</div>
-        <div class="window-content">
-          <div class="color-frame-big color-frame-big-margin" :style="selectedColorStyle"></div>
-        </div>
-      </w-plate>
-    </div>
+  <div :class="['main', faded ? 'main-fade' : '']" :style="mainStyle" @transitionend.self="mainTransitionEnd">
+    <w-plate class="colors-window" tile-name="thin-frame" :padding="2">
+      <div class="window-colors-content">
+        <div class="selected-color-box" :style="selectedColorBoxStyle" @transitionend.stop="colorBoxTransitionEnd"/>
+        <template v-for="(row, rowIndex) in colorsRows" :key="rowIndex">
+          <div class="color-row">
+            <template v-for="(color, cIndex) in colors.filter((c, i) => Math.floor(i / colorsPerRow) === rowIndex)" :key="cIndex">
+              <div class="color-frame color-frame-margin"
+                   :ref="(el) => setColorRef(el, rowIndex * colorsPerRow + cIndex)"
+                   :style="{ backgroundColor: color, visibility: this.colorSwatchDisplay[rowIndex * colorsPerRow + cIndex] ? undefined : 'hidden' }"
+                   @click="setColorIndex(rowIndex * colorsPerRow + cIndex)"/>
+            </template>
+          </div>
+        </template>
+      </div>
+    </w-plate>
+    <w-plate class="selected-color-window" tile-name="thin-frame" :padding="2">
+      <div class="window-header">Selected</div>
+      <div class="window-content">
+        <div class="color-frame-big color-frame-big-margin" :style="selectedColorStyle"></div>
+      </div>
+    </w-plate>
   </div>
 </template>
 
@@ -95,7 +93,10 @@ export default {
     mainTransitionEnd: function (event) {
       // will trigger for both opacity and transform properties, filter it
       if (event.propertyName === 'opacity') {
-        this.mainTransitionEndCallback()
+        if (this.mainTransitionEndCallback) {
+          this.mainTransitionEndCallback()
+          this.mainTransitionEndCallback = undefined
+        }
       }
     },
     colorSwatchDisplayEffect: async function (displayOrder, value) {
@@ -170,6 +171,10 @@ export default {
   transition: opacity 0.25s linear, transform 0.25s linear;
 }
 
+.landscape .main {
+  justify-content: center;
+}
+
 .main-fade {
   opacity: 0;
   transform: translateY(calc(16px * var(--global-ss)));
@@ -182,6 +187,10 @@ export default {
   flex-direction: column;
   margin-top: calc(32px * var(--global-ss));
   margin-right: calc(14px * var(--global-ss));
+}
+
+.landscape .selected-color-window {
+  margin-left: calc(14px * var(--global-ss));
 }
 
 .window-header {

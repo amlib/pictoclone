@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="['main', faded ? 'main-fade' : '']" @transitionend.self="mainTransitionEnd">
     <text-input v-model="userName" class="name-field"/>
     <div class="keyboard-wrapper">
       <div class="keyboard-buttons-wrapper">
@@ -31,7 +31,8 @@ export default {
   data: function () {
     return {
       keyboardMode: 'romaji',
-      userName: 'amlib'
+      userName: '',
+      faded: true
     }
   },
   computed: {
@@ -46,6 +47,10 @@ export default {
     }
 
     this.specialKeys = specialKeys
+  },
+  mounted: function () {
+    this.userName = this.$global.userName
+    setTimeout(() => { this.faded = false }, 16)
   },
   methods: {
     keyPress: function (key) {
@@ -62,30 +67,56 @@ export default {
         this.userName = this.userName.substring(0, this.userName.length - 1)
       }
     },
+    mainTransitionEnd: function (event) {
+      // will trigger for both opacity and transform properties, filter it
+      if (event.propertyName === 'opacity') {
+        if (this.mainTransitionEndCallback) {
+          this.mainTransitionEndCallback()
+          this.mainTransitionEndCallback = undefined
+        }
+      }
+    },
     done: async function () {
-      // this.mainTransitionEndCallback = () => this.$emit('done')
       this.$emit('name-selected', this.userName)
+      this.mainTransitionEndCallback = () => { this.$emit('done') }
       this.faded = true
-      this.$emit('done')
     },
     back: async function () {
-      // this.mainTransitionEndCallback = () => this.$emit('back')
-      this.faded = true
       this.$emit('back')
+      this.mainTransitionEndCallback = () => { this.$emit('back') }
+      this.faded = true
     }
   }
 }
 </script>
 
 <style scoped>
+.main {
+  transition: opacity 0.25s linear, transform 0.25s linear;
+}
+
+.main-fade {
+  opacity: 0;
+  transform: translateY(calc(16px * var(--global-ss)));
+}
+
 .keyboard-wrapper {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
 
+.landscape .keyboard-wrapper {
+  justify-content: center;
+}
+
 .keyboard {
   margin-right: calc(15px * var(--global-ss));
+}
+
+.landscape .keyboard {
+  justify-content: center;
+  margin-left: calc(8px * var(--global-ss));
 }
 
 .keyboard-buttons-wrapper {
