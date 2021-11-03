@@ -7,6 +7,11 @@
                   @click="onClose">
           X
         </w-button>
+        <w-button :plate-padding="0" style="line-height: calc(15px * var(--global-ss))"
+                  normal-tile="beveled-button" active-tile="beveled-button-highlight"
+                  @click="toggleFullscreen">
+          F
+        </w-button>
       </div>
       <div class="mini-queue-wrapper">
         <div id="mini-queue" class="mini-queue"/>
@@ -131,6 +136,12 @@ export default {
   },
   beforeUnmount: function () {
     this.mounted = false
+
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen()
+      }
+    }
   },
   methods: {
     handleKeyPress: function (key) {
@@ -188,6 +199,15 @@ export default {
           color: 'global'
         }
       })
+    },
+    toggleFullscreen: function () {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen()
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen()
+        }
+      }
     }
   }
 }
