@@ -58,10 +58,16 @@ export default {
   created () {
     const specialKeys = {
       enter: () => this.keyPressEnter(),
+      'small-enter': () => this.keyPressEnter(),
       backspace: () => this.keyPressBackspace(),
+      'small-backspace': () => this.keyPressBackspace(),
       space: () => this.keyPress(' '),
+      'small-space': () => this.keyPress(' '),
       shift: () => {},
-      caps: () => {}
+      caps: () => {},
+      hiragana: () => {},
+      katakana: () => {},
+      komoji: () => {}
     }
 
     this.colorsCssHueDeg = colorsCssHueDeg
@@ -156,6 +162,9 @@ export default {
         this.secretMessageCheck(key)
         this.$refs.drawing.textBufferAppend(key)
       }
+    },
+    swapChar: function (key) {
+      this.$refs.drawing.textBufferSwapChar(key)
     },
     keyPressEnter: function () {
       if (!this.$refs.drawing) { return }

@@ -332,12 +332,12 @@ const keyboardMap = [
     top: 0, left: 0, bottom: 0, right: 0
   },
   {
-    x: 16, y: 26, w: 17, h: 11, alias: 'small-space',
+    x: 15, y: 26, w: 18, h: 11, alias: 'small-space',
     backgroundRepeat: 'no-repeat', backgroundPosition: null,
     top: 0, left: 0, bottom: 0, right: 0
   },
   {
-    x: 0, y: 67, w: 17, h: 29, alias: 'small-enter',
+    x: 66, y: 0, w: 18, h: 29, alias: 'small-enter',
     backgroundRepeat: 'no-repeat', backgroundPosition: null,
     top: 0, left: 0, bottom: 0, right: 0
   },
@@ -347,17 +347,17 @@ const keyboardMap = [
     top: 0, left: 0, bottom: 0, right: 0
   },
   {
-    x: 15, y: 39, w: 15, h: 13, alias: 'katakana',
+    x: 15, y: 39, w: 15, h: 12, alias: 'katakana',
     backgroundRepeat: 'no-repeat', backgroundPosition: null,
     top: 0, left: 0, bottom: 0, right: 0
   },
   {
-    x: 30, y: 39, w: 15, h: 13, alias: 'tenten',
+    x: 30, y: 39, w: 15, h: 12, alias: 'tenten',
     backgroundRepeat: 'no-repeat', backgroundPosition: null,
     top: 0, left: 0, bottom: 0, right: 0
   },
   {
-    x: 45, y: 39, w: 15, h: 13, alias: 'maru',
+    x: 45, y: 39, w: 15, h: 12, alias: 'maru',
     backgroundRepeat: 'no-repeat', backgroundPosition: null,
     top: 0, left: 0, bottom: 0, right: 0
   },

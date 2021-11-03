@@ -300,6 +300,11 @@ export default {
       this.textBufferLastLine = text // computed will append
       this.redrawTextBuffer()
     },
+    textBufferSwapChar: function (char) {
+      // maybe just use textBufferBackspace and then textBufferAppend(char)?
+      this.textBuffer[this.textBuffer.length - 1] = this.textBufferLastLine.substring(0, this.textBufferLastLine.length - 1) + char
+      this.redrawTextBuffer()
+    },
     redrawTextBuffer: function () {
       this.canvasBufferContext.clearRect(0, 0, this.width, this.height)
 

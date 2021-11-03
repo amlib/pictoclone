@@ -6,7 +6,7 @@
       <template v-for="(section, index) in layouts[mode].sections" :key="index">
         <div :class="section.class">
           <template v-for="(key, keyIndex) in section.keys" :key="key">
-            <w-button :text="key" :class="section.keyClass"
+            <w-button :text="key" :class="uniqueKeyClass[key] ? uniqueKeyClass[key] : section.keyClass"
                       :normal-class="uniqueKeyTile[key] ? 'keyboard-spbutton-normal' : 'keyboard-button-normal'"
                       :active-class="uniqueKeyTile[key] ? 'keyboard-spbutton-active' : 'keyboard-button-active'"
                       icon-prefix-normal="icon-keyboard-normal"
@@ -14,7 +14,7 @@
                       :icon="uniqueKeyIcon[key] ? key : null" :icon-margin="uniqueKeyIconMargin[key]"
                       @pointerdown="(event) => keyDown(shifting ? section.shiftKeys[keyIndex] : key, event)"
                       @pointerup="(event) => keyUp(shifting ? section.shiftKeys[keyIndex] : key, event)"
-                      :toggled="(key === 'shift' && shifting && !capsLocked) || (key === 'caps' && capsLocked)">
+                      :toggled="(key === 'shift' && shifting && !capsLocked) || (key === 'caps' && capsLocked) || (key === 'hiragana' && !capsLocked && !shifting) || (key === 'katakana' && (capsLocked || shifting))">
               <div v-if="uniqueKeyIcon[key] == null" class="text">
                 {{ shifting ? section.shiftKeys[keyIndex] : key }}
               </div>
@@ -46,11 +46,19 @@
 import WPlate from '@/widgets/Plate'
 import WButton from '@/widgets/Button'
 import { throttle, debounce } from 'lodash'
-import { layouts, uniqueKeyTile, uniqueKeyIcon, uniqueKeyIconMargin } from '@/js/Keyboard'
+import {
+  layouts,
+  uniqueKeyTile,
+  uniqueKeyIcon,
+  uniqueKeyIconMargin,
+  uniqueKeyClass,
+  komojiMap,
+  tentenMap, maruMap
+} from '@/js/Keyboard'
 
 export default {
   name: 'Keyboard',
-  emits: ['keyboard-key-press', 'symbol-drag'],
+  emits: ['keyboard-key-press', 'symbol-drag', 'keyboard-swap-char'],
   components: { WButton, WPlate },
   props: {
     mode: {
@@ -84,7 +92,9 @@ export default {
     this.uniqueKeyTile = uniqueKeyTile
     this.uniqueKeyIcon = uniqueKeyIcon
     this.uniqueKeyIconMargin = uniqueKeyIconMargin
+    this.uniqueKeyClass = uniqueKeyClass
     this.keyRepeatInterval = null
+    this.previousKey = undefined
   },
   mounted: function () {
     this.draggingCapturedElement = null
@@ -140,17 +150,38 @@ export default {
       if (key === 'shift') {
         this.shifting = !this.shifting
         this.capsLocked = false
-      } else if (key === 'caps') {
+      } else if (key === 'caps' || key === 'katakana') {
         this.capsLocked = !this.capsLocked
         if (this.capsLocked) {
           this.shifting = true
         } else {
           this.shifting = false
         }
+      } else if (key === 'hiragana') {
+        this.shifting = false
+        this.capsLocked = false
       } else if (this.shifting && !this.capsLocked) {
         this.shifting = false
       }
 
+      if (key === 'komoji' || key === 'tenten' || key === 'maru') {
+        let newKey
+        if (key === 'komoji') {
+          newKey = komojiMap[this.previousKey]
+        } else if (key === 'tenten') {
+          newKey = tentenMap[this.previousKey]
+        } else if (key === 'maru') {
+          newKey = maruMap[this.previousKey]
+        }
+
+        if (newKey) {
+          this.$emit('keyboard-swap-char', newKey)
+        }
+
+        return
+      }
+
+      this.previousKey = key
       this.$emit('keyboard-key-press', key)
     },
     startKeyRepeat: function (key) {
@@ -210,6 +241,7 @@ export default {
     },
     pointerUp: function (event) {
       if (this.draggingSymbol) {
+        this.previousKey = this.draggingSymbol
         this.$emit('symbol-drag', {
           symbol: this.draggingSymbol,
           event: event
@@ -298,6 +330,62 @@ export default {
   margin-left: calc(1px * var(--global-ss));
 }
 
+.kana .row1 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: calc(1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
+  z-index: 2;
+}
+
+.kana .row2 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: calc(1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
+  z-index: 3;
+}
+
+.kana .row3 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: calc(1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
+  z-index: 2;
+}
+
+.kana .row4 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: calc(1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
+  z-index: 1;
+}
+
+.kana .row5 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: calc(-1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
+  z-index: 0;
+}
+
+.key-15px-slim {
+  min-width: calc(15px * var(--global-ss));
+  min-height: calc(15px * var(--global-ss));
+  margin-right: calc(1px * var(--global-ss));
+}
+
 /* hack to make text label entirely cover the button, otherwise symbol dragging could miss its intended target target*/
 .key-15px  .text {
   padding-bottom: calc(1px * var(--global-ss));
@@ -305,6 +393,38 @@ export default {
 
 .text {
   line-height: calc(14px * var(--global-ss));
+}
+
+.small-enter {
+  margin-bottom: calc(-16px * var(--global-ss));
+}
+
+.wide-kana-dash {
+  min-width: calc(18px * var(--global-ss));
+  min-height: calc(15px * var(--global-ss));
+  margin-right: calc(1px * var(--global-ss));
+  clip-path: polygon(0 0, calc(100% - (3px * var(--global-ss))) 0, 100% calc(3px * var(--global-ss)), 100% 100%, 0 100%)
+}
+
+.small-space {
+  min-width: calc(15px * var(--global-ss));
+  min-height: calc(15px * var(--global-ss));
+  margin-right: calc(1px * var(--global-ss));
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - (3px * var(--global-ss))), calc(100% - (3px * var(--global-ss))) 100%, 0 100%)
+}
+
+.komoji {
+  min-width: calc(15px * var(--global-ss));
+  min-height: calc(15px * var(--global-ss));
+  margin-right: calc(1px * var(--global-ss));
+  clip-path: polygon(0 0, 100% 0, 100% 100%, calc(3px * var(--global-ss)) 100%, 0 calc(100% - (3px * var(--global-ss))))
+}
+
+.hiragana {
+  min-width: calc(15px * var(--global-ss));
+  min-height: calc(15px * var(--global-ss));
+  margin-right: calc(1px * var(--global-ss));
+  clip-path: polygon(0 calc(3px * var(--global-ss)), calc(3px * var(--global-ss)) 0, 100% 0, 100% 100%, 0 100%);
 }
 
 /* dilates keys bounds for better mobile typing assists */
@@ -315,6 +435,7 @@ export default {
   left: calc(-1px * var(--global-ss));
   right: calc(-1px * var(--global-ss));
   bottom: calc(-4px * var(--global-ss));
+  /*ez hit box test:*/
   /*background-color: rgba(255,0,0,0.2);*/
 }
 

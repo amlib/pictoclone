@@ -49,7 +49,7 @@
                    :rainbow-brush="rainbowBrush" @fun="onFun"/>
           <div class="main-interface-bottom">
             <keyboard class="keyboard" :mode="keyboardMode"
-                      @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag"/>
+                      @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag" @keyboard-swap-char="handleSwapChar"/>
             <div class="button-cluster">
               <w-button class="button-cluster-button" icon="send"
                         normal-tile="main-button" active-tile="main-color-fill"
@@ -153,6 +153,9 @@ export default {
   methods: {
     handleKeyPress: function (key) {
       this.$refs['user-message'].keyPress(key)
+    },
+    handleSwapChar: function (key) {
+      this.$refs['user-message'].swapChar(key)
     },
     handleSymbolDrag: function (payload) {
       this.$refs['user-message'].symbolDrop(payload)
