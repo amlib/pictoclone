@@ -36,14 +36,33 @@ const colorsHexFaded = [
   '#FBAADB'
 ]
 
+const colorsHexDarker = [
+  '#415969',
+  '#913801',
+  '#fa0001',
+  '#ea30ea',
+  '#fa6901',
+  '#e2b901',
+  '#69a101',
+  '#00c201',
+  '#008930',
+  '#38c299',
+  '#2899ca',
+  '#0049ca',
+  '#000089',
+  '#6900a1',
+  '#b900d2',
+  '#fa0071'
+]
+
 // from pure red
 const colorsCssHueDeg = {
   '#61829A': 203,
   '#BA4900': 54,
   '#FB0018': 358,
   '#FB8AFB': 300,
-  '#FB9200': 65,
-  '#F3E300': 70,
+  '#FB9200': 40,
+  '#F3E300': 62,
   '#AAFB00': 73,
   '#00FB00': 93,
   '#00A238': 166,
@@ -91,4 +110,4 @@ const rainbowBrushColors = [
   '#ff0094'
 ]
 
-export { colorsHex, colorsHexFaded, colorsCssHueDeg, colorsCssFilter, rainbowBrushColors }
+export { colorsHex, colorsHexFaded, colorsHexDarker, colorsCssHueDeg, colorsCssFilter, rainbowBrushColors }

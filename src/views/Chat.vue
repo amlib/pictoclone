@@ -40,7 +40,8 @@
                  :stripe-mode=1 stripe-color="#bababa">
           <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]"
                    :edit="true" :message-payload="messagePayload"
-                   ref="user-message" class="user-message"/>
+                   ref="user-message" class="user-message"
+                   @fun="onFun"/>
           <div class="main-interface-bottom">
             <keyboard class="keyboard" :mode="keyboardMode"
                       @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag"/>
@@ -171,6 +172,22 @@ export default {
     },
     onClose: function () {
       this.$router.push('/')
+    },
+    onFun: function () {
+      this.$refs.queue.addEntry({
+        type: 'notification',
+        payload: {
+          text: 'You want fun ?',
+          color: 'global'
+        }
+      })
+      this.$refs.queue.addEntry({
+        type: 'notification',
+        payload: {
+          text: 'Wario gonna show you fun',
+          color: 'global'
+        }
+      })
     }
   }
 }

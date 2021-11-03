@@ -7,7 +7,7 @@
         <template v-if="entry.type === 'notification'">
           <w-plate class="queue-entry" tile-name="main-inverted"
                    :notch="[true, true, true, true]">
-           {{ entry.payload.text }}
+            <div :style="{ color: entry.payload.color === 'global' ? 'var(--global-c1)' : 'gray'}">{{ entry.payload.text }}</div>
           </w-plate>
         </template>
         <template v-else-if="entry.type === 'message'">
@@ -18,7 +18,7 @@
     <teleport v-if="mounted && attachMiniQueue" :to="attachMiniQueue">
       <template v-for="(entry, index) in queue" :key="index">
         <div class="mini-entry"
-             :style="{ backgroundColor: !entry.visible ? '#b2c3db' : (entry.type === 'message' ? colorsHex[entry.payload.colorIndex] : '#415969') }"/>
+             :style="{ backgroundColor: !entry.visible ? '#b2c3db' : (entry.type === 'message' ? colorsHex[entry.payload.colorIndex] : ( entry.payload.color === 'global' ? 'var(--global-c1)' : '#415969')) }"/>
       </template>
     </teleport>
   </div>
@@ -57,18 +57,6 @@ export default {
       type: 'notification',
       payload: {
         text: 'Welcome to PICTOCLONE ☸'
-      }
-    })
-    this.addEntry({
-      type: 'notification',
-      payload: {
-        text: 'You want fun ?'
-      }
-    })
-    this.addEntry({
-      type: 'notification',
-      payload: {
-        text: 'Wario gonna show you fun'
       }
     })
 

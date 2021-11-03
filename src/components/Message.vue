@@ -1,14 +1,14 @@
 <template>
   <w-plate class="message-area" tile-name="main-drawing-area"
            :notch="[true, true, true, true]"
-           :stripe-mode="edit ? 2 : null" :color-hue-deg="colorsCssHueDeg[messagePayload.colorIndex]">
+           :stripe-mode="edit ? 2 : null" :color-hue-deg="colorsCssHueDeg[colorsHex[messagePayload.colorIndex]]">
     <w-drawing-canvas v-if="edit" :width="messagePayload.width" :height="messagePayload.height" ref="drawing"
-      class="drawing-area" :target-width="targetWidth" :target-height="targetHeight"
+      class="drawing-area" :target-width="targetWidth" :target-height="targetHeight" :rainbow-brush="rainbowBrush"
       :tool="selectedTool" :brush-size="brushSize" text-font="10px NDS12" :line-height="16"/>
     <div v-else class="drawing-area drawing-area-show pixel-rendering" :style="getViewStyle"/>
     <w-plate :class="[isMessageOneSegment ? 'fill' : '', 'message-area-user-tag']" tile-name="main-color-background"
-             :notch="[true, false, true, isMessageOneSegment]" :color-hue-deg="colorsCssHueDeg[messagePayload.colorIndex]">
-      <div class="global-color-hue-tint">{{ messagePayload.user }}</div>
+             :notch="[true, false, true, isMessageOneSegment]" :color-hue-deg="colorsCssHueDeg[colorsHex[messagePayload.colorIndex]]">
+      <div :style="{ color: colorsHexDarker[messagePayload.colorIndex] }">{{ messagePayload.user }}</div>
     </w-plate>
   </w-plate>
 </template>
@@ -17,11 +17,12 @@
 import WPlate from '@/widgets/Plate'
 import WDrawingCanvas from '@/widgets/DrawingCanvas'
 import { defaultTextX, defaultTextY, messageVerticalSegmentSize } from '@/js/Message'
-import { colorsCssHueDeg } from '@/js/Colors'
+import { colorsCssHueDeg, colorsHex, colorsHexDarker } from '@/js/Colors'
 
 export default {
   name: 'Message',
   components: { WDrawingCanvas, WPlate },
+  emits: ['fun'],
   props: {
     selectedTool: {
       type: String,
@@ -46,7 +47,8 @@ export default {
   },
   data: function () {
     return {
-      messageVerticalSegmentSize
+      messageVerticalSegmentSize,
+      rainbowBrush: false
     }
   },
   created () {
@@ -59,13 +61,22 @@ export default {
     }
 
     this.colorsCssHueDeg = colorsCssHueDeg
+    this.colorsHex = colorsHex
+    this.colorsHexDarker = colorsHexDarker
     this.defaultTextX = defaultTextX
     this.defaultTextY = defaultTextY
     this.specialKeys = specialKeys
+    this.secretMessage = 'you want fun?'
+    this.secretMessageCheckIndex = 0
   },
   mounted: function () {
     if (this.edit) {
       this.$refs.drawing.textBufferSetStart(this.defaultTextX, this.defaultTextY)
+    }
+  },
+  beforeUnmount () {
+    if (this.rainbowBrush) {
+      this.$global.setRgbMode(false)
     }
   },
   computed: {
@@ -138,6 +149,7 @@ export default {
       if (this.specialKeys[key]) {
         this.specialKeys[key](key)
       } else {
+        this.secretMessageCheck(key)
         this.$refs.drawing.textBufferAppend(key)
       }
     },
@@ -148,6 +160,27 @@ export default {
     keyPressBackspace: function () {
       if (!this.$refs.drawing) { return }
       this.$refs.drawing.textBufferBackspace()
+    },
+    secretMessageCheck: function (key) {
+      if (this.rainbowBrush) {
+        return
+      }
+
+      if (key === this.secretMessage[this.secretMessageCheckIndex]) {
+        this.secretMessageCheckIndex += 1
+      } else {
+        if (key === this.secretMessage[0]) {
+          this.secretMessageCheckIndex = 1
+        } else {
+          this.secretMessageCheckIndex = 0
+        }
+      }
+
+      if (this.secretMessageCheckIndex >= this.secretMessage.length) {
+        this.rainbowBrush = true
+        this.$global.setRgbMode(true)
+        this.$emit('fun')
+      }
     },
     symbolDrop: function (payload) {
       if (!this.$refs.drawing) { return }

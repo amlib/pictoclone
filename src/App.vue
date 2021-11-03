@@ -5,12 +5,12 @@
       this.globalValues.autoScale ? undefined : 'no-scale',
       this.globalValues.mobileAssists ? 'mobile-assists' : undefined]"
        :style="getAppStyle" ref="view">
+    <div v-if="patchingTiles" class="loading-circle"/>
     <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
+      <transition name="fade" mode="out-in" @before-enter="beforeEnterTransition">
         <component :is="Component" :style="getViewStyle"/>
       </transition>
-    </router-view> vue-router.esm-bundler.js:72
-
+    </router-view>
   </div>
 </template>
 
@@ -35,30 +35,29 @@ export default {
         vibration: 0,
         sound: true,
         // renderingClass: 'rendering-pixel', // should be used with no super sampling
-        renderingClass: 'rendering-quality' // use super sampling 2x or 3x with this
+        renderingClass: 'rendering-quality', // use super sampling 2x or 3x with this
+        rgbMode: false,
+        setRgbMode: this.setRgbMode
       },
-      patchingTiles: true, // kludge for "glitchyness" when changing tiles
+      patchingTiles: false, // kludge for "glitchyness" when changing tiles
       documentWidth: 1,
       documentHeight: 1,
       viewWidth: 1,
-      viewHeight: 1
+      viewHeight: 1,
+      landscapeBreakpointRatio: 18 / 9,
+      landscapeConstrainRatio: 26 / 9,
+      portraitConstrainRatio: 8 / 9,
+      rgbColorIndex: 2,
+      rgbColorHue: 0,
+      rgbInterval: undefined
     }
   },
   created: function () {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
-    // Since we get reactive across the entire app... uncomment for RGB mode lol
-    // setInterval(() => {
-    //   this.globalValues.userColorIndex += 1
-    //   if (this.globalValues.userColorIndex > colorsHex.length - 1) {
-    //     this.globalValues.userColorIndex = 0
-    //   }
-    // }, 100)
-
-    setTimeout(() => { this.patchingTiles = false }, 300)
   },
   mounted: function () {
     this.$.root.appContext.config.globalProperties.$isLandscape = this.isLandscape
-    this.onResizeThrottled = throttle(this.onResize, 16, { leading: false, trailing: true })
+    this.onResizeThrottled = throttle(this.onResize, 100, { leading: false, trailing: true })
     this.documentObserver = new ResizeObserver(this.onResizeThrottled).observe(document.firstElementChild)
     this.viewObserver = new ResizeObserver(this.onResizeThrottled).observe(this.$refs.view)
   },
@@ -74,42 +73,46 @@ export default {
   },
   computed: {
     isLandscape: function () {
-      return (this.documentWidth / this.documentHeight) > (this.$route.meta.landscapeBreakpointRatio)
+      return (this.documentWidth / this.documentHeight) > (this.landscapeBreakpointRatio)
     },
     colorHueDeg: function () {
-      const colorIndex = this.globalValues.userColorIndex
-      return colorsCssHueDeg[colorsHex[colorIndex]]
+      if (this.rgbInterval) {
+        return this.rgbColorHue
+      } else {
+        const colorIndex = this.globalValues.userColorIndex
+        return colorsCssHueDeg[colorsHex[colorIndex]]
+      }
     },
     getScalingFactor: function () {
       const documentRatio = this.documentWidth / this.documentHeight
       if (this.isLandscape) {
-        return this.documentWidth / this.viewWidth * Math.min((this.$route.meta.landscapeConstrainRatio / documentRatio), 1)
+        return this.documentWidth / this.viewWidth * Math.min((this.landscapeConstrainRatio / documentRatio), 1)
       } else {
-        return this.documentWidth / this.viewWidth * Math.min((this.$route.meta.portraitConstrainRatio / documentRatio), 1)
+        return this.documentWidth / this.viewWidth * Math.min((this.portraitConstrainRatio / documentRatio), 1)
       }
     },
     getViewStyle: function () {
       return {
-        height: this.$global.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined
+        height: this.$global.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined,
+        visibility: this.patchingTiles ? 'hidden' : null
       }
     },
     getAppStyle: function () {
       const marginCompensation = (this.documentWidth - (this.viewWidth * this.getScalingFactor)) / 2
-      const colorIndex = this.globalValues.userColorIndex
+      const colorIndex = this.rgbInterval ? this.rgbColorIndex : this.globalValues.userColorIndex
 
       const obj = {
         '--global-c1': colorsHex[colorIndex],
         '--global-c2': colorsHexFaded[colorIndex],
         // '--global-cf': colorsCssFilter[colorsHex[colorIndex]],
-        '--global-chd': colorsCssHueDeg[colorsHex[colorIndex]] + 'deg',
+        '--global-chd': this.colorHueDeg + 'deg',
         '--global-ss': this.globalValues.superSample,
-        '--global-sf': this.getScalingFactor,
-        visibility: this.patchingTiles ? 'hidden' : null
+        '--global-sf': this.getScalingFactor
       }
 
       if (this.globalValues.autoScale) {
         obj.marginLeft = marginCompensation + 'px'
-        obj.marginRight = undefined
+        obj.marginRight = marginCompensation + 'px'
         obj.transform = `scale(${this.getScalingFactor})`
       }
       return obj
@@ -124,6 +127,27 @@ export default {
         this.patchingTiles = false
       }, 100)
     },
+    setRgbMode: function (val) {
+      if (this.rgbInterval) {
+        clearInterval(this.rgbInterval)
+        this.rgbInterval = undefined
+        this.rgbColorHue = 0
+        this.rgbColorIndex = 2
+      }
+
+      if (val) {
+        this.rgbInterval = setInterval(() => {
+          this.rgbColorHue += 5
+
+          if (this.rgbColorHue % 30 === 0) {
+            this.rgbColorIndex += 1
+            if (this.rgbColorIndex > colorsHex.length - 1) {
+              this.rgbColorIndex = 2
+            }
+          }
+        }, 33)
+      }
+    },
     onResize: function () {
       this.documentWidth = document.firstElementChild.offsetWidth
       this.documentHeight = document.firstElementChild.offsetHeight
@@ -131,6 +155,11 @@ export default {
         this.viewWidth = this.$refs.view.offsetWidth
         this.viewHeight = this.$refs.view.offsetHeight
       }
+    },
+    beforeEnterTransition: function () {
+      this.landscapeBreakpointRatio = this.$route.meta.landscapeBreakpointRatio
+      this.landscapeConstrainRatio = this.$route.meta.landscapeConstrainRatio
+      this.portraitConstrainRatio = this.$route.meta.portraitConstrainRatio
     }
   }
 }
@@ -193,12 +222,33 @@ body {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.3s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.loading-circle {
+  margin: 100px 400px;
+  transform: translate(200px, 0);
+  animation: effect 0.5s linear infinite;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 8px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+}
+
+@keyframes effect {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 #nav a.router-link-exact-active {

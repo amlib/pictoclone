@@ -95,9 +95,8 @@ export default {
   mounted: function () {
     this.onBackThrottled = throttle(this.onBack, 666, { leading: true })
     this.onDoneThrottled = throttle(this.onDone, 666, { leading: true })
-    this.onMiddleScrollThrottled = throttle(this.onMiddleScroll, 333, { leading: true, trailing: true })
-    this.viewObserver = new ResizeObserver(this.checkComponentSize).observe(this.$refs.middle)
-    setTimeout(this.checkComponentSize, 66)
+    this.onMiddleScrollThrottled = throttle(this.onMiddleScroll, 333, { leading: false, trailing: true })
+    this.viewObserver = new ResizeObserver(this.onMiddleScrollThrottled).observe(this.$refs.middle)
   },
   beforeUnmount: function () {
     if (this.viewObserver) {
@@ -141,7 +140,7 @@ export default {
       }
 
       this.$refs.middle.scrollTo(0, 0)
-      setTimeout(this.checkComponentSize, 333)
+      this.onMiddleScrollThrottled()
     },
     onBackCompleted: function () {
       if (this.view === 'name') {
@@ -152,30 +151,20 @@ export default {
         this.view = 'color'
       }
       setTimeout(this.checkComponentSize, 333)
+      this.onMiddleScrollThrottled()
     },
-    checkComponentSize: function () {
+    onMiddleScroll: function () {
       const element = this.$refs.middle
-      if (element) {
-        const scrollSlack = element.scrollHeight - element.offsetHeight
-        if (scrollSlack > 3 || scrollSlack < -3) {
-          this.scrollUpIndicator = false
-          this.scrollDownIndicator = true
-        } else {
-          this.scrollUpIndicator = false
-          this.scrollDownIndicator = false
-        }
-      } else {
-        this.scrollUpIndicator = false
-        this.scrollDownIndicator = false
+      if (element == null) {
+        return
       }
-    },
-    onMiddleScroll: function (event) {
-      const scrollSlack = event.target.scrollHeight - event.target.offsetHeight
+
+      const scrollSlack = element.scrollHeight - element.offsetHeight
       if (scrollSlack > 3 || scrollSlack < -3) {
-        if (event.target.scrollTop === 0) {
+        if (element.scrollTop === 0) {
           this.scrollUpIndicator = false
           this.scrollDownIndicator = true
-        } else if (Math.round(event.target.scrollTop) < Math.round(event.target.scrollHeight - event.target.offsetHeight)) {
+        } else if (Math.round(element.scrollTop) < Math.round(element.scrollHeight - element.offsetHeight)) {
           this.scrollUpIndicator = true
           this.scrollDownIndicator = true
         } else {
