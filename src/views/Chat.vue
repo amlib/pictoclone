@@ -2,15 +2,15 @@
   <div class="main">
     <div class="button-bar">
       <div class="button-bar-wrapper">
-        <w-button :plate-padding="0" style="line-height: calc(15px * var(--global-ss))"
+        <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
                   @click="onClose">
-          X
+          ✖
         </w-button>
-        <w-button :plate-padding="0" style="line-height: calc(15px * var(--global-ss))"
+        <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
                   @click="toggleFullscreen">
-          F
+          <span style="padding-left: calc(0.5px * var(--global-ss))">↕</span>
         </w-button>
       </div>
       <div class="mini-queue-wrapper">
@@ -46,7 +46,7 @@
           <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]"
                    :edit="true" :message-payload="messagePayload"
                    ref="user-message" class="user-message"
-                   @fun="onFun"/>
+                   :rainbow-brush="rainbowBrush" @fun="onFun"/>
           <div class="main-interface-bottom">
             <keyboard class="keyboard" :mode="keyboardMode"
                       @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag"/>
@@ -71,6 +71,11 @@
     <div id="park">
     </div>
     <teleport v-if="mounted" :to="$refs[$global.isLandscape ? 'buttons-mount-b' : 'buttons-mount-a']">
+      <div v-if="fun" class="button-bar-wrapper">
+        <w-button class="rainbow-button" @click="toggleRainbow" :toggled="this.$global.rgbMode">
+          <div class="rainbow-button">{{ this.$global.rgbMode ? '☸' : '☺' }}</div>
+        </w-button>
+      </div>
       <w-button-toggle v-model="selectedTool" class="button-bar-wrapper"
                        :common-options="{ class: 'closer', 'normal-class': 'simple-button-normal', 'active-class': 'simple-button-active', iconMargin: [1, 1] }"
                        :options="[
@@ -125,7 +130,9 @@ export default {
         width: messageWidth,
         height: messageHeight
       },
-      mounted: false // is there a better way?
+      mounted: false, // is there a better way?
+      fun: false,
+      rainbowBrush: false
     }
   },
   created () {
@@ -188,17 +195,29 @@ export default {
       this.$refs.queue.addEntry({
         type: 'notification',
         payload: {
-          text: 'You want fun ?',
+          text: 'You want fun?',
           color: 'global'
         }
       })
-      this.$refs.queue.addEntry({
-        type: 'notification',
-        payload: {
-          text: 'Wario gonna show you fun',
-          color: 'global'
-        }
-      })
+
+      setTimeout(() => {
+        this.$refs.queue.addEntry({
+          type: 'notification',
+          payload: {
+            text: 'Wario gonna show you fun',
+            color: 'global'
+          }
+        })
+
+        this.rainbowBrush = true
+        this.$global.setRgbMode(true)
+        this.fun = true
+      }, 1000)
+    },
+    toggleRainbow: function () {
+      const mode = !this.$global.rgbMode
+      this.$global.setRgbMode(mode)
+      this.rainbowBrush = mode
     },
     toggleFullscreen: function () {
       if (!document.fullscreenElement) {
@@ -396,6 +415,18 @@ export default {
 }
 .middle-button {
   margin: calc(var(--global-ss) * -1px) 0;
+}
+
+.rainbow-button {
+  background: #F00;
+  width: calc(13px * var(--global-ss));
+  min-height: calc(13px * var(--global-ss));
+  color: white;
+  padding-left: calc(0.33px * var(--global-ss));
+}
+
+.more-button {
+  line-height: calc(15px * var(--global-ss));
 }
 </style>
 

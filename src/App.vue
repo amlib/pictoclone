@@ -133,9 +133,11 @@ export default {
         this.rgbInterval = undefined
         this.rgbColorHue = 0
         this.rgbColorIndex = 2
+        this.globalValues.rgbMode = false
       }
 
       if (val) {
+        this.globalValues.rgbMode = true
         this.rgbInterval = setInterval(() => {
           this.rgbColorHue += 5
 

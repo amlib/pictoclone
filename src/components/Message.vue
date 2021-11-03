@@ -43,12 +43,16 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    rainbowBrush: {
+      type: Boolean,
+      required: false,
+      defaults: false
     }
   },
   data: function () {
     return {
-      messageVerticalSegmentSize,
-      rainbowBrush: false
+      messageVerticalSegmentSize
     }
   },
   created () {
@@ -177,8 +181,6 @@ export default {
       }
 
       if (this.secretMessageCheckIndex >= this.secretMessage.length) {
-        this.rainbowBrush = true
-        this.$global.setRgbMode(true)
         this.$emit('fun')
       }
     },
