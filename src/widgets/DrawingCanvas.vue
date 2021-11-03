@@ -155,10 +155,9 @@ export default {
 
       if (this.tool === 'eraser') {
         // WARNING: assuming blank canvas is white and alpha is zero
-        this.canvasContext.strokeStyle = '#fff'
         this.canvasContext.globalCompositeOperation = 'destination-out'
       } else {
-        this.canvasContext.strokeStyle = this.toolColor
+        // this.canvasContext.strokeStyle = this.toolColor // color does not actually works with current drawImage brush technique....
         this.canvasContext.globalCompositeOperation = 'source-over'
       }
 
@@ -277,6 +276,7 @@ export default {
 
       if (newString == null || newString === '') {
         this.textBuffer.pop()
+        this.textBufferLineOffsets.pop()
       } else {
         this.textBuffer[this.textBuffer.length - 1] = newString
       }
