@@ -14,7 +14,7 @@
         </w-button-toggle>
       </div>
       <keyboard class="keyboard" :mode="keyboardMode" :symbol-drop="false"
-                @keyboard-key-press="keyPress"/>
+                @keyboard-key-press="keyPress" @keyboard-swap-char="swapChar"/>
     </div>
   </div>
 </template>
@@ -40,10 +40,16 @@ export default {
   created: function () {
     const specialKeys = {
       enter: () => {},
+      'small-enter': () => {},
       backspace: () => this.keyPressBackspace(),
+      'small-backspace': () => this.keyPressBackspace(),
       space: () => this.keyPress(' '),
+      'small-space': () => this.keyPress(' '),
       shift: () => {},
-      caps: () => {}
+      caps: () => {},
+      hiragana: () => {},
+      katakana: () => {},
+      komoji: () => {}
     }
 
     this.specialKeys = specialKeys
@@ -60,6 +66,11 @@ export default {
         if (this.userName.length < 10) {
           this.userName += key
         }
+      }
+    },
+    swapChar: function (char) {
+      if (this.userName.length >= 0) {
+        this.userName = this.userName.substring(0, this.userName.length - 1) + char
       }
     },
     keyPressBackspace: function () {
