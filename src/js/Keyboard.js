@@ -33,6 +33,35 @@ const layouts = {
       }
     ]
   },
+  accents: {
+    sections: [
+      {
+        class: 'row1',
+        keyClass: 'key-15px-slim',
+        keys: ['à', 'á', 'â', 'ä', 'ã', 'À', 'Á', 'Â', 'Ä', 'ç', 'ñ']
+      },
+      {
+        class: 'row2',
+        keyClass: 'key-15px-slim',
+        keys: ['ì', 'í', 'î', 'ï', '¡', 'Ì', 'Í', 'Î', 'Ï', 'Ç', 'Ñ', 'small-backspace']
+      },
+      {
+        class: 'row3',
+        keyClass: 'key-15px-slim',
+        keys: ['ù', 'ú', 'û', 'ü', '¿', 'Ù', 'Ú', 'Û', 'Ü', 'œ', 'æ', 'small-enter']
+      },
+      {
+        class: 'row4',
+        keyClass: 'key-15px-slim',
+        keys: ['è', 'é', 'ê', 'ë', 'ß', 'È', 'É', 'Ê', 'Ë', 'Œ', 'Æ']
+      },
+      {
+        class: 'row5',
+        keyClass: 'key-15px-slim',
+        keys: ['ò', 'ó', 'ô', 'ö', 'õ', 'Ò', 'Ó', 'Ô', 'Ö', 'ɍ', '¶', 'small-space']
+      }
+    ]
+  },
   kana: {
     sections: [
       {
@@ -64,6 +93,64 @@ const layouts = {
         keyClass: 'key-15px-slim',
         keys: ['komoji', 'お', 'こ', 'そ', 'と', 'の', 'は', 'も', '？', 'ろ', '。', 'small-space'],
         shiftKeys: ['komoji', 'オ', 'コ', 'ソ', 'ト', 'ノ', 'ハ', 'モ', '？', 'ロ', '。', 'small-space']
+      }
+    ]
+  },
+  symbols1: {
+    sections: [
+      {
+        class: 'row1',
+        keyClass: 'key-15px-slim',
+        keys: ['!', '?', '&', '"', '\'', '~', ':', ';', '@', '˜', '_', '€']
+      },
+      {
+        class: 'row2',
+        keyClass: 'key-15px-slim',
+        keys: ['+', '-', '*', '/', '×', '÷', '=', '→', '←', '↑', '↓', 'small-backspace']
+      },
+      {
+        class: 'row3',
+        keyClass: 'key-15px-slim',
+        keys: ['「', '」', '“', '”', '(', ')', '<', '>', '{', '}', '•', 'small-enter']
+      },
+      {
+        class: 'row4',
+        keyClass: 'key-15px-slim',
+        keys: ['%', '♨', '〒', '#', '♭', '♪', '±', '$', '¢', '£', '\\']
+      },
+      {
+        class: 'row5',
+        keyClass: 'key-15px-slim',
+        keys: ['^', '゜', '|', '／', '＼', '∞', '∴', '…', '™', '©', '®', 'small-space']
+      }
+    ]
+  },
+  symbols2: {
+    sections: [
+      {
+        class: 'row1',
+        keyClass: 'key-15px-slim',
+        keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '=', 'π']
+      },
+      {
+        class: 'row2',
+        keyClass: 'key-15px-slim',
+        keys: ['☸', '☹', '☺', '☻', '☼', '☁', '☂', '☃', '✉', '☎', '☄', 'small-backspace']
+      },
+      {
+        class: 'row3',
+        keyClass: 'key-15px-slim',
+        keys: ['☰', '☱', '☲', '☳', '☴', '☵', '✜', '♠', '♦', '♥', '♣', 'small-enter']
+      },
+      {
+        class: 'row4',
+        keyClass: 'key-15px-slim',
+        keys: ['☶', '☷', '+', '-', '✫', '✲', '◇', '□', '△', '▽', '◎']
+      },
+      {
+        class: 'row5',
+        keyClass: 'key-15px-slim',
+        keys: ['➔', '➕', '➖', '➗', '✬', '✱', '◆', '█', '▲', '▼', '✕', 'small-space']
       }
     ]
   }
@@ -122,7 +209,13 @@ const uniqueKeyClass = {
   ー: 'wide-kana-dash',
   'small-space': 'small-space',
   komoji: 'komoji',
-  hiragana: 'hiragana'
+  hiragana: 'hiragana',
+  ò: 'komoji',
+  à: 'hiragana',
+  '!': 'hiragana',
+  '^': 'komoji',
+  1: 'hiragana',
+  '➔': 'komoji'
 }
 
 const komojiMap = {

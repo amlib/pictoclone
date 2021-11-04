@@ -55,6 +55,7 @@ import {
   komojiMap,
   tentenMap, maruMap
 } from '@/js/Keyboard'
+import { watch } from 'vue'
 
 export default {
   name: 'Keyboard',
@@ -102,6 +103,11 @@ export default {
     this.unhighlightTypingBubbleDbounced = debounce(this.unhighlightTypingBubble, 150)
     this.hideTypingBubbleDbounced = debounce(this.hideTypingBubble, 500)
     this.startKeyRepeatDebounced = debounce(this.startKeyRepeat, 750)
+
+    watch(() => this.mode, () => {
+      this.shifting = false
+      this.capsLocked = false
+    })
   },
   beforeUnmount: function () {
     this.pointerMoveThrottled.cancel()
@@ -284,6 +290,8 @@ export default {
   padding-bottom: calc(2px * var(--global-ss));
 }
 
+/* rows */
+
 /* z-index necessary for key mobile-assists to work */
 .romaji .row1 {
   display: flex;
@@ -314,20 +322,6 @@ export default {
   justify-content: center;
   margin-left: calc(12px * var(--global-ss));
   z-index: 0;
-}
-
-.key-14px {
-  min-width: calc(15px * var(--global-ss));
-  min-height: calc(14px * var(--global-ss));
-  margin-top: calc(1px * var(--global-ss));
-  margin-left: calc(1px * var(--global-ss));
-}
-
-.key-15px {
-  min-width: calc(15px * var(--global-ss));
-  min-height: calc(15px * var(--global-ss));
-  margin-top: calc(1px * var(--global-ss));
-  margin-left: calc(1px * var(--global-ss));
 }
 
 .kana .row1 {
@@ -380,6 +374,72 @@ export default {
   z-index: 0;
 }
 
+.accents .row1, .symbols1 .row1, .symbols2 .row1 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: calc(1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
+  z-index: 2;
+}
+
+.accents .row2, .symbols1 .row2, .symbols2 .row2 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: calc(1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(1px * var(--global-ss));
+  z-index: 3;
+}
+
+.accents .row3, .symbols1 .row3, .symbols2 .row3 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: calc(1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
+  z-index: 2;
+}
+
+.accents .row4, .symbols1 .row4, .symbols2 .row4 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: calc(1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
+  z-index: 1;
+}
+
+.accents .row5, .symbols1 .row5, .symbols2 .row5 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: calc(-1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
+  z-index: 0;
+}
+
+/* keys */
+
+.key-14px {
+  min-width: calc(15px * var(--global-ss));
+  min-height: calc(14px * var(--global-ss));
+  margin-top: calc(1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+}
+
+.key-15px {
+  min-width: calc(15px * var(--global-ss));
+  min-height: calc(15px * var(--global-ss));
+  margin-top: calc(1px * var(--global-ss));
+  margin-left: calc(1px * var(--global-ss));
+}
+
 .key-15px-slim {
   min-width: calc(15px * var(--global-ss));
   min-height: calc(15px * var(--global-ss));
@@ -427,7 +487,7 @@ export default {
   clip-path: polygon(0 calc(3px * var(--global-ss)), calc(3px * var(--global-ss)) 0, 100% 0, 100% 100%, 0 100%);
 }
 
-/* dilates keys bounds for better mobile typing assists */
+/* dilates keys bounds for better mobile typing experience */
 .mobile-assists .text {
   position: absolute;
   padding-top: calc(3px * var(--global-ss));
