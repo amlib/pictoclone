@@ -56,7 +56,6 @@ export default {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
   },
   mounted: function () {
-    this.$.root.appContext.config.globalProperties.$isLandscape = this.isLandscape
     this.onResizeThrottled = throttle(this.onResize, 100, { leading: false, trailing: true })
     this.documentObserver = new ResizeObserver(this.onResizeThrottled).observe(document.firstElementChild)
     this.viewObserver = new ResizeObserver(this.onResizeThrottled).observe(this.$refs.view)

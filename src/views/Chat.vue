@@ -26,7 +26,7 @@
                   @click="onScrollDown"/>
       </div>
       <div class="separator landscape-hide"></div>
-      <div ref="buttons-mount-a"></div>
+      <div ref="buttons-mount-portrait"></div>
     </div>
     <div class="main-wrapper">
       <div class="main-queue-container">
@@ -37,7 +37,7 @@
         </w-plate>
       </div>
       <div class="button-bar portrait-hide">
-        <div ref="buttons-mount-b"></div>
+        <div ref="buttons-mount-landscape"></div>
       </div>
       <div class="main-interface-container">
         <w-plate class="main-interface-wrapper" tile-name="main-background"
@@ -68,9 +68,7 @@
         </w-plate>
       </div>
     </div>
-    <div id="park">
-    </div>
-    <teleport v-if="mounted" :to="$refs[$global.isLandscape ? 'buttons-mount-b' : 'buttons-mount-a']">
+    <teleport v-if="mounted" :to="$refs[$global.isLandscape ? 'buttons-mount-landscape' : 'buttons-mount-portrait']">
       <div v-if="fun" class="button-bar-wrapper">
         <w-button class="rainbow-button" @click="toggleRainbow" :toggled="this.$global.rgbMode">
           <div class="rainbow-button">{{ this.$global.rgbMode ? '☸' : '☺' }}</div>
