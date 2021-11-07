@@ -19,7 +19,7 @@ const brushes = [
 
 export default {
   name: 'WDrawingCanvas',
-  emits: ['text-buffer-line-break-aborted'],
+  emits: ['text-buffer-line-break-aborted', 'stroke-start', 'stroke-move', 'stroke-end'],
   props: {
     width: {
       type: Number,
@@ -143,6 +143,10 @@ export default {
     pointerUp: function (event) {
       this.$refs.canvas.releasePointerCapture(event.pointerId)
       this.endStroke(event.offsetX / this.$global.superSample, event.offsetY / this.$global.superSample)
+      if (this.controlAudioProgram) {
+        this.controlAudioProgram.stop()
+        this.controlAudioProgram = undefined
+      }
     },
     pointerCancel: function (event) {
       this.$refs.canvas.releasePointerCapture(event.pointerId)
@@ -162,6 +166,7 @@ export default {
       }
 
       this.beginPosition = { x: Math.round(x), y: Math.round(y) }
+      this.$emit('stroke-start', this.tool)
     },
     moveStroke: function (x, y) {
       if (this.painting) {
@@ -202,6 +207,7 @@ export default {
         }
 
         this.beginPosition = destPosition
+        this.$emit('stroke-move', dist)
       }
     },
     endStroke: function (x, y) {
@@ -212,6 +218,8 @@ export default {
           this.canvasBuffer2Context.clearRect(0, 0, this.width, this.height)
         }
       }
+
+      this.$emit('stroke-end')
       this.painting = false
       this.stroking = false
     },

@@ -21,11 +21,11 @@ const vibrationOptions = [
   },
   {
     description: 'Weak',
-    value: 1
+    value: 65
   },
   {
     description: 'Strong',
-    value: 2
+    value: 120
   }
 ]
 
@@ -77,6 +77,18 @@ const upscaleStyleOptions = [
   }
 ]
 
+const soundOptions = [
+  {
+    description: 'ON',
+    value: false,
+    recommended: true
+  },
+  {
+    description: 'OFF',
+    value: true
+  }
+]
+
 const genericOptions = [
   {
     description: 'ON',
@@ -110,7 +122,7 @@ export default {
           onChange: this.changeOrientation
         },
         sound: {
-          options: undefined,
+          options: soundOptions,
           description: 'Sound',
           onChange: this.changeSound
         },
@@ -148,7 +160,7 @@ export default {
   mounted: function () {
     this.settings.vibration.value = this.$global.vibration
     this.settings.orientation.value = 0 // TODO
-    this.settings.sound.value = this.$global.sound
+    this.settings.sound.value = this.$global.muted
     this.settings.autoScale.value = this.$global.autoScale
     this.settings.mobileAssists.value = this.$global.mobileAssists
     this.settings.upscaleStyle.value = this.$global.renderingClass
@@ -187,10 +199,13 @@ export default {
       }
     },
     changeVibration: function (val) {
-      this.$global.vibration = val
+      this.$global.setVibration(val)
+      if (val > 0) {
+        window.navigator.vibrate(val)
+      }
     },
-    changeSound: function (val) {
-      this.$global.sound = val
+    changeSound: function (muted) {
+      this.$global.setVolume(muted ? 0.0 : 1.0)
     },
     changeOrientation: function (val) {
       // TODO

@@ -4,12 +4,12 @@
       <div class="button-bar-wrapper">
         <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                  @click="onClose">
+                  @click="onClose" audioFeedback>
           ✖
         </w-button>
         <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                  @click="toggleFullscreen">
+                  @click="toggleFullscreen" audioFeedback>
           <span style="padding-left: calc(0.5px * var(--global-ss))">↕</span>
         </w-button>
       </div>
@@ -62,7 +62,7 @@
               <w-button class="button-cluster-button" icon="clear"
                         normal-tile="main-button" active-tile="main-color-fill"
                         :plate-notch="[false, false, false, true]"  :plate-padding="4"
-                        @click="$refs['user-message'].clearDrawing()"/>
+                        @click="clearDrawing"/>
             </div>
           </div>
         </w-plate>
@@ -76,12 +76,14 @@
       </div>
       <w-button-toggle v-model="selectedTool" class="button-bar-wrapper"
                        :common-options="{ class: 'closer', 'normal-class': 'simple-button-normal', 'active-class': 'simple-button-active', iconMargin: [1, 1] }"
+                       :click-callbacks="toolClickCallbacks"
                        :options="[
         { icon: 'brush', name: 'brush' },
         { icon: 'eraser', name: 'eraser' }]">
       </w-button-toggle>
       <w-button-toggle v-model="brushSize" class="button-bar-wrapper"
                        :common-options="{ class: 'closer', 'normal-class': 'simple-button-normal', 'active-class': 'simple-button-active', iconMargin: [1, 1] }"
+                       :click-callbacks="sizeClickCallbacks"
                        :options="[
         { icon: 'brush-big', name: 'brush-big' },
         { icon: 'brush-small', name: 'brush-small' }]">
@@ -89,6 +91,7 @@
       <div class="separator"></div>
       <w-button-toggle v-model="keyboardMode" class="button-bar-wrapper"
                        :common-options="{ 'plate-notch': [true, false, false, false], 'normal-tile': 'small-button', 'active-tile': 'small-button-highlight', 'plate-padding': 1 }"
+                       :click-callbacks="keyboardModeClickCallbacks"
                        :options="[
         { icon: 'romaji', name: 'romaji' },
         { icon: 'accents', name: 'accents' },
@@ -135,6 +138,18 @@ export default {
   },
   created () {
     this.brushSizes = brushSizes
+    this.toolClickCallbacks = [
+      () => { this.$global.audio.playProgram('pc-pen') },
+      () => { this.$global.audio.playProgram('pc-eraser') }
+    ]
+    this.sizeClickCallbacks = [
+      () => { this.$global.audio.playProgram('pc-brushbig') },
+      () => { this.$global.audio.playProgram('pc-brushsmall') }
+    ]
+    const click = () => { this.$global.audio.playProgram('pc-click') }
+    this.keyboardModeClickCallbacks = [
+      click, click, click, click, click // click
+    ]
   },
   mounted: function () {
     this.mounted = true
@@ -167,6 +182,7 @@ export default {
     copySelectedMessage: function () {
       const message = this.$refs.queue.getSelectedMessage()
       if (message) {
+        this.$global.audio.playProgram('pc-copy')
         this.$refs['user-message'].pasteFromMessage(message)
       }
     },
@@ -182,12 +198,17 @@ export default {
         this.$refs['user-message'].clearDrawing()
 
         // fake send
+        this.$global.audio.playProgram('pc-send')
         this.$refs.queue.addEntry(entry)
       } catch (e) {
         if (e.message === 'empty') {
-          // dummy
+          this.$global.audio.playProgram('pc-deny')
         }
       }
+    },
+    clearDrawing: function () {
+      this.$global.audio.playProgram('pc-clear')
+      this.$refs['user-message'].clearDrawing()
     },
     onClose: function () {
       this.$router.push('/')

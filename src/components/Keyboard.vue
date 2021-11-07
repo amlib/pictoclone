@@ -125,7 +125,7 @@ export default {
   },
   methods: {
     keyDown: function (key, event) {
-      window.navigator.vibrate(15)
+      this.$global.audio.playProgram('pc-keydown')
       if (!this.uniqueKeyIcon[key]) {
         const button = event.target
         this.typingBubbleOffsetX = Math.round(button.offsetParent.offsetLeft + button.offsetWidth / 2)
@@ -148,9 +148,9 @@ export default {
           this.keyRepeatInterval = null
           return
         }
-        window.navigator.vibrate(40)
+        this.$global.audio.playProgram('pc-keyup')
       } else {
-        window.navigator.vibrate(15)
+        this.$global.audio.playProgram('pc-keyup', { vibrate: 0.15 })
       }
 
       if (key === 'shift') {
@@ -215,7 +215,9 @@ export default {
     // triggered by element with text class dynamically registered in pointerDown
     pointerLeave: function (event) {
       if (this.draggingCapturedElement) {
-        window.navigator.vibrate(80)
+        if (this.$global.vibration > 0) {
+          window.navigator.vibrate(this.$global.vibration * 0.8)
+        }
         this.startKeyRepeatDebounced.cancel()
         if (this.keyRepeatInterval) {
           clearInterval(this.keyRepeatInterval)

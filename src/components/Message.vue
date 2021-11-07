@@ -4,7 +4,8 @@
            :stripe-mode="edit ? 2 : null" :color-hue-deg="colorsCssHueDeg[colorsHex[messagePayload.colorIndex]]">
     <w-drawing-canvas v-if="edit" :width="messagePayload.width" :height="messagePayload.height" ref="drawing"
       class="drawing-area" :target-width="targetWidth" :target-height="targetHeight" :rainbow-brush="rainbowBrush"
-      :tool="selectedTool" :brush-size="brushSize" text-font="10px NDS12" :line-height="16"/>
+      :tool="selectedTool" :brush-size="brushSize" text-font="10px NDS12" :line-height="16"
+      @stroke-start="strokeStart" @stroke-move="strokeMove" @stroke-end="strokeEnd"/>
     <div v-else class="drawing-area drawing-area-show pixel-rendering" :style="getViewStyle"/>
     <w-plate :class="[isMessageOneSegment ? 'fill' : '', 'message-area-user-tag']" tile-name="main-color-background"
              :notch="[true, false, true, isMessageOneSegment]" :color-hue-deg="colorsCssHueDeg[colorsHex[messagePayload.colorIndex]]">
@@ -78,6 +79,7 @@ export default {
     this.specialKeys = specialKeys
     this.secretMessage = 'you want fun?'
     this.secretMessageCheckIndex = 0
+    this.controlAudioProgram = undefined
   },
   mounted: function () {
     if (this.edit) {
@@ -204,6 +206,7 @@ export default {
         targetX < (canvasPos.right - 5) &&
         targetY > canvasPos.top &&
         targetY < (canvasPos.bottom - 12)) {
+        this.$global.audio.playProgram('pc-symboldrop')
         this.$refs.drawing.textBufferMerge()
         this.$refs.drawing.textBufferSetStart(
           Math.round((targetX - canvasPos.left) * canvasPos.widthProportion) - 3,
@@ -212,6 +215,22 @@ export default {
         this.$refs.drawing.textBufferAppend(payload.symbol)
       } else {
         // this.$emit('symbol-drop-rejected')
+      }
+    },
+    strokeStart: function (tool) {
+      if (!this.controlAudioProgram) {
+        this.controlAudioProgram = this.$global.audio.startComplexProgram(tool === 'eraser' ? 'pc-eraser-cp' : 'pc-pen-cp')
+      }
+    },
+    strokeMove: function (dist) {
+      if (this.controlAudioProgram) {
+        this.controlAudioProgram.modify(dist, 0.3)
+      }
+    },
+    strokeEnd: function () {
+      if (this.controlAudioProgram) {
+        this.controlAudioProgram.stop()
+        this.controlAudioProgram = undefined
       }
     }
   }

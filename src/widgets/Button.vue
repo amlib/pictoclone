@@ -91,6 +91,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    audioFeedback: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data: function () {
@@ -153,6 +158,9 @@ export default {
       }
     },
     onPointerUp: function () {
+      if (this.audioFeedback) {
+        this.$global.audio.playProgram('pc-click')
+      }
       setTimeout(() => { this.clicking = false }, 150)
     },
     onPointerLeave: function () {

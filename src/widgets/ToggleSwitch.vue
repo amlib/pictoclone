@@ -81,6 +81,7 @@ export default {
   },
   methods: {
     toggle: function () {
+      this.$global.audio.playProgram('pc-click')
       this.selectedIndex += 1
       if (this.selectedIndex > (this.options.length - 1)) {
         this.selectedIndex = 0

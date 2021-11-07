@@ -60,7 +60,7 @@ export default {
       }
     })
 
-    this.scrollToEntryDebounced = debounce(this.scrollToEntry, 66, { maxWait: 333 })
+    this.scrollToEntryDebounced = debounce(this.scrollToEntry, 150, { maxWait: 333 })
     this.onScrollThrottled = throttle(this.onScroll, 133, { leading: true, trailing: true })
 
     this.visibility = {}
@@ -147,8 +147,9 @@ export default {
     },
     onScrollUp: function () {
       if (this.selectedEntryIndex <= 0) {
-        // return
+        this.$global.audio.playProgram('pc-deny')
       } else {
+        this.$global.audio.playProgram('pc-scroll')
         this.selectedEntryIndex -= 1
       }
 
@@ -156,8 +157,9 @@ export default {
     },
     onScrollDown: function () {
       if (this.selectedEntryIndex >= this.queue.length - 1) {
-        // return
+        this.$global.audio.playProgram('pc-deny')
       } else {
+        this.$global.audio.playProgram('pc-scroll')
         this.selectedEntryIndex += 1
       }
 

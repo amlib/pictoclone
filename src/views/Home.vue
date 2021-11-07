@@ -19,12 +19,12 @@
     <div class="bottom">
       <w-button class="text-button" :plate-padding="3"
                 normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
-                @click="onBackThrottled">
+                @click="onBackThrottled" audio-feedback>
         Back
       </w-button>
       <w-button class="text-button" :plate-padding="3"
                 normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
-                @click="onDoneThrottled">
+                @click="onDoneThrottled" audio-feedback>
         Next
       </w-button>
     </div>
@@ -127,6 +127,7 @@ export default {
       this.$refs.component.back()
     },
     goToChat: function () {
+      this.$global.audio.playProgram('pc-enter')
       this.$router.push('/chat')
     },
     onDoneCompleted: function () {

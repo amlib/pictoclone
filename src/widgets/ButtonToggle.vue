@@ -28,6 +28,11 @@ export default {
       type: Object,
       required: false,
       default: null
+    },
+    clickCallbacks: {
+      type: Array,
+      required: false,
+      default: null
     }
   },
   data: function () {
@@ -39,6 +44,9 @@ export default {
     onClick: function (item, index) {
       this.internalValue = item.name
       this.$emit('update:modelValue', item.name)
+      if (this.clickCallbacks) {
+        this.clickCallbacks[index]()
+      }
     }
   }
 }

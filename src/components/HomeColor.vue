@@ -109,6 +109,7 @@ export default {
       this.colorSwatchRefs[index] = el
     },
     setColorIndex: function (index) {
+      this.$global.audio.playProgram('pc-click')
       const currentElement = this.colorSwatchRefs[this.selectedColorIndex]
       const targetElement = this.colorSwatchRefs[index]
       const size = (this.colorSize + this.colorMarginSize * 2) * this.$global.superSample

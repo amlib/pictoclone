@@ -18,6 +18,7 @@
 import { throttle } from 'lodash'
 import { computed } from 'vue'
 import { colorsCssHueDeg, colorsHex, colorsHexFaded } from '@/js/Colors'
+import { AudioFX } from '@/audio'
 
 export default {
   name: 'App',
@@ -32,12 +33,15 @@ export default {
         isLandscape: computed(() => this.isLandscape),
         userColorIndex: 2,
         userName: 'amlib',
-        vibration: 0,
-        sound: true,
+        vibration: 120,
+        setVibration: this.setVibration,
+        muted: false,
+        setVolume: this.setVolume,
         // renderingClass: 'rendering-pixel', // should be used with no super sampling
         renderingClass: 'rendering-quality', // use super sampling 2x or 3x with this
         rgbMode: false,
-        setRgbMode: this.setRgbMode
+        setRgbMode: this.setRgbMode,
+        audio: undefined
       },
       patchingTiles: false, // kludge for "glitchyness" when changing tiles
       documentWidth: 1,
@@ -54,6 +58,8 @@ export default {
   },
   created: function () {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
+    this.globalValues.audio = new AudioFX(this.globalValues.vibration, !this.globalValues.muted)
+    this.globalValues.audio.loadSamples()
   },
   mounted: function () {
     this.onResizeThrottled = throttle(this.onResize, 100, { leading: false, trailing: true })
@@ -148,6 +154,14 @@ export default {
           }
         }, 33)
       }
+    },
+    setVolume: function (vol) {
+      this.globalValues.audio.setVolume(vol)
+      this.globalValues.muted = vol <= 0
+    },
+    setVibration: function (strength) {
+      this.globalValues.audio.setVibrationStrength(strength)
+      this.globalValues.vibration = strength
     },
     onResize: function () {
       this.documentWidth = document.firstElementChild.offsetWidth

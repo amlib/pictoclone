@@ -4,7 +4,7 @@
     <div class="keyboard-wrapper">
       <div class="keyboard-buttons-wrapper">
         <w-button-toggle class="keyboard-buttons-toggle" v-model="keyboardMode"
-                         :common-options="{ 'plate-notch': [true, false, false, false], 'normal-tile': 'beveled-button', 'active-tile': 'beveled-button-highlight', 'plate-padding': 2 }"
+                         :common-options="{ 'plate-notch': [true, false, false, false], 'normal-tile': 'beveled-button', 'active-tile': 'beveled-button-highlight', 'plate-padding': 2, 'audio-feedback': true }"
                          :options="[
         { icon: 'romaji', name: 'romaji' },
         { icon: 'accents', name: 'accents' },
