@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { tileSpec } from '@/mapper/tilemap'
+import { tileSpec } from '/src/mapper/tilemap'
 
 export default {
   name: 'WPlate',

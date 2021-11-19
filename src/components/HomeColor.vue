@@ -25,9 +25,9 @@
 </template>
 
 <script>
-import WPlate from '@/widgets/Plate'
-import { asyncSetTimeout } from '@/js/Utils'
-import { colorsHex } from '@/js/Colors'
+import WPlate from '/src/widgets/Plate.vue'
+import { asyncSetTimeout } from '/src/js/Utils'
+import { colorsHex } from '/src/js/Colors'
 
 export default {
   name: 'HomeColor',

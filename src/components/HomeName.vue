@@ -20,9 +20,9 @@
 </template>
 
 <script>
-import Keyboard from '@/components/Keyboard'
-import WButtonToggle from '@/widgets/ButtonToggle'
-import TextInput from '@/widgets/TextInput'
+import Keyboard from '/src/components/Keyboard.vue'
+import WButtonToggle from '/src/widgets/ButtonToggle.vue'
+import TextInput from '/src/widgets/TextInput.vue'
 
 export default {
   name: 'HomeName',

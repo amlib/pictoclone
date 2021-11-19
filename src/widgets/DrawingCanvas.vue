@@ -8,8 +8,8 @@
 </template>
 
 <script>
-import { getCanvasBlob } from '@/js/Utils'
-import { rainbowBrushColors } from '@/js/Colors'
+import { getCanvasBlob } from '/src/js/Utils'
+import { rainbowBrushColors } from '/src/js/Colors'
 
 const brushType = 'brush-normal'
 const brushes = [

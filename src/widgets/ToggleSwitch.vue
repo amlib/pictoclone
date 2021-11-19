@@ -20,8 +20,8 @@
 </template>
 
 <script>
-import WPlate from '@/widgets/Plate'
-import WButton from '@/widgets/Button'
+import WPlate from '/src/widgets/Plate.vue'
+import WButton from '/src/widgets/Button.vue'
 import { watch } from 'vue'
 
 const defaultOptions = function () {

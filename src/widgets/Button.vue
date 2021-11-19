@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import WPlate from '@/widgets/Plate'
+import WPlate from '/src/widgets/Plate.vue'
 export default {
   name: 'WButton',
   components: { WPlate },

@@ -43,8 +43,8 @@
 </template>
 
 <script>
-import WPlate from '@/widgets/Plate'
-import WButton from '@/widgets/Button'
+import WPlate from '/src/widgets/Plate.vue'
+import WButton from '/src/widgets/Button.vue'
 import { throttle, debounce } from 'lodash'
 import {
   layouts,
@@ -54,7 +54,7 @@ import {
   uniqueKeyClass,
   komojiMap,
   tentenMap, maruMap
-} from '@/js/Keyboard'
+} from '/src/js/Keyboard'
 import { watch } from 'vue'
 
 export default {

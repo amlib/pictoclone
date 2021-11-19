@@ -32,21 +32,21 @@
 </template>
 
 <script>
-import WButton from '@/widgets/Button'
+import WButton from '/src/widgets/Button.vue'
 import { defineAsyncComponent, shallowRef } from 'vue'
 import { throttle } from 'lodash'
 
 const views = {
   name: {
-    component: shallowRef(defineAsyncComponent(() => import('@/components/HomeName'))),
+    component: shallowRef(defineAsyncComponent(() => import('/src/components/HomeName.vue'))),
     topHint: 'Please choose a name'
   },
   color: {
-    component: shallowRef(defineAsyncComponent(() => import('@/components/HomeColor'))),
+    component: shallowRef(defineAsyncComponent(() => import('/src/components/HomeColor.vue'))),
     topHint: 'Please select a color'
   },
   options: {
-    component: shallowRef(defineAsyncComponent(() => import('@/components/HomeOptions'))),
+    component: shallowRef(defineAsyncComponent(() => import('/src/components/HomeOptions.vue'))),
     topHint: 'Please customize the experience'
   }
 }

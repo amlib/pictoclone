@@ -1,5 +1,5 @@
-import { tileMap } from '@/mapper/tilemap'
-import { getCanvasBlob } from '@/js/Utils'
+import { tileMap } from '/src/mapper/tilemap'
+import { getCanvasBlob } from '/src/js/Utils'
 
 let imageSlices
 

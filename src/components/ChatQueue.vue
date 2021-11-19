@@ -25,10 +25,10 @@
 </template>
 
 <script>
-import WPlate from '@/widgets/Plate'
+import WPlate from '/src/widgets/Plate.vue'
 import { throttle, debounce } from 'lodash'
-import Message from '@/components/Message'
-import { colorsHex } from '@/js/Colors'
+import Message from '/src/components/Message.vue'
+import { colorsHex } from '/src/js/Colors'
 
 export default {
   name: 'ChatQueue',

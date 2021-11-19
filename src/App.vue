@@ -17,8 +17,8 @@
 <script>
 import { throttle } from 'lodash'
 import { computed } from 'vue'
-import { colorsCssHueDeg, colorsHex, colorsHexFaded } from '@/js/Colors'
-import { AudioFX } from '@/audio'
+import { colorsCssHueDeg, colorsHex, colorsHexFaded } from '/src/js/Colors'
+import { AudioFX } from '/src/audio'
 
 export default {
   name: 'App',

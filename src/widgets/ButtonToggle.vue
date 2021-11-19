@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import WButton from '@/widgets/Button'
+import WButton from '/src/widgets/Button.vue'
 export default {
   name: 'WButtonToggle',
   emits: ['update:modelValue'],

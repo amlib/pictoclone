@@ -15,10 +15,10 @@
 </template>
 
 <script>
-import WPlate from '@/widgets/Plate'
-import WDrawingCanvas from '@/widgets/DrawingCanvas'
-import { defaultTextX, defaultTextY, messageVerticalSegmentSize } from '@/js/Message'
-import { colorsCssHueDeg, colorsHex, colorsHexDarker } from '@/js/Colors'
+import WPlate from '/src/widgets/Plate.vue'
+import WDrawingCanvas from '/src/widgets/DrawingCanvas.vue'
+import { defaultTextX, defaultTextY, messageVerticalSegmentSize } from '/src/js/Message'
+import { colorsCssHueDeg, colorsHex, colorsHexDarker } from '/src/js/Colors'
 
 export default {
   name: 'Message',

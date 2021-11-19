@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Home from '@/views/Home.vue'
+import Home from '/src/views/Home.vue'
 
 const routes = [
   {
@@ -11,7 +11,7 @@ const routes = [
   {
     path: '/chat',
     name: 'Chat',
-    component: () => import(/* webpackChunkName: "chat" */ '../views/Chat.vue'),
+    component: () => import('../views/Chat.vue'),
     meta: { portraitConstrainRatio: 8 / 9, landscapeBreakpointRatio: 18 / 9, landscapeConstrainRatio: 26 / 9 }
   }
 ]

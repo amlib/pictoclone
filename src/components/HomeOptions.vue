@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import WToggleSwitch from '@/widgets/ToggleSwitch'
-import { asyncSetTimeout } from '@/js/Utils'
+import WToggleSwitch from '/src/widgets/ToggleSwitch.vue'
+import { asyncSetTimeout } from '/src/js/Utils'
 
 const vibrationOptions = [
   {

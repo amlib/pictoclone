@@ -1,4 +1,4 @@
-import { programs, samples } from '@/audio/samples'
+import { programs, samples } from '/src/audio/samples'
 
 export class AudioFX {
   audioContext

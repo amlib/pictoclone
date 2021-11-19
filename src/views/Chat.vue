@@ -104,13 +104,13 @@
 </template>
 
 <script>
-import WButton from '@/widgets/Button'
-import WPlate from '@/widgets/Plate'
-import WButtonToggle from '@/widgets/ButtonToggle'
-import Message from '@/components/Message'
-import Keyboard from '@/components/Keyboard'
-import ChatQueue from '@/components/ChatQueue'
-import { messageWidth, messageHeight } from '@/js/Message'
+import WButton from '/src/widgets/Button.vue'
+import WPlate from '/src/widgets/Plate.vue'
+import WButtonToggle from '/src/widgets/ButtonToggle.vue'
+import Message from '/src/components/Message.vue'
+import Keyboard from '/src/components/Keyboard.vue'
+import ChatQueue from '/src/components/ChatQueue.vue'
+import { messageWidth, messageHeight } from '/src/js/Message'
 
 const brushSizes = {
   'brush-big': 2,
