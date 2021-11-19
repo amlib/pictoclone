@@ -91,7 +91,7 @@ const layouts = {
       {
         class: 'row5',
         keyClass: 'key-15px-slim',
-        keys: ['komoji', 'お', 'こ', 'そ', 'と', 'の', 'は', 'も', '？', 'ろ', '。', 'small-space'],
+        keys: ['komoji', 'お', 'こ', 'そ', 'と', 'の', 'ほ', 'も', '？', 'ろ', '。', 'small-space'],
         shiftKeys: ['komoji', 'オ', 'コ', 'ソ', 'ト', 'ノ', 'ハ', 'モ', '？', 'ロ', '。', 'small-space']
       }
     ]
