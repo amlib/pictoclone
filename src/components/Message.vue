@@ -8,7 +8,8 @@
       @stroke-start="strokeStart" @stroke-move="strokeMove" @stroke-end="strokeEnd"/>
     <div v-else class="drawing-area drawing-area-show pixel-rendering" :style="getViewStyle"/>
     <w-plate :class="[isMessageOneSegment ? 'fill' : '', 'message-area-user-tag']" tile-name="main-color-background"
-             :notch="[true, false, true, isMessageOneSegment]" :color-hue-deg="colorsCssHueDeg[colorsHex[messagePayload.colorIndex]]">
+             :notch="[true, false, true, isMessageOneSegment]" :color-hue-deg="colorsCssHueDeg[colorsHex[messagePayload.colorIndex]]"
+             ref="user-tag">
       <div :style="{ color: colorsHexDarker[messagePayload.colorIndex] }">{{ messagePayload.user }}</div>
     </w-plate>
   </w-plate>
@@ -83,6 +84,9 @@ export default {
   },
   mounted: function () {
     if (this.edit) {
+      // get user tag sizeX so that the text buffer can start at the proper position
+      const sizeX = this.$refs['user-tag'].$el.offsetWidth / this.$global.superSample
+      this.defaultTextX = sizeX
       this.$refs.drawing.textBufferSetStart(this.defaultTextX, this.defaultTextY)
     }
   },
@@ -251,7 +255,8 @@ export default {
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(61px * var(--global-ss));
+  min-width: calc(32px * var(--global-ss));
+  max-width: calc(86px * var(--global-ss));
   color: red;
 }
 
