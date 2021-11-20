@@ -1,4 +1,6 @@
 import { programs, samples } from '/src/audio/samples'
+import { unzip } from 'fflate';
+import samplesZip from '/samples.zip'
 
 export class AudioFX {
   audioContext
@@ -7,6 +9,7 @@ export class AudioFX {
   volume
   loaded = false
   noiseBuffer
+  zipSampleBundle = true
 
   constructor (vibrationStrength = 120, volume = 1.0) {
     this.vibrationStrength = 120
@@ -21,18 +24,42 @@ export class AudioFX {
   }
 
   async loadSamples () {
-    for (let i = 0; i < samples.length; ++i) {
-      const sample = samples[i]
-      try {
-        const response = await fetch(sample)
-        const arrayBuffer = await response.arrayBuffer()
-        this.bufferMap[sample] = await this.audioContext.decodeAudioData(arrayBuffer)
-      } catch (e) {
-        console.warn('AudioFX.loadSamples: could not load sample:', sample, 'reason:', e)
-        throw e
+    if (this.zipSampleBundle) {
+      const response = await fetch(samplesZip)
+      const zipBuffer = await response.arrayBuffer()
+      unzip(new Uint8Array(zipBuffer), async (err, unzipped) => {
+        for (let i = 0; i < samples.length; ++i) {
+          const sample = samples[i]
+          try {
+            const sampleUint8Array = unzipped[sample.replace('samples/', '')]
+            this.bufferMap[sample] = await this.audioContext.decodeAudioData(sampleUint8Array.buffer)
+          } catch (e) {
+            console.warn('AudioFX.loadSamples: could not load sample:', sample, 'reason:', e)
+            throw e
+          }
+        }
+
+        this.generateNoise()
+        this.loaded = true
+      });
+    } else {
+      for (let i = 0; i < samples.length; ++i) {
+        const sample = samples[i]
+        try {
+          const response = await fetch(sample)
+          const arrayBuffer = await response.arrayBuffer()
+          this.bufferMap[sample] = await this.audioContext.decodeAudioData(arrayBuffer)
+        } catch (e) {
+          console.warn('AudioFX.loadSamples: could not load sample:', sample, 'reason:', e)
+          throw e
+        }
       }
+
+      this.generateNoise()
+      this.loaded = true
     }
 
+    // abandoned noise worklet that did not work out so well...
     // try {
     //   if (window.isSecureContext) {
     //     await this.audioContext.audioWorklet.addModule('samples/worklets.js')
@@ -43,9 +70,6 @@ export class AudioFX {
     //   console.warn('AudioFX.loadSamples: could not load worklets:', e)
     //   throw e
     // }
-
-    this.generateNoise()
-    this.loaded = true
   }
 
   generateNoise () {

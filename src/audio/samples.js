@@ -7,7 +7,7 @@ const samples = [
   'samples/pc-eraser.wav',
   'samples/pc-pen.wav',
   'samples/pc-scroll.wav',
-  'samples/pc-deny.wav',
+  'samples/pc-deny.opus',
   'samples/pc-click.wav',
   'samples/pc-chirp.wav',
   'samples/pc-symboldrop.wav',
@@ -66,7 +66,7 @@ const programs = {
     volume: 2.0
   },
   'pc-deny': {
-    sample: 'samples/pc-deny.wav',
+    sample: 'samples/pc-deny.opus',
     volume: 1.2,
     vibrate: 0.5
   },
