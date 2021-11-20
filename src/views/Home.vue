@@ -91,11 +91,12 @@ export default {
   },
   created: function () {
     this.view = 'name'
-  },
-  mounted: function () {
+    // throttle definitions moved from mounted to here because they break when building production version in vite (!?)
     this.onBackThrottled = throttle(this.onBack, 666, { leading: true })
     this.onDoneThrottled = throttle(this.onDone, 666, { leading: true })
     this.onMiddleScrollThrottled = throttle(this.onMiddleScroll, 333, { leading: false, trailing: true })
+  },
+  mounted: function () {
     this.viewObserver = new ResizeObserver(this.onMiddleScrollThrottled).observe(this.$refs.middle)
   },
   beforeUnmount: function () {
