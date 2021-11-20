@@ -23,22 +23,17 @@
         </div>
       </template>
     </div>
-    <div v-show="draggingShow" class="symbol-drag-box"
-         :style="{ left: this.draggingOffsetX + 'px', top: this.draggingOffsetY + 'px' }">
-      <w-plate v-if="$global.mobileAssists" class="symbol-box-balloon" :padding="0" global-tint
-               tile-name="main-color-fill" :notch="[false, false, true, true]">
-        {{ draggingSymbol }}
-      </w-plate>
-      <div class="symbol-drag-box-char">{{ draggingSymbol }}</div>
-    </div>
-    <div v-show="typingBubbleSymbol && $global.mobileAssists" class="symbol-drag-box"
-         :style="{ left: this.typingBubbleOffsetX + 'px', top: this.typingBubbleOffsetY + 'px' }">
-      <w-plate class="symbol-box-balloon" :padding="0" global-tint
-               :tile-name="typingBubbleHighlight ? 'main-color-fill' : 'main-button'"
-               :notch="[false, false, true, true]">
-        {{ typingBubbleSymbol }}
-      </w-plate>
-    </div>
+    <typing-bubble v-show="draggingShow" :show-bubble="$global.mobileAssists"
+                   :highlight="false" :offset-x="draggingOffsetX" :offset-y="draggingOffsetY">
+      {{ draggingSymbol }}
+      <template v-slot:outside>
+        <div class="symbol-drag-box-char">{{ draggingSymbol }}</div>
+      </template>
+    </typing-bubble>
+    <typing-bubble v-show="typingBubbleSymbol && $global.mobileAssists"
+                   :highlight="typingBubbleHighlight" :offset-x="typingBubbleOffsetX" :offset-y="typingBubbleOffsetY">
+      {{ typingBubbleSymbol }}
+    </typing-bubble>
   </w-plate>
 </template>
 
@@ -56,11 +51,12 @@ import {
   tentenMap, maruMap
 } from '/src/js/Keyboard'
 import { watch } from 'vue'
+import TypingBubble from '/src/components/TypingBubble.vue'
 
 export default {
   name: 'Keyboard',
   emits: ['keyboard-key-press', 'symbol-drag', 'keyboard-swap-char'],
-  components: { WButton, WPlate },
+  components: { TypingBubble, WButton, WPlate },
   props: {
     mode: {
       type: String,
@@ -79,11 +75,11 @@ export default {
       draggingSymbol: null,
       draggingOffsetX: 0,
       draggingOffsetY: 0,
+      draggingShow: false,
       typingBubbleSymbol: null,
       typingBubbleOffsetX: 0,
       typingBubbleOffsetY: 0,
-      typingBubbleHighlight: false,
-      draggingShow: false
+      typingBubbleHighlight: false
     }
   },
   computed: {
@@ -505,28 +501,6 @@ export default {
   padding-top: calc(5px * var(--global-ss));
   top: calc(-5px * var(--global-ss));
   bottom: calc(-1px * var(--global-ss));
-}
-
-.symbol-drag-box {
-  pointer-events: none;
-  user-select: none;
-  touch-action: none;
-  position: absolute;
-  height: 0;
-  width: 0;
-  display: flex;
-  justify-content: center;
-  z-index: 10;
-}
-
-.symbol-box-balloon {
-  pointer-events: none;
-  position: absolute;
-  height: calc(40px * var(--global-ss) - 0.5em);
-  width: calc(17px * var(--global-ss));
-  top: calc(-40px * var(--global-ss) - 0.5em);
-  text-align: center;
-  line-height: calc(16px * var(--global-ss));
 }
 
 .symbol-drag-box-char {
