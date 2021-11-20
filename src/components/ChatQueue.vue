@@ -11,7 +11,7 @@
           </w-plate>
         </template>
         <template v-else-if="entry.type === 'message'">
-          <message :message-payload="entry.payload"/>
+          <message-show :message-payload="entry.payload"/>
         </template>
       </div>
     </template>
@@ -26,13 +26,13 @@
 
 <script>
 import WPlate from '/src/widgets/Plate.vue'
+import MessageShow from './MessageShow.vue'
 import { throttle, debounce } from 'lodash'
-import Message from '/src/components/Message.vue'
 import { colorsHex } from '/src/js/Colors'
 
 export default {
   name: 'ChatQueue',
-  components: { Message, WPlate },
+  components: { MessageShow, WPlate },
   props: {
     attachMiniQueue: {
       type: String,

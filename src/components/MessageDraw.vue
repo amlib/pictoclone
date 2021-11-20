@@ -1,29 +1,20 @@
 <template>
-  <w-plate class="message-area" tile-name="main-drawing-area"
-           :notch="[true, true, true, true]"
-           :stripe-mode="edit ? 2 : null" :color-hue-deg="colorsCssHueDeg[colorsHex[messagePayload.colorIndex]]">
-    <w-drawing-canvas v-if="edit" :width="messagePayload.width" :height="messagePayload.height" ref="drawing"
-      class="drawing-area" :target-width="targetWidth" :target-height="targetHeight" :rainbow-brush="rainbowBrush"
-      :tool="selectedTool" :brush-size="brushSize" text-font="10px NDS12" :line-height="16"
-      @stroke-start="strokeStart" @stroke-move="strokeMove" @stroke-end="strokeEnd"/>
-    <div v-else class="drawing-area drawing-area-show pixel-rendering" :style="getViewStyle"/>
-    <w-plate :class="[isMessageOneSegment ? 'fill' : '', 'message-area-user-tag']" tile-name="main-color-background"
-             :notch="[true, false, true, isMessageOneSegment]" :color-hue-deg="colorsCssHueDeg[colorsHex[messagePayload.colorIndex]]"
-             ref="user-tag">
-      <div :style="{ color: colorsHexDarker[messagePayload.colorIndex] }">{{ messagePayload.user }}</div>
-    </w-plate>
-  </w-plate>
+  <message-show :message-payload="messagePayload" :no-drawing="true" :stripe="2" ref="message">
+    <w-drawing-canvas :width="messagePayload.width" :height="messagePayload.height" ref="drawing"
+                      class="drawing-area" :target-width="targetWidth" :target-height="targetHeight" :rainbow-brush="rainbowBrush"
+                      :tool="selectedTool" :brush-size="brushSize" text-font="10px NDS12" :line-height="16"
+                      @stroke-start="strokeStart" @stroke-move="strokeMove" @stroke-end="strokeEnd"/>
+  </message-show>
 </template>
 
 <script>
-import WPlate from '/src/widgets/Plate.vue'
 import WDrawingCanvas from '/src/widgets/DrawingCanvas.vue'
+import MessageShow from './MessageShow.vue'
 import { defaultTextX, defaultTextY, messageVerticalSegmentSize } from '/src/js/Message'
-import { colorsCssHueDeg, colorsHex, colorsHexDarker } from '/src/js/Colors'
 
 export default {
-  name: 'Message',
-  components: { WDrawingCanvas, WPlate },
+  name: 'MessageDraw',
+  components: { MessageShow, WDrawingCanvas },
   emits: ['fun'],
   props: {
     selectedTool: {
@@ -41,20 +32,10 @@ export default {
       required: false,
       default: () => {}
     },
-    edit: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
     rainbowBrush: {
       type: Boolean,
       required: false,
       defaults: false
-    }
-  },
-  data: function () {
-    return {
-      messageVerticalSegmentSize
     }
   },
   created () {
@@ -72,23 +53,20 @@ export default {
       komoji: () => {}
     }
 
-    this.colorsCssHueDeg = colorsCssHueDeg
-    this.colorsHex = colorsHex
-    this.colorsHexDarker = colorsHexDarker
     this.defaultTextX = defaultTextX
     this.defaultTextY = defaultTextY
     this.specialKeys = specialKeys
-    this.secretMessage = 'you want fun?'
+    this.secretMessage = 'i want fun'
     this.secretMessageCheckIndex = 0
     this.controlAudioProgram = undefined
   },
   mounted: function () {
-    if (this.edit) {
-      // get user tag sizeX so that the text buffer can start at the proper position
-      const sizeX = this.$refs['user-tag'].$el.offsetWidth / this.$global.superSample
-      this.defaultTextX = sizeX
+    // get user tag size so that the text buffer can start at the proper position
+    //also chrome would not return the proper size immediately, hence the timeout... (thanks google)
+    setTimeout(() => {
+      this.defaultTextX = this.$refs['message'].getUserTagSize().width / this.$global.superSample
       this.$refs.drawing.textBufferSetStart(this.defaultTextX, this.defaultTextY)
-    }
+    }, 66)
   },
   beforeUnmount () {
     if (this.rainbowBrush) {
@@ -96,21 +74,11 @@ export default {
     }
   },
   computed: {
-    isMessageOneSegment: function () {
-      return this.messagePayload.height <= messageVerticalSegmentSize
-    },
     targetWidth: function () {
       return this.messagePayload.width * this.$global.superSample
     },
     targetHeight: function () {
       return this.messagePayload.height * this.$global.superSample
-    },
-    getViewStyle: function () {
-      return {
-        width: `calc(${this.messagePayload.width}px * var(--global-ss))`,
-        height: `calc(${this.messagePayload.height}px * var(--global-ss))`,
-        backgroundImage: `url(${this.messagePayload.url})`
-      }
     }
   },
   methods: {
@@ -133,14 +101,14 @@ export default {
       }
 
       // round cropping to segments
-      imageBounds.boundsTop = Math.floor(imageBounds.boundsTop / this.messageVerticalSegmentSize) * this.messageVerticalSegmentSize
-      imageBounds.boundsBottom = Math.ceil((imageBounds.boundsBottom + 1) / this.messageVerticalSegmentSize) * this.messageVerticalSegmentSize
+      imageBounds.boundsTop = Math.floor(imageBounds.boundsTop / messageVerticalSegmentSize) * messageVerticalSegmentSize
+      imageBounds.boundsBottom = Math.ceil((imageBounds.boundsBottom + 1) / messageVerticalSegmentSize) * messageVerticalSegmentSize
       imageBounds.boundsLeft = 0
       imageBounds.boundsRight = imageBounds.imageWidth
 
       // avoids cropped image from being obstructed by user tag
-      if (imageBounds.boundsTop >= this.messageVerticalSegmentSize) {
-        imageBounds.boundsTop = imageBounds.boundsTop - this.messageVerticalSegmentSize
+      if (imageBounds.boundsTop >= messageVerticalSegmentSize) {
+        imageBounds.boundsTop = imageBounds.boundsTop - messageVerticalSegmentSize
       }
 
       const imagePayload = await this.$refs.drawing.getImage({
@@ -242,43 +210,11 @@ export default {
 </script>
 
 <style scoped>
-.message-area {
-  margin-top: calc(1px * var(--global-ss));
-  margin-bottom: calc(1px * var(--global-ss));
-  position: relative;
-  display: block;
-  max-width: min-content;
-}
-
-.message-area-user-tag {
-  user-select: none;
-  position: absolute;
-  left: 0;
-  top: 0;
-  min-width: calc(32px * var(--global-ss));
-  max-width: calc(86px * var(--global-ss));
-  color: red;
-}
-
-.fill {
-  bottom: 0;
-}
-
-.message-area-user-tag > div {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
 .drawing-area {
   margin-top: calc(-1px * var(--global-ss));
   margin-bottom: calc(-2px * var(--global-ss));
   margin-left: calc(-1px * var(--global-ss));
   margin-right: calc(-1px * var(--global-ss));
   background-size: contain;
-}
-
-.drawing-area-show {
-  margin-bottom: calc(-1px * var(--global-ss));
 }
 </style>

@@ -43,8 +43,9 @@
         <w-plate class="main-interface-wrapper" tile-name="main-background"
                  :notch="[true, false, false, true]" :padding="3"
                  :stripe-mode=1 stripe-color="#bababa">
-          <message :selected-tool="selectedTool" :brush-size="brushSizes[brushSize]"
-                   :edit="true" :message-payload="messagePayload"
+          <message-draw :selected-tool="selectedTool"
+                   :brush-size="brushSizes[brushSize]"
+                   :message-payload="messagePayload"
                    ref="user-message" class="user-message"
                    :rainbow-brush="rainbowBrush" @fun="onFun"/>
           <div class="main-interface-bottom">
@@ -107,9 +108,9 @@
 import WButton from '/src/widgets/Button.vue'
 import WPlate from '/src/widgets/Plate.vue'
 import WButtonToggle from '/src/widgets/ButtonToggle.vue'
-import Message from '/src/components/Message.vue'
 import Keyboard from '/src/components/Keyboard.vue'
 import ChatQueue from '/src/components/ChatQueue.vue'
+import MessageDraw from '../components/MessageDraw.vue'
 import { messageWidth, messageHeight } from '/src/js/Message'
 
 const brushSizes = {
@@ -119,7 +120,7 @@ const brushSizes = {
 
 export default {
   name: 'Chat',
-  components: { ChatQueue, Keyboard, Message, WButtonToggle, WPlate, WButton },
+  components: { MessageDraw, ChatQueue, Keyboard, WButtonToggle, WPlate, WButton },
   data: function () {
     return {
       keyboardMode: 'romaji',
