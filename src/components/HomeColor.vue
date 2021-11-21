@@ -27,7 +27,7 @@
 <script>
 import WPlate from '/src/widgets/Plate.vue'
 import { asyncSetTimeout } from '/src/js/Utils'
-import { colorsHex } from '/src/js/Colors'
+import { colorsHexMain } from '/src/js/Colors'
 
 export default {
   name: 'HomeColor',
@@ -35,7 +35,7 @@ export default {
   emits: ['color-selected', 'done', 'back'],
   data: function () {
     return {
-      colors: colorsHex,
+      colors: colorsHexMain,
       colorsPerRow: 4,
       selectedColorIndex: 0,
       colorSwatchRefs: [],

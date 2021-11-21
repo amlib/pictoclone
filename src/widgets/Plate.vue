@@ -96,7 +96,7 @@ export default {
 
       if (this.noBorders) {
         const tile = this.tileName + '-center'
-        const img = this.$tileMap(tile)
+        const img = this.$tileMap(tile, this.$global.userColorIndex)
         if (img == null) {
           throw new Error('Could not find tile: ' + tile)
         }
@@ -128,7 +128,7 @@ export default {
             }
 
             const tile = this.tileName + '-' + spec.name + notch + (variant && variant !== '' ? ('-' + variant) : '')
-            const img = this.$tileMap(tile)
+            const img = this.$tileMap(tile, this.$global.userColorIndex)
             if (img == null) {
               throw new Error('Could not find tile: ' + tile)
             }
@@ -179,7 +179,7 @@ export default {
         obj.backgroundRepeat = 'repeat-y'
         obj.backgroundSize = 'calc(100% - calc(var(--global-ss) * 2px)) calc(var(--global-ss) * 8px), auto, auto'
       } else if (this.stripeMode === 2) {
-        obj.backgroundImage = 'linear-gradient(0deg, #fbbaba calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 32px))'
+        obj.backgroundImage = 'linear-gradient(0deg, var(--global-cl1) calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 16px), var(--global-cl1) calc(var(--global-ss) * 16px), var(--global-cl1) calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 32px))'
         obj.backgroundPosition = 'top'
         obj.backgroundRepeat = 'repeat-y'
         obj.backgroundSize = 'calc(100% - calc(var(--global-ss) * 6px)) calc(var(--global-ss) * 32px - 1px), auto, auto'
@@ -203,7 +203,7 @@ export default {
 
       if (this.noBorders) {
         const tile = this.tileName + '-center'
-        const img = this.$tileMap(tile)
+        const img = this.$tileMap(tile, this.$global.userColorIndex)
         if (img == null) {
           throw new Error('Could not find tile: ' + tile)
         }
@@ -222,7 +222,7 @@ export default {
   methods: {
     getSlice: function (alias) {
       const obj = {}
-      const img = this.$tileMap(alias)
+      const img = this.$tileMap(alias, this.$global.userColorIndex)
       if (img == null) {
         return null
       }
@@ -288,7 +288,7 @@ export default {
 }
 
 .scaled-mode-stripe-2 {
-  background-image: linear-gradient(0deg, #fbbaba calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 32px));
+  background-image: linear-gradient(0deg, var(--global-cl1) calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 16px), var(--global-cl1) calc(var(--global-ss) * 16px), var(--global-cl1) calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 32px));
   background-position: top;
   background-repeat: repeat-y;
   background-size: calc(100% - (var(--global-ss) * 6px)) calc(var(--global-ss) * 32px);
@@ -304,7 +304,7 @@ export default {
 /*}*/
 
 /*.tiled-mode-stripe-2 {*/
-/*  background-image: linear-gradient(0deg, #fbbaba calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 16px), #fbbaba calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 32px));*/
+/*  background-image: linear-gradient(0deg, var(--global-cl1) calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 16px), var(--global-cl1) calc(var(--global-ss) * 16px), var(--global-cl1) calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 17px), transparent calc(var(--global-ss) * 32px));*/
 /*  background-position: top;*/
 /*  background-repeat: repeat-y;*/
 /*  background-size: calc(100% - calc(var(--global-ss) * 6px)) calc(var(--global-ss) * 32px - 1px), auto, auto;*/

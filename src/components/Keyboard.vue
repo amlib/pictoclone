@@ -513,7 +513,7 @@ export default {
 }
 
 .keyboard-button-active {
-  background-color: #fb9aa2;
+  background-color: var(--global-cl1);
 }
 
 .keyboard-spbutton-normal {
@@ -521,6 +521,6 @@ export default {
 }
 
 .keyboard-spbutton-active {
-  background-color: #fb9aa2;
+  background-color: var(--global-cl1);
 }
 </style>

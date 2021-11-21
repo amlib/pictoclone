@@ -198,7 +198,7 @@ export default {
 }
 
 .top {
-  background: linear-gradient(180deg, var(--global-c2) 0%, 55%, var(--global-c1) 90%, var(--global-c1) 100%);
+  background: linear-gradient(180deg, var(--global-cfaded) 0%, 55%, var(--global-cmain) 90%, var(--global-cmain) 100%);
   padding: calc(6px * var(--global-ss));
   border-bottom: calc(1px * var(--global-ss)) solid black;
   text-align: center;
@@ -280,7 +280,7 @@ export default {
 }
 
 .bottom {
-  background: linear-gradient(0deg, var(--global-c2) 0%, 55%, var(--global-c1) 90%, var(--global-c1) 100%);
+  background: linear-gradient(0deg, var(--global-cfaded) 0%, 55%, var(--global-cmain) 90%, var(--global-cmain) 100%);
   padding: calc(4px * var(--global-ss));
   border-top: calc(1px * var(--global-ss)) solid black;
   text-align: center;

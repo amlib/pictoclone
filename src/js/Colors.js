@@ -1,4 +1,80 @@
-const colorsHex = [
+const colorsHexL1 = [
+  '#b1c2da',
+  '#eab999',
+  '#FBBABA',
+  '#facafa',
+  '#fada91',
+  '#FBFB71',
+  '#c2fa71',
+  '#b9faa9',
+  '#99ea99',
+  '#b1fada',
+  '#d2f2fa',
+  '#b9cafa',
+  '#b9b9f2',
+  '#dab9fa',
+  '#F3C3FB',
+  '#fadaf2'
+]
+
+const colorsHexL2 = [
+  '#697181',
+  '#a95928',
+  '#FB3041',
+  '#e281ea',
+  '#fa8108',
+  '#FBCB20',
+  '#91d201',
+  '#18f218',
+  '#20a949',
+  '#61d289',
+  '#61b1da',
+  '#2869e2',
+  '#5151a9',
+  '#9941ca',
+  '#e241f2',
+  '#fa41a9'
+]
+
+const colorsHexL3 = [
+  '#415969',
+  '#913801',
+  '#FB0000',
+  '#ea30ea',
+  '#fa6901',
+  '#E3BA00',
+  '#69a101',
+  '#00c201',
+  '#008930',
+  '#38c299',
+  '#2899ca',
+  '#0049ca',
+  '#0049ca',
+  '#6900a1',
+  '#b900d2',
+  '#fa0071'
+]
+
+const colorsHexL4 = [
+  '#303851',
+  '#692801',
+  '#8A0008',
+  '#793059',
+  '#894901',
+  '#494900',
+  '#103801',
+  '#005101',
+  '#005101',
+  '#185130',
+  '#104969',
+  '#002069',
+  '#002069',
+  '#410061',
+  '#790089',
+  '#790089'
+]
+
+const colorsHexMain = [
   '#61829A',
   '#BA4900',
   '#FB0018',
@@ -36,64 +112,25 @@ const colorsHexFaded = [
   '#FBAADB'
 ]
 
-const colorsHexDarker = [
-  '#415969',
-  '#913801',
-  '#fa0001',
-  '#ea30ea',
-  '#fa6901',
-  '#e2b901',
-  '#69a101',
-  '#00c201',
-  '#008930',
-  '#38c299',
-  '#2899ca',
-  '#0049ca',
-  '#000089',
-  '#6900a1',
-  '#b900d2',
-  '#fa0071'
+// from pure red
+const colorsCssHueDeg = [
+  203,
+  54,
+  358,
+  300,
+  40,
+  62,
+  73,
+  93,
+  166,
+  164,
+  191,
+  210,
+  250,
+  266,
+  273,
+  334
 ]
-
-// from pure red
-const colorsCssHueDeg = {
-  '#61829A': 203,
-  '#BA4900': 54,
-  '#FB0018': 358,
-  '#FB8AFB': 300,
-  '#FB9200': 40,
-  '#F3E300': 62,
-  '#AAFB00': 73,
-  '#00FB00': 93,
-  '#00A238': 166,
-  '#49DB8A': 164,
-  '#30BAF3': 191,
-  '#0059F3': 210,
-  '#000092': 250,
-  '#8A00D3': 266,
-  '#D300EB': 273,
-  '#FB0092': 334
-}
-
-// from pure red
-const colorsCssFilter = {
-  '#61829A': 'hue-rotate(203deg) brightness(1.7) saturate(0.24)',
-  '#BA4900': 'hue-rotate(54deg) brightness(1.45)',
-  '#FB0018': 'hue-rotate(351deg) saturate(1.2) brightness(0.98)',
-  '#FB8AFB': 'hue-rotate(300deg) saturate(0.20) brightness(3.0)',
-  '#FB9200': 'hue-rotate(65deg) saturate(2.00) brightness(2.4)',
-  '#F3E300': 'hue-rotate(70deg) saturate(2.00) brightness(3.05)',
-  '#AAFB00': 'hue-rotate(73deg) saturate(2.00) brightness(3.05)',
-  '#00FB00': 'hue-rotate(93deg) saturate(2.00) brightness(3.05)',
-  '#00A238': 'hue-rotate(166deg) saturate(2.00) brightness(1.15)',
-  '#49DB8A': 'hue-rotate(164deg) saturate(0.6) brightness(2.1)',
-  '#30BAF3': 'hue-rotate(191deg) saturate(0.7) brightness(1.9)',
-  '#0059F3': 'hue-rotate(210deg) saturate(1.7) brightness(0.95)',
-  '#000092': 'hue-rotate(250deg) saturate(2.8) brightness(0.57)',
-  '#8A00D3': 'hue-rotate(266deg) saturate(2.8) brightness(0.85)',
-  '#D300EB': 'hue-rotate(273deg) saturate(2.8) brightness(0.92)',
-  '#FB0092': 'hue-rotate(334deg) saturate(2.8) brightness(0.98)'
-}
 
 const rainbowBrushColors = [
   '#FB0018',
@@ -110,4 +147,8 @@ const rainbowBrushColors = [
   '#ff0094'
 ]
 
-export { colorsHex, colorsHexFaded, colorsHexDarker, colorsCssHueDeg, colorsCssFilter, rainbowBrushColors }
+export {
+  colorsHexL1, colorsHexL2, colorsHexL3, colorsHexL4,
+  colorsHexMain, colorsHexFaded,
+  colorsCssHueDeg, rainbowBrushColors
+}

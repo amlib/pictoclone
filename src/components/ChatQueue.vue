@@ -5,10 +5,7 @@
     <template v-for="(entry, index) in queue" :key="index">
       <div>
         <template v-if="entry.type === 'notification'">
-          <w-plate class="queue-entry" tile-name="main-inverted"
-                   :notch="[true, true, true, true]">
-            <div :style="{ color: entry.payload.color === 'global' ? 'var(--global-c1)' : 'gray'}">{{ entry.payload.text }}</div>
-          </w-plate>
+          <notification :notification-payload="entry.payload"/>
         </template>
         <template v-else-if="entry.type === 'message'">
           <message-show :message-payload="entry.payload"/>
@@ -17,22 +14,21 @@
     </template>
     <teleport v-if="mounted && attachMiniQueue" :to="attachMiniQueue">
       <template v-for="(entry, index) in queue" :key="index">
-        <div class="mini-entry"
-             :style="{ backgroundColor: !entry.visible ? '#b2c3db' : (entry.type === 'message' ? colorsHex[entry.payload.colorIndex] : ( entry.payload.color === 'global' ? 'var(--global-c1)' : '#415969')) }"/>
+        <mini-entry :entry="entry"/>
       </template>
     </teleport>
   </div>
 </template>
 
 <script>
-import WPlate from '/src/widgets/Plate.vue'
 import MessageShow from './MessageShow.vue'
+import Notification from './Notification.vue'
 import { throttle, debounce } from 'lodash'
-import { colorsHex } from '/src/js/Colors'
+import MiniEntry from './MiniEntry.vue'
 
 export default {
   name: 'ChatQueue',
-  components: { MessageShow, WPlate },
+  components: { MiniEntry, Notification, MessageShow },
   props: {
     attachMiniQueue: {
       type: String,
@@ -50,7 +46,6 @@ export default {
   },
   created () {
     this.selectedEntryIndex = this.queue.length - 1 // 0 = first on array/ second on dom (due to spacer not counting)
-    this.colorsHex = colorsHex
   },
   mounted: function () {
     this.addEntry({
@@ -243,22 +238,5 @@ export default {
 .queue-spacer {
   flex-grow: 1;
   min-height: 100%;
-}
-
-.queue-entry {
-  display: block;
-  color: gray;
-  margin: calc(1px * var(--global-ss)) 0;
-  min-height: calc(12px * var(--global-ss));
-}
-
-.mini-entry {
-  height: calc(2px * var(--global-ss));
-  margin-top: calc(2px * var(--global-ss));
-  /*margin-bottom: calc(2px * var(--global-ss));*/
-}
-
-.mini-entry-not-visible {
-  background-color: black;
 }
 </style>

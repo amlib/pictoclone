@@ -17,7 +17,7 @@
 <script>
 import { throttle } from 'lodash'
 import { computed } from 'vue'
-import { colorsCssHueDeg, colorsHex, colorsHexFaded } from '/src/js/Colors'
+import { colorsHexL1, colorsHexL2, colorsCssHueDeg, colorsHexMain, colorsHexFaded } from '/src/js/Colors'
 import { AudioFX } from '/src/audio'
 
 export default {
@@ -51,7 +51,6 @@ export default {
       landscapeBreakpointRatio: 18 / 9,
       landscapeConstrainRatio: 26 / 9,
       portraitConstrainRatio: 8 / 9,
-      rgbColorIndex: 2,
       rgbColorHue: 0,
       rgbInterval: undefined
     }
@@ -84,8 +83,7 @@ export default {
       if (this.rgbInterval) {
         return this.rgbColorHue
       } else {
-        const colorIndex = this.globalValues.userColorIndex
-        return colorsCssHueDeg[colorsHex[colorIndex]]
+        return colorsCssHueDeg[this.globalValues.userColorIndex]
       }
     },
     getScalingFactor: function () {
@@ -104,12 +102,12 @@ export default {
     },
     getAppStyle: function () {
       const marginCompensation = (this.documentWidth - (this.viewWidth * this.getScalingFactor)) / 2
-      const colorIndex = this.rgbInterval ? this.rgbColorIndex : this.globalValues.userColorIndex
 
       const obj = {
-        '--global-c1': colorsHex[colorIndex],
-        '--global-c2': colorsHexFaded[colorIndex],
-        // '--global-cf': colorsCssFilter[colorsHex[colorIndex]],
+        '--global-cl1': colorsHexL1[this.globalValues.userColorIndex],
+        '--global-cl2': colorsHexL2[this.globalValues.userColorIndex],
+        '--global-cmain': colorsHexMain[this.globalValues.userColorIndex],
+        '--global-cfaded': colorsHexFaded[this.globalValues.userColorIndex],
         '--global-chd': this.colorHueDeg + 'deg',
         '--global-ss': this.globalValues.superSample,
         '--global-sf': this.getScalingFactor
@@ -137,7 +135,6 @@ export default {
         clearInterval(this.rgbInterval)
         this.rgbInterval = undefined
         this.rgbColorHue = 0
-        this.rgbColorIndex = 2
         this.globalValues.rgbMode = false
       }
 
@@ -145,13 +142,6 @@ export default {
         this.globalValues.rgbMode = true
         this.rgbInterval = setInterval(() => {
           this.rgbColorHue += 5
-
-          if (this.rgbColorHue % 30 === 0) {
-            this.rgbColorIndex += 1
-            if (this.rgbColorIndex > colorsHex.length - 1) {
-              this.rgbColorIndex = 2
-            }
-          }
         }, 33)
       }
     },
@@ -219,10 +209,6 @@ body {
   filter: hue-rotate(var(--global-chd));
 }
 
-/*.global-color-tint {*/
-/*  filter: var(--global-cf);*/
-/*}*/
-
 .pixel-rendering {
   image-rendering: pixelated;
 }
@@ -232,7 +218,7 @@ body {
 }
 
 .simple-button-active {
-  background-color: #FB3041;
+  background-color: var(--global-cl2);
 }
 
 .fade-enter-active,

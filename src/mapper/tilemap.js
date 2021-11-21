@@ -551,7 +551,7 @@ const tileMap = [
     map: cloneDeep(mainMap)
   },
   {
-    groupName: 'main-color-fill', x: 0, y: 12,
+    groupName: 'main-color-fill', x: 0, y: 12, colorVariations: true,
     map: cloneDeep(mainMap)
   },
   {
@@ -563,11 +563,11 @@ const tileMap = [
     map: cloneDeep(mainMap)
   },
   {
-    groupName: 'main-drawing-area', x: 0, y: 24,
+    groupName: 'main-drawing-area', x: 0, y: 24, colorVariations: true,
     map: cloneDeep(mainMap)
   },
   {
-    groupName: 'main-color-background', x: 0, y: 28,
+    groupName: 'main-color-background', x: 0, y: 28, colorVariations: true,
     map: cloneDeep(mainMap)
   },
   {
@@ -579,7 +579,7 @@ const tileMap = [
     map: cloneDeep(smallButtonMap)
   },
   {
-    groupName: 'small-button-highlight', x: 10, y: 32,
+    groupName: 'small-button-highlight', x: 10, y: 32, colorVariations: true,
     map: cloneDeep(smallButtonMap)
   },
   {
@@ -599,7 +599,7 @@ const tileMap = [
     map: cloneDeep(iconMap)
   },
   {
-    groupName: 'icon-color-fill', x: 0, y: 86,
+    groupName: 'icon-color-fill', x: 0, y: 86, colorVariations: true,
     map: cloneDeep(iconMap)
   },
   {
@@ -607,7 +607,7 @@ const tileMap = [
     map: cloneDeep(keyboardMap)
   },
   {
-    groupName: 'icon-keyboard-highlight', x: 0, y: 190,
+    groupName: 'icon-keyboard-highlight', x: 0, y: 190, colorVariations: true,
     map: cloneDeep(keyboardMap)
   },
   {
@@ -637,4 +637,7 @@ const tileMap = [
   }
 ]
 
-export { tileMap, tileSpec }
+// all tiles were authored with colorIndex 2 (pure-ish red) as a base
+const baseColorIndex = 2
+
+export { tileMap, tileSpec, baseColorIndex }

@@ -4,13 +4,19 @@
     <div class="keyboard-wrapper">
       <div class="keyboard-buttons-wrapper">
         <w-button-toggle class="keyboard-buttons-toggle" v-model="keyboardMode"
-                         :common-options="{ 'plate-notch': [true, false, false, false], 'normal-tile': 'beveled-button', 'active-tile': 'beveled-button-highlight', 'plate-padding': 2, 'audio-feedback': true }"
+                         :common-options="{
+          'normal-tile': 'beveled-button',
+          'active-tile': 'beveled-button-highlight',
+          'plate-padding': 2,
+          'audio-feedback': true,
+          'global-tint': true,
+          'icon-prefix-highlight': 'icon-normal' }"
                          :options="[
-        { icon: 'romaji', name: 'romaji' },
-        { icon: 'accents', name: 'accents' },
-        { icon: 'kana', name: 'kana' },
-        { icon: 'symbols1', name: 'symbols1' },
-        { icon: 'symbols2', name: 'symbols2' }]">
+          { icon: 'romaji', name: 'romaji' },
+          { icon: 'accents', name: 'accents' },
+          { icon: 'kana', name: 'kana' },
+          { icon: 'symbols1', name: 'symbols1' },
+          { icon: 'symbols2', name: 'symbols2' }]">
         </w-button-toggle>
       </div>
       <keyboard class="keyboard" :mode="keyboardMode" :symbol-drop="false"

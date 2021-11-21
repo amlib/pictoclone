@@ -4,12 +4,12 @@
       <div class="button-bar-wrapper">
         <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                  @click="onClose" audioFeedback>
+                  @click="onClose" audioFeedback global-tint>
           ✖
         </w-button>
         <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                  @click="toggleFullscreen" audioFeedback>
+                  @click="toggleFullscreen" audioFeedback global-tint>
           <span style="padding-left: calc(0.5px * var(--global-ss))">↕</span>
         </w-button>
       </div>
@@ -441,7 +441,7 @@ export default {
 }
 
 .rainbow-button {
-  background: #F00;
+  background: var(--global-cl2);
   width: calc(13px * var(--global-ss));
   min-height: calc(13px * var(--global-ss));
   color: white;

@@ -1,16 +1,14 @@
 <template>
   <w-plate class="message-area" tile-name="main-drawing-area"
            :notch="[true, true, true, true]"
-           :stripe-mode="stripe"
-           :color-hue-deg="colorsCssHueDeg[colorsHex[messagePayload.colorIndex]]">
+           :stripe-mode="stripe">
     <slot/>
     <div v-if="!noDrawing" class="drawing-area drawing-area-show pixel-rendering" :style="getViewStyle"/>
     <w-plate :class="[isMessageOneSegment ? 'fill' : '', 'message-area-user-tag']"
              tile-name="main-color-background"
              :notch="[true, false, true, isMessageOneSegment]"
-             :color-hue-deg="colorsCssHueDeg[colorsHex[messagePayload.colorIndex]]"
              ref="user-tag">
-      <div :style="{ color: colorsHexDarker[messagePayload.colorIndex] }">{{ messagePayload.user }}</div>
+      <div :style="{ color: colorsHexL3[messagePayload.colorIndex] }">{{ messagePayload.user }}</div>
     </w-plate>
   </w-plate>
 </template>
@@ -18,7 +16,7 @@
 <script>
 import WPlate from '/src/widgets/Plate.vue'
 import { messageVerticalSegmentSize } from '/src/js/Message'
-import { colorsCssHueDeg, colorsHex, colorsHexDarker } from '/src/js/Colors'
+import { colorsHexL3 } from '/src/js/Colors'
 
 export default {
   name: 'MessageShow',
@@ -41,9 +39,7 @@ export default {
     }
   },
   created () {
-    this.colorsCssHueDeg = colorsCssHueDeg
-    this.colorsHex = colorsHex
-    this.colorsHexDarker = colorsHexDarker
+    this.colorsHexL3 = colorsHexL3
   },
   computed: {
     isMessageOneSegment: function () {

@@ -13,7 +13,7 @@
       </template>
       <w-button class="toggle-switch-button" :plate-padding="2" expand-plate :style="getButtonStyle"
                 normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                @click="toggle">
+                @click="toggle" global-tint>
       </w-button>
     </div>
   </w-plate>
@@ -146,7 +146,7 @@ export default {
 
 .text-selected {
   opacity: 1.0;
-  color: var(--global-c1);
+  color: var(--global-cl2);
   position: relative;
   text-shadow: 0 calc(-0.5px * var(--global-ss)) 0 black,
     calc(-0.5px * var(--global-ss)) calc(-0.5px * var(--global-ss)) 0 black,

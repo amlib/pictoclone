@@ -1,11 +1,12 @@
 <template>
   <button :style="buttonStyle" :class="['button',
-      globalTint ? 'global-color-hue-tint' : '',
+      $global.rgbMode && !globalTint ? 'global-color-hue-tint' : '',
       clicking || toggled ? activeClass : normalClass]"
       @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="onPointerCancel" @pointerleave="onPointerLeave">
-    <w-plate v-if="normalTile" :global-tint="false" :notch="plateNotch"
+    <w-plate v-if="normalTile" :global-tint="globalTint" :notch="plateNotch"
              :tile-name="toggled || clicking ? activeTile : normalTile"
-             :padding="platePadding" :class="['button-plate', expandPlate ? 'plate-expand' : '']">
+             :padding="platePadding" :class="['button-plate',
+             expandPlate ? 'plate-expand' : '']">
       <slot></slot>
       <div v-if="icon" class="plate-icon" :style="iconBase"></div>
     </w-plate>
@@ -15,6 +16,7 @@
 
 <script>
 import WPlate from '/src/widgets/Plate.vue'
+
 export default {
   name: 'WButton',
   components: { WPlate },
@@ -58,7 +60,7 @@ export default {
     globalTint: {
       type: Boolean,
       required: false,
-      default: true
+      default: false
     },
     toggled: {
       type: Boolean,
@@ -112,7 +114,7 @@ export default {
       let tile
 
       if (this.clicking || this.toggled) {
-        tile = this.$tileMap(this.iconPrefixHighlight + '-' + this.icon)
+        tile = this.$tileMap(this.iconPrefixHighlight + '-' + this.icon, this.$global.userColorIndex)
       } else {
         tile = this.$tileMap(this.iconPrefixNormal + '-' + this.icon)
       }
