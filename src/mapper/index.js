@@ -254,13 +254,17 @@ const mapper = {
                 slice.h = Math.floor(sourceH * superSample)
                 slice.cv = group.colorVariations
 
+                const isColorVariant = group.colorVariations && colorIndex !== baseColorIndex
+
                 context.globalCompositeOperation = 'copy'
                 context.imageSmoothingEnabled = false
                 const integerSuperSampleTile = tile.noSuperSample ? 1 : integerSuperSample
                 context.drawImage(image, sourceX, sourceY, sourceW, sourceH,
-                  0, 0, sourceW * integerSuperSampleTile, sourceH * integerSuperSampleTile)
+                  0, 0,
+                  sourceW * (isColorVariant ? 1 : integerSuperSampleTile),
+                  sourceH * (isColorVariant ? 1 : integerSuperSampleTile))
 
-                if (group.colorVariations) {
+                if (isColorVariant) {
                   // abandoned idea 1...
                   // does not preserve luminance (great) but stuff wind up looking off anyway
                   // context.putImageData(hslAdjustment(canvas, context, colorDeg, 0, 0), 0, 0)
@@ -272,10 +276,13 @@ const mapper = {
                   // context.fillRect(0, 0, canvas.width, canvas.height)
                   // context.globalCompositeOperation = compBK
 
-                  // pallet swap to the correct color works well
-                  // but is memory inefficient since there is no indexable color pallet and we have to generate full tile variations for each color
-                  if (colorIndex !== baseColorIndex) {
-                    context.putImageData(remapColors(canvas, context, baseColorIndex, colorIndex), 0, 0)
+                  // this will essentially pallet swap the tile to the chosen color pallet
+                  // this may be memory inefficient since there is no native color pallet and we have to generate full tile variations for each color pallet
+                  context.putImageData(remapColors(canvas, context, baseColorIndex, colorIndex), 0, 0)
+                  // trying to remap unscaled tiles (fewer pixels to manipulate) and then scale to the proper size
+                  if (integerSuperSampleTile !== 1) {
+                    context.drawImage(canvas, 0, 0, sourceW, sourceH,
+                      0, 0, sourceW * integerSuperSampleTile,sourceH * integerSuperSampleTile)
                   }
                 }
 
