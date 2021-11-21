@@ -312,8 +312,8 @@ export default {
 
 .button-bar > .separator {
   min-height: calc(1px * var(--global-ss));
-  background-image: linear-gradient(90deg, #ffffff 25%, #494949 25%, #494949 50%, #ffffff 50%, #ffffff 75%, #494949 75%, #494949 100%);
-  background-size: calc(4px * var(--global-ss)) calc(4px * var(--global-ss));
+  background-image: linear-gradient(90deg, #fff 0px, #fff calc(1px * var(--global-ss)), #555 calc(1px * var(--global-ss)), #555 calc(2px * var(--global-ss)));
+  background-size: calc(2px * var(--global-ss)) calc(4px * var(--global-ss));
 }
 
 /* also non scoped version */
