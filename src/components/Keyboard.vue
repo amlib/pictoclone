@@ -17,7 +17,7 @@
                       @pointerleave="keyLeave"
                       :toggled="(key === 'shift' && shifting && !capsLocked) || (key === 'caps' && capsLocked) || (key === 'hiragana' && !capsLocked && !shifting) || (key === 'katakana' && (capsLocked || shifting))">
               <div v-if="uniqueKeyIcon[key] == null" class="text">
-                {{ shifting ? section.shiftKeys[keyIndex] : key }}
+                {{ shifting ? section.shiftKeys[keyIndex] : getKey(key) }}
               </div>
             </w-button>
           </template>
@@ -49,7 +49,7 @@ import {
   uniqueKeyIconMargin,
   uniqueKeyClass,
   komojiMap,
-  tentenMap, maruMap
+  tentenMap, maruMap, uniqueKeyMap
 } from '/src/js/Keyboard'
 import { watch } from 'vue'
 import TypingBubble from '/src/components/TypingBubble.vue'
@@ -179,14 +179,14 @@ export default {
         }
 
         if (newKey) {
-          this.$emit('keyboard-swap-char', newKey)
+          this.$emit('keyboard-swap-char', this.getKey(newKey))
         }
 
         return
       }
 
       this.previousKey = key
-      this.$emit('keyboard-key-press', key)
+      this.$emit('keyboard-key-press', this.getKey(key))
     },
     keyLeave: function () {
       this.startKeyRepeatDebounced.cancel()
@@ -254,7 +254,7 @@ export default {
       if (this.draggingSymbol) {
         this.previousKey = this.draggingSymbol
         this.$emit('symbol-drag', {
-          symbol: this.draggingSymbol,
+          symbol: this.getKey(this.draggingSymbol),
           event: event
         })
       }
@@ -277,6 +277,10 @@ export default {
 
       this.draggingShow = false
       this.draggingSymbol = null
+    },
+    getKey: function (key) {
+      let mappedKey = uniqueKeyMap[key]
+      return mappedKey != null ? mappedKey : key
     }
   }
 }
@@ -395,7 +399,7 @@ export default {
   justify-content: flex-start;
   margin-bottom: calc(1px * var(--global-ss));
   margin-left: calc(1px * var(--global-ss));
-  margin-right: calc(1px * var(--global-ss));
+  margin-right: calc(-1px * var(--global-ss));
   z-index: 3;
 }
 
@@ -460,15 +464,10 @@ export default {
   line-height: calc(14px * var(--global-ss));
 }
 
+/* unique keys */
+
 .small-enter {
   margin-bottom: calc(-16px * var(--global-ss));
-}
-
-.wide-kana-dash {
-  min-width: calc(18px * var(--global-ss));
-  min-height: calc(15px * var(--global-ss));
-  margin-right: calc(1px * var(--global-ss));
-  clip-path: polygon(0 0, calc(100% - (3px * var(--global-ss))) 0, 100% calc(3px * var(--global-ss)), 100% 100%, 0 100%)
 }
 
 .small-space {
@@ -478,19 +477,34 @@ export default {
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - (3px * var(--global-ss))), calc(100% - (3px * var(--global-ss))) 100%, 0 100%)
 }
 
-.komoji {
+.key-notched-tr {
+  min-width: calc(18px * var(--global-ss));
+  min-height: calc(15px * var(--global-ss));
+  margin-right: calc(1px * var(--global-ss));
+  clip-path: polygon(0 0, calc(100% - (3px * var(--global-ss))) 0, 100% calc(3px * var(--global-ss)), 100% 100%, 0 100%)
+}
+
+.key-notched-bl {
   min-width: calc(15px * var(--global-ss));
   min-height: calc(15px * var(--global-ss));
   margin-right: calc(1px * var(--global-ss));
   clip-path: polygon(0 0, 100% 0, 100% 100%, calc(3px * var(--global-ss)) 100%, 0 calc(100% - (3px * var(--global-ss))))
 }
 
-.hiragana {
+.key-notched-tl {
   min-width: calc(15px * var(--global-ss));
   min-height: calc(15px * var(--global-ss));
   margin-right: calc(1px * var(--global-ss));
   clip-path: polygon(0 calc(3px * var(--global-ss)), calc(3px * var(--global-ss)) 0, 100% 0, 100% 100%, 0 100%);
 }
+
+.key-wide {
+  min-width: calc(17px * var(--global-ss));
+  min-height: calc(15px * var(--global-ss));
+  margin-right: calc(1px * var(--global-ss));
+}
+
+/* mobile assists */
 
 /* dilates keys bounds for better mobile typing experience */
 .mobile-assists .text {
@@ -509,6 +523,8 @@ export default {
   top: calc(-5px * var(--global-ss));
   bottom: calc(-1px * var(--global-ss));
 }
+
+/* extra */
 
 .symbol-drag-box-char {
   pointer-events: none;

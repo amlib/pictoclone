@@ -130,7 +130,7 @@ const layouts = {
       {
         class: 'row1',
         keyClass: 'key-15px-slim',
-        keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '=', 'π']
+        keys: ['n1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '=', 'π']
       },
       {
         class: 'row2',
@@ -206,16 +206,32 @@ const uniqueKeyIconMargin = {
 
 const uniqueKeyClass = {
   'small-enter': 'small-enter',
-  ー: 'wide-kana-dash',
   'small-space': 'small-space',
-  komoji: 'komoji',
-  hiragana: 'hiragana',
-  ò: 'komoji',
-  à: 'hiragana',
-  '!': 'hiragana',
-  '^': 'komoji',
-  1: 'hiragana',
-  '➔': 'komoji'
+
+
+  'à': 'key-notched-tl key-wide',
+  'ì': 'key-wide',
+  'ù': 'key-wide',
+  'è': 'key-wide',
+  'ò': 'key-notched-bl key-wide',
+
+  'hiragana': 'key-notched-tl',
+  'ー': 'key-notched-tr',
+  'komoji': 'key-notched-bl',
+
+  '!': 'key-notched-tl key-wide',
+  '€': 'key-notched-tr',
+  '+': 'key-wide',
+  '「': 'key-wide',
+  '%': 'key-wide',
+  '^': 'key-notched-bl key-wide',
+
+  'n1': 'key-notched-tl key-wide',
+  'π': 'key-notched-tr',
+  '☸': 'key-wide',
+  '☰': 'key-wide',
+  '☶': 'key-wide',
+  '➔': 'key-notched-bl key-wide'
 }
 
 const komojiMap = {
@@ -295,8 +311,12 @@ const maruMap = {
   ホ: 'ポ'
 }
 
+const uniqueKeyMap = {
+  n1: '1'
+}
+
 export {
   layouts,
   uniqueKeyTile, uniqueKeyIcon, uniqueKeyIconMargin, uniqueKeyClass,
-  komojiMap, tentenMap, maruMap
+  komojiMap, tentenMap, maruMap, uniqueKeyMap
 }
