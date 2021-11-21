@@ -14,6 +14,7 @@
                       :icon="uniqueKeyIcon[key] ? key : null" :icon-margin="uniqueKeyIconMargin[key]"
                       @pointerdown="(event) => keyDown(shifting ? section.shiftKeys[keyIndex] : key, event)"
                       @pointerup="(event) => keyUp(shifting ? section.shiftKeys[keyIndex] : key, event)"
+                      @pointerleave="keyLeave"
                       :toggled="(key === 'shift' && shifting && !capsLocked) || (key === 'caps' && capsLocked) || (key === 'hiragana' && !capsLocked && !shifting) || (key === 'katakana' && (capsLocked || shifting))">
               <div v-if="uniqueKeyIcon[key] == null" class="text">
                 {{ shifting ? section.shiftKeys[keyIndex] : key }}
@@ -132,7 +133,8 @@ export default {
         this.hideTypingBubbleDbounced()
       }
 
-      if (!this.uniqueKeyIcon[key] || key === 'enter' || key === 'backspace' || key === 'space') {
+      if (!this.uniqueKeyIcon[key] || key === 'enter' || key === 'backspace' || key === 'space'
+        || key === 'small-enter' || key === 'small-backspace' || key === 'small-space') {
         this.startKeyRepeatDebounced(key)
       }
     },
@@ -186,7 +188,17 @@ export default {
       this.previousKey = key
       this.$emit('keyboard-key-press', key)
     },
+    keyLeave: function () {
+      this.startKeyRepeatDebounced.cancel()
+      if (this.keyRepeatInterval) {
+        clearInterval(this.keyRepeatInterval)
+        this.keyRepeatInterval = null
+      }
+    },
     startKeyRepeat: function (key) {
+      if (this.keyRepeatInterval) {
+        clearInterval(this.keyRepeatInterval)
+      }
       this.keyRepeatInterval = setInterval(() => this.keyUp(key, null, true), 50)
     },
     unhighlightTypingBubble: function () {
@@ -208,16 +220,11 @@ export default {
         }
       }
     },
-    // triggered by element with text class dynamically registered in pointerDown
+    // WARNING triggered only by elements with associated text class dynamically registered in pointerDown
     pointerLeave: function (event) {
       if (this.draggingCapturedElement) {
         if (this.$global.vibration > 0) {
           window.navigator.vibrate(this.$global.vibration * 0.8)
-        }
-        this.startKeyRepeatDebounced.cancel()
-        if (this.keyRepeatInterval) {
-          clearInterval(this.keyRepeatInterval)
-          this.keyRepeatInterval = null
         }
         this.hideTypingBubbleDbounced.flush()
         this.draggingCapturedElement.removeEventListener('pointerleave', this.pointerLeave)
