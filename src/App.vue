@@ -5,8 +5,11 @@
       this.globalValues.autoScale ? undefined : 'no-scale',
       this.globalValues.mobileAssists ? 'mobile-assists' : undefined]"
        :style="getAppStyle" ref="view">
-    <div v-if="patchingTiles" class="loading-circle"/>
-    <router-view v-slot="{ Component }">
+    <div v-if="loading" class="loading">
+      <div class="loading-circle"/>
+      Reticulating splines...
+    </div>
+    <router-view v-if="!coldStart" v-slot="{ Component }">
       <transition name="fade" mode="out-in" @before-enter="beforeEnterTransition">
         <component :is="Component" :style="getViewStyle"/>
       </transition>
@@ -19,6 +22,7 @@ import { throttle } from 'lodash'
 import { computed } from 'vue'
 import { colorsHexL1, colorsHexL2, colorsCssHueDeg, colorsHexMain, colorsHexFaded } from '/src/js/Colors'
 import { AudioFX } from '/src/audio'
+import tileMap from '/tilemap.png'
 
 export default {
   name: 'App',
@@ -26,7 +30,7 @@ export default {
     return {
       globalValues: {
         colorHueDeg: computed(() => this.colorHueDeg),
-        superSample: this.$superSample,
+        superSample: 3,
         setSuperSample: this.setSuperSample,
         autoScale: true,
         mobileAssists: true,
@@ -43,7 +47,8 @@ export default {
         setRgbMode: this.setRgbMode,
         audio: undefined
       },
-      patchingTiles: false, // kludge for "glitchyness" when changing tiles
+      loading: true,
+      coldStart: true,
       documentWidth: 1,
       documentHeight: 1,
       viewWidth: 1,
@@ -58,9 +63,19 @@ export default {
   created: function () {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
     this.globalValues.audio = new AudioFX(this.globalValues.vibration, !this.globalValues.muted)
-    this.globalValues.audio.loadSamples()
   },
-  mounted: function () {
+  mounted: async function () {
+    this.onResize()
+
+    await this.$mapperGenerate({
+      superSample: this.globalValues.superSample,
+      imageSource: tileMap
+    })
+    await this.globalValues.audio.loadSamples({})
+
+    this.loading = false
+    this.coldStart = false
+
     this.onResizeThrottled = throttle(this.onResize, 100, { leading: false, trailing: true })
     this.documentObserver = new ResizeObserver(this.onResizeThrottled).observe(document.firstElementChild)
     this.viewObserver = new ResizeObserver(this.onResizeThrottled).observe(this.$refs.view)
@@ -97,7 +112,7 @@ export default {
     getViewStyle: function () {
       return {
         height: this.$global.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined,
-        visibility: this.patchingTiles ? 'hidden' : null
+        visibility: this.loading ? 'hidden' : null
       }
     },
     getAppStyle: function () {
@@ -123,12 +138,13 @@ export default {
   },
   methods: {
     setSuperSample: async function (newValue) {
-      this.patchingTiles = true
-      await this.$mapperRegenerate({ superSample: newValue })
+      this.loading = true
+      this.$nextTick(() => this.onResize())
+      await this.$mapperGenerate({ superSample: newValue })
       this.globalValues.superSample = newValue
       setTimeout(() => {
-        this.patchingTiles = false
-      }, 100)
+        this.loading = false
+      }, 500)
     },
     setRgbMode: function (val) {
       if (this.rgbInterval) {
@@ -232,14 +248,20 @@ body {
 }
 
 .loading-circle {
-  margin: 100px 400px;
+  margin: 100px 500px;
   transform: translate(200px, 0);
   animation: effect 0.5s linear infinite;
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  border: 8px solid rgba(255, 255, 255, 0.3);
+  border: 12px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
+}
+
+.loading {
+  color: #cbcbcb;
+  text-align: center;
+  font-size: calc(10px * 5);
 }
 
 @keyframes effect {

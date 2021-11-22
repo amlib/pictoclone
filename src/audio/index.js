@@ -23,53 +23,59 @@ export class AudioFX {
     }
   }
 
-  async loadSamples () {
-    if (this.zipSampleBundle) {
-      const response = await fetch(samplesZip)
-      const zipBuffer = await response.arrayBuffer()
-      unzip(new Uint8Array(zipBuffer), async (err, unzipped) => {
+  loadSamples () {
+    return new Promise(async (resolve, reject) => {
+      if (this.zipSampleBundle) {
+        const response = await fetch(samplesZip)
+        const zipBuffer = await response.arrayBuffer()
+        unzip(new Uint8Array(zipBuffer), async (err, unzipped) => {
+          for (let i = 0; i < samples.length; ++i) {
+            const sample = samples[i]
+            try {
+              const sampleUint8Array = unzipped[sample.replace('samples/', '')]
+              this.bufferMap[sample] = await this.audioContext.decodeAudioData(sampleUint8Array.buffer)
+            } catch (e) {
+              console.warn('AudioFX.loadSamples: could not load sample:', sample, 'reason:', e)
+              throw e
+              reject()
+            }
+          }
+
+          this.generateNoise()
+          this.loaded = true
+          resolve()
+        });
+      } else {
         for (let i = 0; i < samples.length; ++i) {
           const sample = samples[i]
           try {
-            const sampleUint8Array = unzipped[sample.replace('samples/', '')]
-            this.bufferMap[sample] = await this.audioContext.decodeAudioData(sampleUint8Array.buffer)
+            const response = await fetch(sample)
+            const arrayBuffer = await response.arrayBuffer()
+            this.bufferMap[sample] = await this.audioContext.decodeAudioData(arrayBuffer)
           } catch (e) {
             console.warn('AudioFX.loadSamples: could not load sample:', sample, 'reason:', e)
             throw e
+            reject()
           }
         }
 
         this.generateNoise()
         this.loaded = true
-      });
-    } else {
-      for (let i = 0; i < samples.length; ++i) {
-        const sample = samples[i]
-        try {
-          const response = await fetch(sample)
-          const arrayBuffer = await response.arrayBuffer()
-          this.bufferMap[sample] = await this.audioContext.decodeAudioData(arrayBuffer)
-        } catch (e) {
-          console.warn('AudioFX.loadSamples: could not load sample:', sample, 'reason:', e)
-          throw e
-        }
+        resolve()
       }
 
-      this.generateNoise()
-      this.loaded = true
-    }
-
-    // abandoned noise worklet that did not work out so well...
-    // try {
-    //   if (window.isSecureContext) {
-    //     await this.audioContext.audioWorklet.addModule('samples/worklets.js')
-    //   } else {
-    //     this.generateNoise()
-    //   }
-    // } catch (e) {
-    //   console.warn('AudioFX.loadSamples: could not load worklets:', e)
-    //   throw e
-    // }
+      // abandoned noise worklet that did not work out so well...
+      // try {
+      //   if (window.isSecureContext) {
+      //     await this.audioContext.audioWorklet.addModule('samples/worklets.js')
+      //   } else {
+      //     this.generateNoise()
+      //   }
+      // } catch (e) {
+      //   console.warn('AudioFX.loadSamples: could not load worklets:', e)
+      //   throw e
+      // }
+    })
   }
 
   generateNoise () {

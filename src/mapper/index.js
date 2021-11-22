@@ -200,10 +200,17 @@ const remapColors = function (canvas, context, srcColorIndex, targetColorIndex) 
 }
 
 let imageSlices
+let oldOptions = {}
 
 const mapper = {
-  generate: function (options) {
+  generate: function (newOptions = {}) {
     return new Promise((resolve, reject) => {
+      const options = {
+        ...oldOptions,
+        ...newOptions
+      }
+      oldOptions = options
+
       const newImageSlices = {}
       const canvas = document.createElement('canvas')
 
@@ -214,7 +221,8 @@ const mapper = {
         const context = canvas.getContext('2d')
         const image = new Image()
         image.src = options.imageSource
-        image.onload = async () => {
+        image.onload = () => {
+          const tasks = []
           for (let g = 0; g < tileMap.length; ++g) {
             const group = tileMap[g]
             for (let i = 0; i < group.map.length; ++i) {
@@ -292,14 +300,22 @@ const mapper = {
                   context.drawImage(canvas, 0, 0, sourceW * integerSuperSampleTile, sourceH * integerSuperSampleTile,
                     0, 0, Math.floor(sourceW * superSample), Math.floor(sourceH * superSample))
                 }
-                // const url = canvas.toDataURL()
-                const blob = await getCanvasBlob(canvas)
-                const url = URL.createObjectURL(blob)
-                slice.url = url
-                newImageSlices[slice.alias] = slice
-                if (group.colorVariations && colorIndex === baseColorIndex) {
-                  newImageSlices[baseAlias] = slice
+
+
+                // odd behaviour on chrome would only execute a single microtask per frame,
+                // thus making this process take hundreds of seconds rather than a second like in firefox
+                // this works around that and allow us to cram as many microtasks as we can on a single frame
+                // firefox also seems a little bit faster then before... could just be a placebo
+                const finishSlice = async () => {
+                  const blob = await getCanvasBlob(canvas)
+                  const url = URL.createObjectURL(blob)
+                  slice.url = url
+                  newImageSlices[slice.alias] = slice
+                  if (group.colorVariations && colorIndex === baseColorIndex) {
+                    newImageSlices[baseAlias] = slice
+                  }
                 }
+                tasks.push(finishSlice())
               }
             }
           }
@@ -310,11 +326,12 @@ const mapper = {
             }
           }
 
-          canvas.remove()
-          image.remove()
-          imageSlices = newImageSlices
-          // console.log('all done:', imageSlices)
-          resolve()
+          Promise.all(tasks).then(() => {
+            canvas.remove()
+            image.remove()
+            imageSlices = newImageSlices
+            resolve()
+          })
         }
         image.onerror = function (error) {
           console.warn('Could not load image', error)
@@ -329,10 +346,10 @@ const mapper = {
       }
     })
   },
-  install: (app, options) => {
+  install: (app, options = {}) => {
     app.config.unwrapInjectedRef = true // needed elsewhere...
-    app.config.globalProperties.$superSample = options.superSample
-    app.config.globalProperties.$mapperRegenerate = async (newOptions) => {
+
+    app.config.globalProperties.$mapperGenerate = async (newOptions) => {
       return mapper.generate({ ...options, ...newOptions })
     }
     app.config.globalProperties.$tileMap = (alias, colorVariations = null) => {
