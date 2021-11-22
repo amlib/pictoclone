@@ -9,9 +9,9 @@
       <div class="loading-circle"/>
       {{ loadingMessage }}...
     </div>
-    <router-view v-if="!coldStart" v-slot="{ Component }">
+    <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in" @before-enter="beforeEnterTransition">
-        <component :is="Component" :style="getViewStyle"/>
+        <component v-if="!coldStart" :is="Component" :style="getViewStyle"/>
       </transition>
     </router-view>
   </div>
