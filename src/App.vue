@@ -7,7 +7,7 @@
        :style="getAppStyle" ref="view">
     <div v-if="loading" class="loading">
       <div class="loading-circle"/>
-      Reticulating splines...
+      {{ loadingMessage }}...
     </div>
     <router-view v-if="!coldStart" v-slot="{ Component }">
       <transition name="fade" mode="out-in" @before-enter="beforeEnterTransition">
@@ -23,6 +23,7 @@ import { computed } from 'vue'
 import { colorsHexL1, colorsHexL2, colorsCssHueDeg, colorsHexMain, colorsHexFaded } from '/src/js/Colors'
 import { AudioFX } from '/src/audio'
 import tileMap from '/tilemap.png'
+import { sillyLoadingMessages } from './js/Strings'
 
 export default {
   name: 'App',
@@ -134,6 +135,10 @@ export default {
         obj.transform = `scale(${this.getScalingFactor})`
       }
       return obj
+    },
+    loadingMessage: function () {
+      this.loading
+      return sillyLoadingMessages[Math.round(Math.random() * (sillyLoadingMessages.length - 1))]
     }
   },
   methods: {
