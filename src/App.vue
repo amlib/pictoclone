@@ -23,7 +23,7 @@ import { computed } from 'vue'
 import { colorsHexL1, colorsHexL2, colorsCssHueDeg, colorsHexMain, colorsHexFaded } from '/src/js/Colors'
 import { AudioFX } from '/src/audio'
 import tileMap from '/tilemap.png'
-import { sillyLoadingMessages } from './js/Strings'
+import { pokeNames, sillyLoadingMessages } from './js/Strings'
 
 export default {
   name: 'App',
@@ -38,7 +38,7 @@ export default {
         isLandscape: computed(() => this.isLandscape),
         scalingFactor: computed(() => this.getScalingFactor),
         userColorIndex: 2,
-        userName: 'amlib',
+        userName: '',
         vibration: 120,
         setVibration: this.setVibration,
         muted: false,
@@ -64,6 +64,7 @@ export default {
   created: function () {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
     this.globalValues.audio = new AudioFX(this.globalValues.vibration, !this.globalValues.muted)
+    this.globalValues.userName = this.getRandomName()
   },
   mounted: async function () {
     this.onResize()
@@ -192,6 +193,9 @@ export default {
       this.landscapeBreakpointRatio = this.$route.meta.landscapeBreakpointRatio
       this.landscapeConstrainRatio = this.$route.meta.landscapeConstrainRatio
       this.portraitConstrainRatio = this.$route.meta.portraitConstrainRatio
+    },
+    getRandomName: function () {
+      return pokeNames[Math.round(Math.random() * (pokeNames.length - 1))]
     }
   }
 }
