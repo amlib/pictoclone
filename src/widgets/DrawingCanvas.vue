@@ -14,7 +14,8 @@ import { rainbowBrushColors } from '/src/js/Colors'
 const brushType = 'brush-normal'
 const brushes = [
   'brush-normal-1px',
-  'brush-normal-2px'
+  'brush-normal-2px',
+  'brush-normal-5px'
 ]
 
 export default {
@@ -124,7 +125,11 @@ export default {
     pointerDown: function (event) {
       if (event.buttons & 1) {
         this.$refs.canvas.setPointerCapture(event.pointerId)
-        this.startStroke(event.offsetX / this.$global.superSample, event.offsetY / this.$global.superSample)
+        if (this.tool === 'flood') {
+          this.floodFill(Math.round(event.offsetX / this.$global.superSample), Math.round(event.offsetY / this.$global.superSample))
+        } else {
+          this.startStroke(event.offsetX / this.$global.superSample, event.offsetY / this.$global.superSample)
+        }
       }
     },
     pointerMove: function (event) {
@@ -132,7 +137,9 @@ export default {
     },
     pointerUp: function (event) {
       this.$refs.canvas.releasePointerCapture(event.pointerId)
-      this.endStroke(event.offsetX / this.$global.superSample, event.offsetY / this.$global.superSample)
+      if (this.tool !== 'flood') {
+        this.endStroke(event.offsetX / this.$global.superSample, event.offsetY / this.$global.superSample)
+      }
       if (this.controlAudioProgram) {
         this.controlAudioProgram.stop()
         this.controlAudioProgram = undefined
@@ -219,6 +226,122 @@ export default {
       this.$emit('stroke-end')
       this.painting = false
       this.stroking = false
+    },
+    floodFill: function (x, y) {
+      const imageData = this.canvasContext.getImageData(0, 0, this.width, this.height)
+      const { data, height, width } = imageData
+      const dataOffset = (y * width * 4) + (x * 4)
+      data[dataOffset] = 0
+      data[dataOffset + 1] = 0
+      data[dataOffset + 2] = 0
+      data[dataOffset + 3] = 255
+
+      this.floodFillHorizontal(imageData, x, y)
+      this.floodFillVertical(imageData, x, y)
+
+      this.canvasContext.putImageData(imageData, 0, 0)
+    },
+    imageDataComparePixels(imageData, x1, y1, x2, y2) {
+      const { data, height, width } = imageData
+
+      if (y1 < 0 || y1 > (height -1) || y2 < 0 || y2 > (height - 1) ||
+        x1 < 0 || x1 > (width -1) || x2 < 0 || x2 > (width - 1)) {
+        return -1
+      }
+
+      const dataOffset1 = (y1 * width * 4) + (x1 * 4)
+      const p1R = data[dataOffset1]
+      const p1G = data[dataOffset1 + 1]
+      const p1B = data[dataOffset1 + 2]
+      const p1A = data[dataOffset1 + 3]
+
+      const dataOffset2 = (y2 * width * 4) + (x2 * 4)
+      const p2R = data[dataOffset2]
+      const p2G = data[dataOffset2 + 1]
+      const p2B = data[dataOffset2 + 2]
+      const p2A = data[dataOffset2 + 3]
+
+      if (p1R === p2R && p1G === p2G && p1B === p2B && p1A === p2A) {
+        return dataOffset2
+      } else {
+        return -1
+      }
+    },
+    imageDataCompareRGBAToPixel(imageData, r1, g1, b1, a1, x2, y2) {
+      const { data, height, width } = imageData
+
+      if (y2 < 0 || y2 > (height - 1) ||
+        x2 < 0 || x2 > (width - 1)) {
+        return -1
+      }
+
+      const dataOffset2 = (y2 * width * 4) + (x2 * 4)
+      const p2R = data[dataOffset2]
+      const p2G = data[dataOffset2 + 1]
+      const p2B = data[dataOffset2 + 2]
+      const p2A = data[dataOffset2 + 3]
+
+      if (r1 === p2R && g1 === p2G && b1 === p2B && a1 === p2A) {
+        return dataOffset2
+      } else {
+        return -1
+      }
+    },
+    floodFillHorizontal: function (imageData, x, y) {
+      const { data, height, width } = imageData
+      for (let i = x; i > 0; --i) {
+        const matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, i - 1, y)
+        if (matchOffset >= 0) {
+          data[matchOffset] = 0
+          data[matchOffset + 1] = 0
+          data[matchOffset + 2] = 0
+          data[matchOffset + 3] = 255
+          this.floodFillVertical(imageData, i - 1, y)
+        } else {
+          break
+        }
+      }
+
+      for (let i = x; i < width; ++i) {
+        const matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, i + 1, y)
+        if (matchOffset >= 0) {
+          data[matchOffset] = 0
+          data[matchOffset + 1] = 0
+          data[matchOffset + 2] = 0
+          data[matchOffset + 3] = 255
+          this.floodFillVertical(imageData, i + 1, y)
+        } else {
+          break
+        }
+      }
+    },
+    floodFillVertical: function (imageData, x, y) {
+      const { data, height, width } = imageData
+      for (let i = y; i > 0; --i) {
+        const matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, x, i - 1)
+        if (matchOffset >= 0) {
+          data[matchOffset] = 0
+          data[matchOffset + 1] = 0
+          data[matchOffset + 2] = 0
+          data[matchOffset + 3] = 255
+          this.floodFillHorizontal(imageData, x, i - 1)
+        } else {
+          break
+        }
+      }
+
+      for (let i = y; i < height; ++i) {
+        const matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, x, i + 1)
+        if (matchOffset >= 0) {
+          data[matchOffset] = 0
+          data[matchOffset + 1] = 0
+          data[matchOffset + 2] = 0
+          data[matchOffset + 3] = 255
+          this.floodFillHorizontal(imageData, x, i + 1)
+        } else {
+          break
+        }
+      }
     },
     distanceBetween: function (point1, point2) {
       return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2))

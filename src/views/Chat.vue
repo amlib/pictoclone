@@ -79,6 +79,7 @@
                        :common-options="{ class: 'closer', 'normal-class': 'simple-button-normal', 'active-class': 'simple-button-active', iconMargin: [1, 1] }"
                        :click-callbacks="toolClickCallbacks"
                        :options="[
+        { icon: 'bucket', name: 'flood' },
         { icon: 'brush', name: 'brush' },
         { icon: 'eraser', name: 'eraser' }]">
       </w-button-toggle>
@@ -86,6 +87,7 @@
                        :common-options="{ class: 'closer', 'normal-class': 'simple-button-normal', 'active-class': 'simple-button-active', iconMargin: [1, 1] }"
                        :click-callbacks="sizeClickCallbacks"
                        :options="[
+        { icon: 'brush-bigger', name: 'brush-bigger' },
         { icon: 'brush-big', name: 'brush-big' },
         { icon: 'brush-small', name: 'brush-small' }]">
       </w-button-toggle>
@@ -114,6 +116,7 @@ import MessageDraw from '../components/MessageDraw.vue'
 import { messageWidth, messageHeight } from '/src/js/Message'
 
 const brushSizes = {
+  'brush-bigger': 5,
   'brush-big': 2,
   'brush-small': 1
 }
@@ -141,9 +144,11 @@ export default {
     this.brushSizes = brushSizes
     this.toolClickCallbacks = [
       () => { this.$global.audio.playProgram('pc-pen') },
+      () => { this.$global.audio.playProgram('pc-pen') },
       () => { this.$global.audio.playProgram('pc-eraser') }
     ]
     this.sizeClickCallbacks = [
+      () => { this.$global.audio.playProgram('pc-brushbig') },
       () => { this.$global.audio.playProgram('pc-brushbig') },
       () => { this.$global.audio.playProgram('pc-brushsmall') }
     ]

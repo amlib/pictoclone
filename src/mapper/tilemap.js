@@ -156,6 +156,11 @@ const brushMap = [
     x: 1, y: 0, w: 2, h: 2, alias: '2px',
     backgroundRepeat: 'no-repeat', backgroundPosition: null,
     top: 0, left: 0, bottom: 0, right: 0, noSuperSample: true
+  },
+  {
+    x: 10, y: 0, w: 5, h: 5, alias: '5px',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0, noSuperSample: true
   }
 ]
 
@@ -279,6 +284,11 @@ const iconMap = [
     top: 0, left: 0, bottom: 0, right: 0
   },
   {
+    x: 84, y: 26, w: 12, h: 12, alias: 'brush-bigger',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
     x: 0, y: 38, w: 12, h: 11, alias: 'brush',
     backgroundRepeat: 'no-repeat', backgroundPosition: null,
     top: 0, left: 0, bottom: 0, right: 0
@@ -295,6 +305,11 @@ const iconMap = [
   },
   {
     x: 38, y: 38, w: 14, h: 14, alias: 'arrow-up',
+    backgroundRepeat: 'no-repeat', backgroundPosition: null,
+    top: 0, left: 0, bottom: 0, right: 0
+  },
+  {
+    x: 52, y: 38, w: 12, h: 11, alias: 'bucket',
     backgroundRepeat: 'no-repeat', backgroundPosition: null,
     top: 0, left: 0, bottom: 0, right: 0
   }
