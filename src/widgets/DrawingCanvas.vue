@@ -170,44 +170,51 @@ export default {
     },
     moveStroke: function (x, y) {
       if (this.painting) {
-        this.stroking = true
+        requestAnimationFrame(() => {
+          if (this.painting) {
+            this.stroking = true
 
-        const destPosition = { x: Math.round(x), y: Math.round(y) }
-        const dist = Math.min(this.distanceBetween(this.beginPosition, destPosition), 100)
-        const angle = this.angleBetween(this.beginPosition, destPosition)
-        const halfSizeOfBrush = Math.floor(this.brushSize / 2)
+            const destPosition = {
+              x: Math.round(x),
+              y: Math.round(y)
+            }
+            const dist = Math.min(this.distanceBetween(this.beginPosition, destPosition), 100)
+            const angle = this.angleBetween(this.beginPosition, destPosition)
+            const halfSizeOfBrush = Math.floor(this.brushSize / 2)
 
-        const target = this.brushSize >= 2 ? Math.floor(dist) : Math.ceil(dist)
+            const target = this.brushSize >= 2 ? Math.floor(dist) : Math.ceil(dist)
 
-        let canvasTarget
-        if (this.rainbowBrush) {
-          this.rainbowBrushColorIndex += 1
-          if (this.rainbowBrushColorIndex > this.rainbowBrushColors.length - 1) {
-            this.rainbowBrushColorIndex = 0
+            let canvasTarget
+            if (this.rainbowBrush) {
+              this.rainbowBrushColorIndex += 1
+              if (this.rainbowBrushColorIndex > this.rainbowBrushColors.length - 1) {
+                this.rainbowBrushColorIndex = 0
+              }
+
+              this.canvasBuffer2Context.globalCompositeOperation = 'source-over'
+              this.canvasBuffer2Context.clearRect(0, 0, this.width, this.height)
+              canvasTarget = this.canvasBuffer2Context
+            } else {
+              canvasTarget = this.canvasContext
+            }
+
+            for (let i = 0; i < target; i++) {
+              const x = this.beginPosition.x + (Math.sin(angle) * i) - halfSizeOfBrush
+              const y = this.beginPosition.y + (Math.cos(angle) * i) - halfSizeOfBrush
+              canvasTarget.drawImage(this.brushesImages[this.brush], Math.round(x), Math.round(y))
+            }
+
+            if (this.rainbowBrush) {
+              this.canvasBuffer2Context.globalCompositeOperation = 'source-in'
+              this.canvasBuffer2Context.fillStyle = this.rainbowBrushColors[this.rainbowBrushColorIndex]
+              this.canvasBuffer2Context.fillRect(0, 0, this.width, this.height)
+              this.canvasContext.drawImage(this.$refs['canvas-buffer2'], 0, 0)
+            }
+
+            this.beginPosition = destPosition
+            this.$emit('stroke-move', dist)
           }
-
-          this.canvasBuffer2Context.globalCompositeOperation = 'source-over'
-          this.canvasBuffer2Context.clearRect(0, 0, this.width, this.height)
-          canvasTarget = this.canvasBuffer2Context
-        } else {
-          canvasTarget = this.canvasContext
-        }
-
-        for (let i = 0; i < target; i++) {
-          const x = this.beginPosition.x + (Math.sin(angle) * i) - halfSizeOfBrush
-          const y = this.beginPosition.y + (Math.cos(angle) * i) - halfSizeOfBrush
-          canvasTarget.drawImage(this.brushesImages[this.brush], Math.round(x), Math.round(y))
-        }
-
-        if (this.rainbowBrush) {
-          this.canvasBuffer2Context.globalCompositeOperation = 'source-in'
-          this.canvasBuffer2Context.fillStyle = this.rainbowBrushColors[this.rainbowBrushColorIndex]
-          this.canvasBuffer2Context.fillRect(0, 0, this.width, this.height)
-          this.canvasContext.drawImage(this.$refs['canvas-buffer2'], 0, 0)
-        }
-
-        this.beginPosition = destPosition
-        this.$emit('stroke-move', dist)
+        })
       }
     },
     endStroke: function (x, y) {

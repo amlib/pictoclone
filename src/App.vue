@@ -35,6 +35,7 @@ export default {
         autoScale: true,
         mobileAssists: true,
         isLandscape: computed(() => this.isLandscape),
+        scalingFactor: computed(() => this.getScalingFactor),
         userColorIndex: 2,
         userName: 'amlib',
         vibration: 120,

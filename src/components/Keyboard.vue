@@ -2,7 +2,7 @@
   <w-plate tile-name="main-foreground" :padding="0" v-bind="$attrs"
            :notch="[true, true, true, true]">
     <div v-if="layouts[mode]" :class="['keyboard', mode]" ref="keyboard"
-         @pointerdown="pointerDown" @pointermove="pointerMoveThrottled" @pointerup="pointerUp" @pointercancel="pointerCancel">
+         @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel">
       <template v-for="(section, index) in layouts[mode].sections" :key="index">
         <div :class="section.class">
           <template v-for="(key, keyIndex) in section.keys" :key="key">
@@ -96,7 +96,6 @@ export default {
   },
   mounted: function () {
     this.draggingCapturedElement = null
-    this.pointerMoveThrottled = throttle(this.pointerMove, 16, { leading: true })
     this.unhighlightTypingBubbleDbounced = debounce(this.unhighlightTypingBubble, 150)
     this.hideTypingBubbleDbounced = debounce(this.hideTypingBubble, 500)
     this.startKeyRepeatDebounced = debounce(this.startKeyRepeat, 750)
@@ -107,8 +106,6 @@ export default {
     })
   },
   beforeUnmount: function () {
-    this.pointerMoveThrottled.cancel()
-    this.pointerMoveThrottled = undefined
     this.unhighlightTypingBubbleDbounced.cancel()
     this.unhighlightTypingBubbleDbounced = undefined
     this.hideTypingBubbleDbounced.cancel()
@@ -219,6 +216,7 @@ export default {
           this.draggingCapturedElement = event.target
         }
       }
+      this.keyboardRect = undefined
     },
     // WARNING triggered only by elements with associated text class dynamically registered in pointerDown
     pointerLeave: function (event) {
@@ -239,15 +237,20 @@ export default {
     },
     pointerMove: function (event) {
       if (this.draggingSymbol) {
-        // we dont want events relative to button text element or else we get wrong positions...
-        if (event.target.classList[0] === 'keyboard') {
-          // kludge for firefox, sometimes offsetX and offsetY would jump to 0,0
-          if (event.offsetX !== 0 && event.offsetY !== 0) {
-            this.draggingShow = true
-            this.draggingOffsetX = event.offsetX
-            this.draggingOffsetY = event.offsetY
+        requestAnimationFrame(() => {
+          if (this.draggingSymbol) {
+            // we dont want events relative to button text element or else we get wrong positions...
+            if (event.target.classList[0] === 'keyboard') {
+              if (!this.keyboardRect) {
+                // must be invalidated occasionally or else when keyboard position on screen changes, things will break
+                this.keyboardRect = event.target.getBoundingClientRect()
+              }
+              this.draggingShow = true
+              this.draggingOffsetX = (event.clientX - this.keyboardRect.x) / this.$global.scalingFactor
+              this.draggingOffsetY = (event.clientY - this.keyboardRect.y) / this.$global.scalingFactor
+            }
           }
-        }
+        })
       }
     },
     pointerUp: function (event) {

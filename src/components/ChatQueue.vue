@@ -166,36 +166,40 @@ export default {
     },
     onPointerDown: function (event) {
       if (event.buttons & 1) {
-        event.target.releasePointerCapture(event.pointerId)
+        // event.target.releasePointerCapture(event.pointerId)
         this.$refs.queue.setPointerCapture(event.pointerId)
         this.pointerX = event.clientX
         this.pointerY = event.clientY
       }
     },
     onPointerMove: function (event) {
-      if (this.pointerX) {
-        // eslint-disable-next-line no-unused-vars
-        const pointerX = event.clientX - this.pointerX
-        const pointerY = event.clientY - this.pointerY
-        this.$refs.queue.scrollBy({ top: pointerY * -2, left: 0, behavior: 'instant' })
+      if (this.pointerX != null) { // pointerX is bing used as a lock (onPointerDown)
+        requestAnimationFrame(() => {
+          // check it again, by the time RAF executes it may have already been canceled (onPointerUp onPointerCancel)
+          if (this.pointerX != null) {
+            // const pointerX = event.clientX - this.pointerX
+            const pointerY = event.clientY - this.pointerY
+            this.$refs.queue.scrollBy({ top: pointerY * -2, left: 0, behavior: 'instant' })
 
-        this.pointerX = event.clientX
-        this.pointerY = event.clientY
+            this.pointerX = event.clientX
+            this.pointerY = event.clientY
+          }
+        })
       }
     },
     onPointerUp: function (event) {
       if (this.pointerX) {
         this.scrollToEntryDebounced(this.visibility.bottomIndex)
+        this.$refs.queue.releasePointerCapture(event.pointerId)
       }
-      this.$refs.queue.releasePointerCapture(event.pointerId)
       this.pointerX = null
       this.pointerY = null
     },
-    onPointerCancel: function (event) {
+     onPointerCancel: function (event) {
       if (this.pointerX) {
         this.scrollToEntryDebounced(this.visibility.bottomIndex)
+        this.$refs.queue.releasePointerCapture(event.pointerId)
       }
-      this.$refs.queue.releasePointerCapture(event.pointerId)
       this.pointerX = null
       this.pointerY = null
     },

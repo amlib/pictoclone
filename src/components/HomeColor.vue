@@ -26,7 +26,6 @@
 
 <script>
 import WPlate from '/src/widgets/Plate.vue'
-import { asyncSetTimeout } from '/src/js/Utils'
 import { colorsHexMain } from '/src/js/Colors'
 
 export default {
@@ -99,10 +98,19 @@ export default {
         }
       }
     },
-    colorSwatchDisplayEffect: async function (displayOrder, value) {
-      for (let i = 0; i < displayOrder.length; ++i) {
-        await asyncSetTimeout(33)
-        this.colorSwatchDisplay[displayOrder[i]] = value
+    colorSwatchDisplayEffect: function (displayOrder, value, finishCallback, prevTimestamp, newTimestamp) {
+      this.colorSwatchDisplayLock = true
+      if (newTimestamp != null && prevTimestamp == null || newTimestamp - prevTimestamp > 32) {
+        displayOrder = displayOrder.slice()
+        this.colorSwatchDisplay[displayOrder.shift()] = value
+        prevTimestamp = newTimestamp
+      }
+
+      if (displayOrder.length > 0) {
+        requestAnimationFrame((timeStamp) => this.colorSwatchDisplayEffect(displayOrder, value, finishCallback, prevTimestamp, timeStamp))
+      } else {
+        this.colorSwatchDisplayLock = false
+        finishCallback && finishCallback()
       }
     },
     setColorRef: function (el, index) {
@@ -149,15 +157,25 @@ export default {
         this.colorBoxPos = path
       }
     },
-    done: async function () {
-      await this.colorSwatchDisplayEffect(this.colorSwatchDisplayOrder.reverse(), false)
-      this.mainTransitionEndCallback = () => this.$emit('done')
-      this.faded = true
+    done: function () {
+      if (this.colorSwatchDisplayLock) {
+        return
+      }
+
+      this.colorSwatchDisplayEffect(this.colorSwatchDisplayOrder.reverse(), false, () => {
+        this.mainTransitionEndCallback = () => this.$emit('done')
+        this.faded = true
+      })
     },
-    back: async function () {
-      await this.colorSwatchDisplayEffect(this.colorSwatchDisplayOrder.reverse(), false)
-      this.mainTransitionEndCallback = () => this.$emit('back')
-      this.faded = true
+    back: function () {
+      if (this.colorSwatchDisplayLock) {
+        return
+      }
+
+      this.colorSwatchDisplayEffect(this.colorSwatchDisplayOrder.reverse(), false, () => {
+        this.mainTransitionEndCallback = () => this.$emit('back')
+        this.faded = true
+      })
     }
   }
 }
