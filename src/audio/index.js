@@ -36,7 +36,6 @@ export class AudioFX {
               this.bufferMap[sample] = await this.audioContext.decodeAudioData(sampleUint8Array.buffer)
             } catch (e) {
               console.warn('AudioFX.loadSamples: could not load sample:', sample, 'reason:', e)
-              throw e
               reject()
             }
           }
@@ -54,7 +53,6 @@ export class AudioFX {
             this.bufferMap[sample] = await this.audioContext.decodeAudioData(arrayBuffer)
           } catch (e) {
             console.warn('AudioFX.loadSamples: could not load sample:', sample, 'reason:', e)
-            throw e
             reject()
           }
         }

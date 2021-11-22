@@ -132,7 +132,7 @@ const programs = {
 
       return {
         modify: (speed, factor) => {
-          let peak = Math.min(Math.max(Math.abs(speed) * factor * 0.5, 0), 4)
+          let peak = Math.min(Math.max(Math.abs(speed) * factor * 0.5, 0), 1.5)
           if (peak <= 0.25) {
             peak = 0.0
           }
@@ -189,7 +189,7 @@ const programs = {
             return
           }
 
-          let peak = Math.min(Math.max(Math.abs(speed) * factor, 0), 2)
+          let peak = Math.min(Math.max(Math.abs(speed) * factor, 0), 1.8)
           if (peak <= 0.25) {
             peak = 0.0
           }

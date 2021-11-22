@@ -74,7 +74,7 @@ export default {
       superSample: this.globalValues.superSample,
       imageSource: tileMap
     })
-    await this.globalValues.audio.loadSamples({})
+    await this.globalValues.audio.loadSamples()
 
     this.loading = false
     this.coldStart = false

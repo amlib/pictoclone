@@ -133,7 +133,7 @@ export default {
     },
     goToChat: function () {
       this.$global.audio.playProgram('pc-enter')
-      this.$router.push('/chat')
+      this.$router.replace('/chat')
     },
     onDoneCompleted: function () {
       if (this.view === 'name') {

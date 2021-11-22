@@ -4,12 +4,12 @@
       <div class="button-bar-wrapper">
         <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                  @click="onClose" audioFeedback global-tint>
+                  @click="onClose" audio-feedback global-tint>
           ✖
         </w-button>
         <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                  @click="toggleFullscreen" audioFeedback global-tint>
+                  @click="toggleFullscreen" audio-feedback global-tint>
           <span style="padding-left: calc(0.5px * var(--global-ss))">↕</span>
         </w-button>
       </div>
@@ -71,7 +71,7 @@
     </div>
     <teleport v-if="mounted" :to="$refs[$global.isLandscape ? 'buttons-mount-landscape' : 'buttons-mount-portrait']">
       <div v-if="fun" class="button-bar-wrapper">
-        <w-button class="rainbow-button" @click="toggleRainbow" :toggled="this.$global.rgbMode">
+        <w-button class="rainbow-button" @click="toggleRainbow" :toggled="this.$global.rgbMode" audio-feedback>
           <div class="rainbow-button">{{ this.$global.rgbMode ? '☸' : '☺' }}</div>
         </w-button>
       </div>
@@ -212,7 +212,7 @@ export default {
       this.$refs['user-message'].clearDrawing()
     },
     onClose: function () {
-      this.$router.push('/')
+      this.$router.replace('/')
     },
     onFun: function () {
       this.$refs.queue.addEntry({

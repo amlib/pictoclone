@@ -89,17 +89,6 @@ export default {
         height: this.targetHeight + 'px'
       }
     },
-    brushesImages: function () {
-      const images = {}
-      this.brushes.forEach(brush => {
-        // TODO investigate weather this will leak elements... should we remove them?
-        const image = new Image()
-        image.src = this.$tileMap(brush).url
-        images[brush] = image
-      })
-
-      return images
-    },
     textBufferLastLine: {
       get: function () {
         return this.textBuffer[this.textBuffer.length - 1]
@@ -122,6 +111,7 @@ export default {
     this.textBufferLineOffsets = []
     this.textX = 0
     this.textY = 0
+    this.brushesImages = this.generateBrushesImages()
   },
   mounted: function () {
     this.canvasContext = this.$refs.canvas.getContext('2d')
@@ -423,7 +413,17 @@ export default {
       image.onload = () => {
         this.canvasContext.drawImage(image, 0, 0)
       }
-    }
+    },
+    generateBrushesImages: function () {
+      const images = {}
+      this.brushes.forEach(brush => {
+        const image = new Image()
+        image.src = this.$tileMap(brush).url
+        images[brush] = image
+      })
+
+      return images
+    },
   }
 }
 </script>
