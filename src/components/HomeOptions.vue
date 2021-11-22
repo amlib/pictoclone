@@ -159,7 +159,7 @@ export default {
   },
   mounted: function () {
     this.settings.vibration.value = this.$global.vibration
-    this.settings.orientation.value = 0 // TODO
+    this.settings.orientation.value = this.$global.orientation
     this.settings.sound.value = this.$global.muted
     this.settings.autoScale.value = this.$global.autoScale
     this.settings.mobileAssists.value = this.$global.mobileAssists
@@ -208,7 +208,7 @@ export default {
       this.$global.setVolume(muted ? 0.0 : 1.0)
     },
     changeOrientation: function (val) {
-      // TODO
+      this.$global.orientation = val
     },
     changeAutoScale: function (val) {
       this.$global.autoScale = val

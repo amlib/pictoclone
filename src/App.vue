@@ -47,7 +47,8 @@ export default {
         renderingClass: 'rendering-quality', // use super sampling 2x or 3x with this
         rgbMode: false,
         setRgbMode: this.setRgbMode,
-        audio: undefined
+        audio: undefined,
+        orientation: 0
       },
       loading: true,
       coldStart: true,
@@ -94,7 +95,13 @@ export default {
   },
   computed: {
     isLandscape: function () {
-      return (this.documentWidth / this.documentHeight) > (this.landscapeBreakpointRatio)
+      if (this.globalValues.orientation <= 0) {
+        return (this.documentWidth / this.documentHeight) > (this.landscapeBreakpointRatio)
+      } else if (this.globalValues.orientation === 1) {
+        return true
+      } else {
+        return false
+      }
     },
     colorHueDeg: function () {
       if (this.globalValues.rgbMode) {
