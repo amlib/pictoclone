@@ -56,8 +56,7 @@ export default {
       landscapeBreakpointRatio: 18 / 9,
       landscapeConstrainRatio: 26 / 9,
       portraitConstrainRatio: 8 / 9,
-      rgbColorHue: 0,
-      rgbInterval: undefined
+      rgbColorHue: 0
     }
   },
   created: function () {
@@ -95,7 +94,7 @@ export default {
       return (this.documentWidth / this.documentHeight) > (this.landscapeBreakpointRatio)
     },
     colorHueDeg: function () {
-      if (this.rgbInterval) {
+      if (this.globalValues.rgbMode) {
         return this.rgbColorHue
       } else {
         return colorsCssHueDeg[this.globalValues.userColorIndex]
@@ -112,18 +111,18 @@ export default {
     getViewStyle: function () {
       return {
         height: this.$global.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined,
-        visibility: this.loading ? 'hidden' : null
+        visibility: this.loading ? 'hidden' : null,
+        '--global-chd': this.colorHueDeg + 'deg', // defining here rather than at the root element speeds up firefox when rgb mode is constantly changing this style
       }
     },
     getAppStyle: function () {
       const marginCompensation = (this.documentWidth - (this.viewWidth * this.getScalingFactor)) / 2
-
+      const colorIndex = this.globalValues.userColorIndex
       const obj = {
-        '--global-cl1': colorsHexL1[this.globalValues.userColorIndex],
-        '--global-cl2': colorsHexL2[this.globalValues.userColorIndex],
-        '--global-cmain': colorsHexMain[this.globalValues.userColorIndex],
-        '--global-cfaded': colorsHexFaded[this.globalValues.userColorIndex],
-        '--global-chd': this.colorHueDeg + 'deg',
+        '--global-cl1': colorsHexL1[colorIndex],
+        '--global-cl2': colorsHexL2[colorIndex],
+        '--global-cmain': colorsHexMain[colorIndex],
+        '--global-cfaded': colorsHexFaded[colorIndex],
         '--global-ss': this.globalValues.superSample,
         '--global-sf': this.getScalingFactor
       }
@@ -146,19 +145,25 @@ export default {
         this.loading = false
       }, 500)
     },
-    setRgbMode: function (val) {
-      if (this.rgbInterval) {
-        clearInterval(this.rgbInterval)
-        this.rgbInterval = undefined
-        this.rgbColorHue = 0
-        this.globalValues.rgbMode = false
+    processRgb: function (timestamp) {
+      if (timestamp - this.rgbAnimationTimestamp > 25) {
+        this.rgbColorHue += 5
+        this.rgbAnimationTimestamp = timestamp
       }
-
+      if (this.globalValues.rgbMode) {
+        this.rgbAnimationRef = requestAnimationFrame(this.processRgb)
+      }
+    },
+    setRgbMode: function (val) {
       if (val) {
         this.globalValues.rgbMode = true
-        this.rgbInterval = setInterval(() => {
-          this.rgbColorHue += 5
-        }, 33)
+        this.rgbAnimationTimestamp = 0
+        this.rgbAnimationRef = requestAnimationFrame(this.processRgb)
+      } else {
+        this.rgbColorHue = 0
+        this.globalValues.rgbMode = false
+        window.cancelAnimationFrame(this.rgbAnimationRef)
+        this.rgbAnimationRef = undefined
       }
     },
     setVolume: function (vol) {
