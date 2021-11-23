@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { asyncSetTimeout, getCanvasBlob } from '/src/js/Utils'
+import { asyncSetTimeout, getCanvasBlob, hexToRgb } from '/src/js/Utils'
 import { rainbowBrushColors } from '/src/js/Colors'
 
 const brushType = 'brush-normal'
@@ -237,14 +237,26 @@ export default {
       this.flooding = true
       this.$emit('flood-start')
       const imageData = this.canvasContext.getImageData(0, 0, this.width, this.height)
+
+      this.rainbowBrushColorIndex = Math.round((this.rainbowBrushColors.length - 1) * Math.random())
+      let colorR = 0
+      let colorG = 0
+      let colorB = 0
+      if (this.rainbowBrush) {
+        const rgb = hexToRgb(this.rainbowBrushColors[this.rainbowBrushColorIndex])
+        colorR = rgb.r
+        colorG = rgb.g
+        colorB = rgb.b
+      }
+
       const { data, height, width } = imageData
       const dataOffset = (y * width * 4) + (x * 4)
-      data[dataOffset] = 0
-      data[dataOffset + 1] = 0
-      data[dataOffset + 2] = 0
+      data[dataOffset] = colorR
+      data[dataOffset + 1] = colorG
+      data[dataOffset + 2] = colorB
       data[dataOffset + 3] = 255
 
-      await this.interactiveFloodFill(imageData, x, y)
+      await this.interactiveFloodFill(imageData, x, y, colorR, colorG, colorB)
       this.$emit('flood-end')
       this.flooding = false
     },
@@ -365,14 +377,16 @@ export default {
       this.canvasContext.putImageData(imageData, 0, 0)
       await new Promise(requestAnimationFrame)
     },
-    interactiveFloodFill: async function (imageData, startX, startY) {
+    interactiveFloodFill: async function (imageData, startX, startY, r, g, b) {
       const { data, height, width } = imageData
       // stack is a pair of y coord and a list of x coords matched/to test
       const stack = [startY, [startX]]
 
+      let rainbowBrushColorIndex = 0
       let previousTimestamp = 0
       let stackLoopCount = 0
       let stackLoopSkip = 2
+      let matchedAcc = 0
       while (stack.length > 0) {
         const matchedX = stack.pop()
         const currentLineY = stack.pop()
@@ -386,9 +400,9 @@ export default {
           let currentPixelX = x
           while ((matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, currentPixelX - 1, currentPixelY))
           && matchOffset >= 0) {
-            data[matchOffset] = 0
-            data[matchOffset + 1] = 0
-            data[matchOffset + 2] = 0
+            data[matchOffset] = r
+            data[matchOffset + 1] = g
+            data[matchOffset + 2] = b
             data[matchOffset + 3] = 255
             currentLineMatchedX.push(currentPixelX)
             currentPixelX -= 1
@@ -397,9 +411,9 @@ export default {
           currentPixelX = x
           while ((matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, currentPixelX + 1, currentPixelY))
           && matchOffset >= 0) {
-            data[matchOffset] = 0
-            data[matchOffset + 1] = 0
-            data[matchOffset + 2] = 0
+            data[matchOffset] = r
+            data[matchOffset + 1] = g
+            data[matchOffset + 2] = b
             data[matchOffset + 3] = 255
             currentLineMatchedX.push(currentPixelX)
             currentPixelX += 1
@@ -423,6 +437,19 @@ export default {
             stackLoopSkip = 64
           } else if (stackLoopCount > 200000) {
             break
+          }
+
+          matchedAcc += matchedX.length
+          if (this.rainbowBrush && matchedAcc > width * 2) {
+            matchedAcc = 0
+            const rgb = hexToRgb(this.rainbowBrushColors[this.rainbowBrushColorIndex])
+            r = rgb.r
+            g = rgb.g
+            b = rgb.b
+            this.rainbowBrushColorIndex += 1
+            if (this.rainbowBrushColorIndex > this.rainbowBrushColors.length - 1) {
+              this.rainbowBrushColorIndex = 0
+            }
           }
 
           this.$emit('flood-move', { pixelsFilled: matchedX.length, width: width })
