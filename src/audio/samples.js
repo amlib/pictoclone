@@ -318,7 +318,7 @@ const programs = {
           whiteNoiseNode.playbackRate.linearRampToValueAtTime(speed * speed + (rand/4), this.audioContext.currentTime + 0.025)
 
           if (this.vibrationStrength > 0) {
-            window.navigator.vibrate(speed * this.vibrationStrength * 0.15)
+            window.navigator.vibrate(Math.pow(speed, 1.4) * this.vibrationStrength * 0.2)
           }
         },
         stop: () => {
