@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { getCanvasBlob } from '/src/js/Utils'
+import { asyncSetTimeout, getCanvasBlob } from '/src/js/Utils'
 import { rainbowBrushColors } from '/src/js/Colors'
 
 const brushType = 'brush-normal'
@@ -227,7 +227,12 @@ export default {
       this.painting = false
       this.stroking = false
     },
-    floodFill: function (x, y) {
+    floodFill: async function (x, y) {
+      if (this.flooding) {
+        return
+      }
+
+      this.flooding = true
       const imageData = this.canvasContext.getImageData(0, 0, this.width, this.height)
       const { data, height, width } = imageData
       const dataOffset = (y * width * 4) + (x * 4)
@@ -236,10 +241,8 @@ export default {
       data[dataOffset + 2] = 0
       data[dataOffset + 3] = 255
 
-      this.floodFillHorizontal(imageData, x, y)
-      this.floodFillVertical(imageData, x, y)
-
-      this.canvasContext.putImageData(imageData, 0, 0)
+      await this.interactiveFloodFill(imageData, x, y)
+      this.flooding = false
     },
     imageDataComparePixels(imageData, x1, y1, x2, y2) {
       const { data, height, width } = imageData
@@ -287,60 +290,139 @@ export default {
         return -1
       }
     },
-    floodFillHorizontal: function (imageData, x, y) {
+    floodFillHorizontal: async function (imageData, x, y, depth, left = true, right = true) {
+      depth += 1
+      if (depth > this.maxDepth) {
+        this.maxDepth = depth
+      }
+
+      const queueLeft = []
+      const queueRight = []
       const { data, height, width } = imageData
-      for (let i = x; i > 0; --i) {
-        const matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, i - 1, y)
-        if (matchOffset >= 0) {
-          data[matchOffset] = 0
-          data[matchOffset + 1] = 0
-          data[matchOffset + 2] = 0
-          data[matchOffset + 3] = 255
-          this.floodFillVertical(imageData, i - 1, y)
-        } else {
-          break
+
+      if (left) {
+        for (let i = x; i > 0; --i) {
+          const matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, i - 1, y)
+          if (matchOffset >= 0) {
+            data[matchOffset] = 0
+            data[matchOffset + 1] = 0
+            data[matchOffset + 2] = 0
+            data[matchOffset + 3] = 255
+
+            queueLeft.push(
+              i - 1, y + 1,
+              i - 1, y - 1
+            )
+            queueRight.push(
+              i - 1, y + 1,
+              i - 1, y - 1
+            )
+          } else {
+            break
+          }
         }
       }
 
-      for (let i = x; i < width; ++i) {
-        const matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, i + 1, y)
-        if (matchOffset >= 0) {
-          data[matchOffset] = 0
-          data[matchOffset + 1] = 0
-          data[matchOffset + 2] = 0
-          data[matchOffset + 3] = 255
-          this.floodFillVertical(imageData, i + 1, y)
-        } else {
-          break
+
+      if (right) {
+        for (let i = x; i < width; ++i) {
+          const matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, i + 1, y)
+          if (matchOffset >= 0) {
+            data[matchOffset] = 0
+            data[matchOffset + 1] = 0
+            data[matchOffset + 2] = 0
+            data[matchOffset + 3] = 255
+
+            queueLeft.push(
+              i + 1, y + 1,
+              i + 1, y - 1
+            )
+            queueRight.push(
+              i + 1, y + 1,
+              i + 1, y - 1
+            )
+          } else {
+            break
+          }
         }
       }
+
+
+      for (let i = 0; i < queueLeft.length; i += 4) {
+        await this.floodFillHorizontal(imageData, queueLeft[i], queueLeft[i + 1], depth, true, false)
+        await this.floodFillHorizontal(imageData, queueLeft[i + 2], queueLeft[i + 3], depth, true, false)
+      }
+
+      for (let i = 0; i < queueRight.length; i += 4) {
+        await this.floodFillHorizontal(imageData, queueLeft[i], queueLeft[i + 1], depth, false, true)
+        await this.floodFillHorizontal(imageData, queueLeft[i + 2], queueLeft[i + 3], depth, false, true)
+      }
+
+      this.canvasContext.putImageData(imageData, 0, 0)
+      await new Promise(requestAnimationFrame)
     },
-    floodFillVertical: function (imageData, x, y) {
+    interactiveFloodFill: async function (imageData, startX, startY) {
       const { data, height, width } = imageData
-      for (let i = y; i > 0; --i) {
-        const matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, x, i - 1)
-        if (matchOffset >= 0) {
-          data[matchOffset] = 0
-          data[matchOffset + 1] = 0
-          data[matchOffset + 2] = 0
-          data[matchOffset + 3] = 255
-          this.floodFillHorizontal(imageData, x, i - 1)
-        } else {
-          break
-        }
-      }
+      // stack is a pair of y coord and a list of x coords matched/to test
+      const stack = [startY, [startX]]
 
-      for (let i = y; i < height; ++i) {
-        const matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, x, i + 1)
-        if (matchOffset >= 0) {
-          data[matchOffset] = 0
-          data[matchOffset + 1] = 0
-          data[matchOffset + 2] = 0
-          data[matchOffset + 3] = 255
-          this.floodFillHorizontal(imageData, x, i + 1)
-        } else {
-          break
+      let stackLoopCount = 0
+      let loopSkip = 2
+      while (stack.length > 0) {
+        const matchedX = stack.pop()
+        const currentLineY = stack.pop()
+
+        const currentLineMatchedX = []
+        for (let i = 0; i < matchedX.length; ++i) {
+          let x = matchedX[i]
+          let matchOffset
+          const currentPixelY = currentLineY
+
+          let currentPixelX = x
+          while ((matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, currentPixelX - 1, currentPixelY))
+          && matchOffset >= 0) {
+            data[matchOffset] = 0
+            data[matchOffset + 1] = 0
+            data[matchOffset + 2] = 0
+            data[matchOffset + 3] = 255
+            currentLineMatchedX.push(currentPixelX)
+            currentPixelX -= 1
+          }
+
+          currentPixelX = x
+          while ((matchOffset = this.imageDataCompareRGBAToPixel(imageData, 0, 0, 0, 0, currentPixelX + 1, currentPixelY))
+          && matchOffset >= 0) {
+            data[matchOffset] = 0
+            data[matchOffset + 1] = 0
+            data[matchOffset + 2] = 0
+            data[matchOffset + 3] = 255
+            currentLineMatchedX.push(currentPixelX)
+            currentPixelX += 1
+          }
         }
+
+        if (currentLineMatchedX.length > 0) {
+          if (currentLineY < (height - 1)) {
+            stack.push(currentLineY + 1, currentLineMatchedX)
+          }
+          if (currentLineY > 0) {
+            stack.push(currentLineY - 1, currentLineMatchedX)
+          }
+        }
+
+        if (stack.length <= 0 || stackLoopCount % loopSkip === 0) {
+          this.canvasContext.putImageData(imageData, 0, 0)
+          if (stackLoopCount > 1000) {
+            loopSkip = 8
+          } else if (stackLoopCount > 10000) {
+            loopSkip = 64
+          } else if (stackLoopCount > 200000) {
+            break
+          }
+
+          await new Promise(requestAnimationFrame)
+        }
+        stackLoopCount += 1
       }
     },
     distanceBetween: function (point1, point2) {
