@@ -145,7 +145,7 @@ const layouts = {
       {
         class: 'row4',
         keyClass: 'key-15px-slim',
-        keys: ['☶', '☷', '+', '-', '✫', '✲', '◇', '□', '△', '▽', '◎']
+        keys: ['☶', '☷', 'n+', '-', '✫', '✲', '◇', '□', '△', '▽', '◎']
       },
       {
         class: 'row5',
@@ -312,7 +312,8 @@ const maruMap = {
 }
 
 const uniqueKeyMap = {
-  n1: '1'
+  n1: '1',
+  'n+': '+'
 }
 
 export {
