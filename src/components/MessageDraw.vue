@@ -3,7 +3,8 @@
     <w-drawing-canvas :width="messagePayload.width" :height="messagePayload.height" ref="drawing"
                       class="drawing-area" :target-width="targetWidth" :target-height="targetHeight" :rainbow-brush="rainbowBrush"
                       :tool="selectedTool" :brush-size="brushSize" text-font="10px NDS12" :line-height="16"
-                      @stroke-start="strokeStart" @stroke-move="strokeMove" @stroke-end="strokeEnd"/>
+                      @stroke-start="strokeStart" @stroke-move="strokeMove" @stroke-end="strokeEnd"
+                      @flood-start="floodStart" @flood-move="floodMove" @flood-end="floodEnd"/>
   </message-show>
 </template>
 
@@ -58,7 +59,7 @@ export default {
     this.specialKeys = specialKeys
     this.secretMessage = 'i want fun'
     this.secretMessageCheckIndex = 0
-    this.controlAudioProgram = undefined
+    this.controlAudioProgramBrush = undefined
   },
   mounted: function () {
     // get user tag size so that the text buffer can start at the proper position
@@ -190,19 +191,39 @@ export default {
       }
     },
     strokeStart: function (tool) {
-      if (!this.controlAudioProgram) {
-        this.controlAudioProgram = this.$global.audio.startComplexProgram(tool === 'eraser' ? 'pc-eraser-cp' : 'pc-pen-cp')
+      if (!this.controlAudioProgramBrush) {
+        this.controlAudioProgramBrush = this.$global.audio.startComplexProgram(tool === 'eraser' ? 'pc-eraser-cp' : 'pc-pen-cp')
       }
     },
     strokeMove: function (dist) {
-      if (this.controlAudioProgram) {
-        this.controlAudioProgram.modify(dist, 0.3)
+      if (this.controlAudioProgramBrush) {
+        this.controlAudioProgramBrush.modify(dist, 0.3)
       }
     },
     strokeEnd: function () {
-      if (this.controlAudioProgram) {
-        this.controlAudioProgram.stop()
-        this.controlAudioProgram = undefined
+      if (this.controlAudioProgramBrush) {
+        this.controlAudioProgramBrush.stop()
+        this.controlAudioProgramBrush = undefined
+      }
+    },
+    floodStart: function () {
+      if (!this.controlAudioProgramFlood) {
+        this.controlAudioProgramFlood = this.$global.audio.startComplexProgram('pc-flood-cp')
+        this.controlAudioProgramFlood2 = this.$global.audio.startComplexProgram('pc-flood2-cp')
+      }
+    },
+    floodMove: function (payload) {
+      if (this.controlAudioProgramFlood) {
+        this.controlAudioProgramFlood.modify(payload.pixelsFilled, payload.width)
+        this.controlAudioProgramFlood2.modify(payload.pixelsFilled, payload.width)
+      }
+    },
+    floodEnd: function () {
+      if (this.controlAudioProgramFlood) {
+        this.controlAudioProgramFlood.stop()
+        this.controlAudioProgramFlood = undefined
+        this.controlAudioProgramFlood2.stop()
+        this.controlAudioProgramFlood2 = undefined
       }
     }
   }

@@ -20,7 +20,7 @@ const brushes = [
 
 export default {
   name: 'WDrawingCanvas',
-  emits: ['text-buffer-line-break-aborted', 'stroke-start', 'stroke-move', 'stroke-end'],
+  emits: ['text-buffer-line-break-aborted', 'stroke-start', 'stroke-move', 'stroke-end', 'flood-start', 'flood-move', 'flood-end'],
   props: {
     width: {
       type: Number,
@@ -233,6 +233,7 @@ export default {
       }
 
       this.flooding = true
+      this.$emit('flood-start')
       const imageData = this.canvasContext.getImageData(0, 0, this.width, this.height)
       const { data, height, width } = imageData
       const dataOffset = (y * width * 4) + (x * 4)
@@ -242,6 +243,7 @@ export default {
       data[dataOffset + 3] = 255
 
       await this.interactiveFloodFill(imageData, x, y)
+      this.$emit('flood-end')
       this.flooding = false
     },
     imageDataComparePixels(imageData, x1, y1, x2, y2) {
@@ -367,7 +369,7 @@ export default {
       const stack = [startY, [startX]]
 
       let stackLoopCount = 0
-      let loopSkip = 2
+      let stackLoopSkip = 2
       while (stack.length > 0) {
         const matchedX = stack.pop()
         const currentLineY = stack.pop()
@@ -410,16 +412,16 @@ export default {
           }
         }
 
-        if (stack.length <= 0 || stackLoopCount % loopSkip === 0) {
+        if (stackLoopCount % stackLoopSkip === 0 || stack.length <= 0) {
           this.canvasContext.putImageData(imageData, 0, 0)
           if (stackLoopCount > 1000) {
-            loopSkip = 8
+            stackLoopSkip = 8
           } else if (stackLoopCount > 10000) {
-            loopSkip = 64
+            stackLoopSkip = 64
           } else if (stackLoopCount > 200000) {
             break
           }
-
+          this.$emit('flood-move', { pixelsFilled: matchedX.length, width: width })
           await new Promise(requestAnimationFrame)
         }
         stackLoopCount += 1

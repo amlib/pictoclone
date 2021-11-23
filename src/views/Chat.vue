@@ -143,12 +143,12 @@ export default {
   created () {
     this.brushSizes = brushSizes
     this.toolClickCallbacks = [
-      () => { this.$global.audio.playProgram('pc-pen') },
+      () => { this.$global.audio.playProgram('pc-flood') },
       () => { this.$global.audio.playProgram('pc-pen') },
       () => { this.$global.audio.playProgram('pc-eraser') }
     ]
     this.sizeClickCallbacks = [
-      () => { this.$global.audio.playProgram('pc-brushbig') },
+      () => { this.$global.audio.playProgram('pc-brushbigger') },
       () => { this.$global.audio.playProgram('pc-brushbig') },
       () => { this.$global.audio.playProgram('pc-brushsmall') }
     ]

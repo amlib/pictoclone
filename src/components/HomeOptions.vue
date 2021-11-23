@@ -21,7 +21,7 @@ const vibrationOptions = [
   },
   {
     description: 'Weak',
-    value: 65
+    value: 70
   },
   {
     description: 'Strong',

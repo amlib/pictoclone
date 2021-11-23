@@ -35,6 +35,12 @@ const programs = {
     sample: 'samples/pc-enter.opus',
     volume: 0.5
   },
+  'pc-brushbigger': {
+    sample: 'samples/pc-brushbig.wav',
+    vibrate: 1.0,
+    volume: 1.5,
+    rate: 0.5
+  },
   'pc-brushbig': {
     sample: 'samples/pc-brushbig.wav',
     vibrate: 0.5,
@@ -49,6 +55,12 @@ const programs = {
     sample: 'samples/pc-eraser.wav',
     vibrate: 0.2,
     volume: 1.5
+  },
+  'pc-flood': {
+    sample: 'samples/pc-pen.wav',
+    vibrate: 0.2,
+    volume: 1.5,
+    rate: 0.5
   },
   'pc-pen': {
     sample: 'samples/pc-pen.wav',
@@ -140,6 +152,10 @@ const programs = {
           gainNode.gain.setValueAtTime(peak / 100, this.audioContext.currentTime)
           gainNode.gain.setValueAtTime(peak / 100, this.audioContext.currentTime + 0.1)
           gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.15)
+
+          if (this.vibrationStrength > 0) {
+            window.navigator.vibrate(peak * peak * this.vibrationStrength * 0.05)
+          }
         },
         stop: () => {
           if (timeout) {
@@ -211,6 +227,102 @@ const programs = {
           whiteNoiseNode.playbackRate.linearRampToValueAtTime(peak, this.audioContext.currentTime + attackTimeMod + holdTimeMod + downTimeMod)
 
           strokeTimeUnlock = this.audioContext.currentTime + attackTimeMod + holdTimeMod + downTimeMod + silenceTimeMod
+
+          if (this.vibrationStrength > 0) {
+            window.navigator.vibrate(peak * peak * this.vibrationStrength * 0.1)
+          }
+        },
+        stop: () => {
+          if (timeout) {
+            clearTimeout(timeout)
+          }
+          whiteNoiseNode.disconnect()
+          whiteNoiseNode = undefined
+          gainNode.disconnect()
+          gainNode = undefined
+        }
+      }
+    }
+  },
+  'pc-flood-cp': {
+    complex: function () {
+      this.playProgram('pc-pen-start')
+
+      let oscillator = this.audioContext.createOscillator()
+      oscillator.type = 'square'
+      oscillator.frequency.setValueAtTime(100, this.audioContext.currentTime)
+      oscillator.start(0)
+
+      let gainNode = this.audioContext.createGain()
+      gainNode.gain.setValueAtTime(0, this.audioContext.currentTime)
+
+      let timeout = setTimeout(() => {
+        oscillator.connect(gainNode)
+        gainNode.connect(this.audioContext.destination)
+        timeout = undefined
+      }, 68)
+
+      return {
+        modify: (pixelsFilled, width) => {
+          let speed = pixelsFilled / width
+          speed = 0.15 + speed / 1.33
+          const rand = Math.random()
+          gainNode.gain.cancelScheduledValues(this.audioContext.currentTime)
+          gainNode.gain.setValueAtTime(speed / 200, this.audioContext.currentTime)
+          gainNode.gain.linearRampToValueAtTime(speed / 10, this.audioContext.currentTime + 0.1)
+          gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.25)
+          oscillator.frequency.linearRampToValueAtTime((200 + rand * 10) - (speed * speed * 200), this.audioContext.currentTime + 0.025)
+        },
+        stop: () => {
+          if (timeout) {
+            clearTimeout(timeout)
+          }
+          oscillator.disconnect()
+          oscillator = undefined
+          gainNode.disconnect()
+          gainNode = undefined
+        }
+      }
+    }
+  },
+  'pc-flood2-cp': {
+    complex: function () {
+      this.playProgram('pc-pen-start')
+
+      let whiteNoiseNode
+      if (this.noiseBuffer) {
+        whiteNoiseNode = this.audioContext.createBufferSource()
+        whiteNoiseNode.buffer = this.noiseBuffer
+        whiteNoiseNode.loop = true
+        whiteNoiseNode.playbackRate.setValueAtTime(0.7, this.audioContext.currentTime)
+        whiteNoiseNode.start(0)
+      } else {
+        whiteNoiseNode = new AudioWorkletNode(this.audioContext, 'white-noise')
+      }
+
+      let gainNode = this.audioContext.createGain()
+      gainNode.gain.setValueAtTime(0, this.audioContext.currentTime)
+
+      let timeout = setTimeout(() => {
+        whiteNoiseNode.connect(gainNode)
+        gainNode.connect(this.audioContext.destination)
+        timeout = undefined
+      }, 68)
+
+      return {
+        modify: (pixelsFilled, width) => {
+          let speed = pixelsFilled / width
+          speed = 0.15 + speed / 1.33
+          const rand = Math.random()
+          gainNode.gain.cancelScheduledValues(this.audioContext.currentTime)
+          gainNode.gain.setValueAtTime(speed / 300, this.audioContext.currentTime)
+          gainNode.gain.linearRampToValueAtTime(speed / 100, this.audioContext.currentTime + 0.1)
+          gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.25)
+          whiteNoiseNode.playbackRate.linearRampToValueAtTime(speed * speed + (rand/4), this.audioContext.currentTime + 0.025)
+
+          if (this.vibrationStrength > 0) {
+            window.navigator.vibrate(speed * this.vibrationStrength * 0.15)
+          }
         },
         stop: () => {
           if (timeout) {
