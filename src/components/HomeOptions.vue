@@ -13,136 +13,56 @@
 <script>
 import WToggleSwitch from '/src/widgets/ToggleSwitch.vue'
 import { asyncSetTimeout } from '/src/js/Utils'
-
-const vibrationOptions = [
-  {
-    description: 'Off',
-    value: 0
-  },
-  {
-    description: 'Weak',
-    value: 70
-  },
-  {
-    description: 'Strong',
-    value: 120
-  }
-]
-
-const orientationOptions = [
-  {
-    description: 'Auto',
-    value: 0,
-    recommended: true
-  },
-  {
-    description: 'Landscape',
-    value: 1
-  },
-  {
-    description: 'Portrait',
-    value: 2
-  }
-]
-
-const superSamplingOptions = [
-  {
-    description: '1x',
-    value: 1
-  },
-  {
-    description: '2x',
-    value: 2
-  },
-  {
-    description: '3x',
-    value: 3,
-    recommended: true
-  },
-  {
-    description: '4x',
-    value: 4
-  }
-]
-
-const upscaleStyleOptions = [
-  {
-    description: 'Sharp',
-    value: 'rendering-pixel'
-  },
-  {
-    description: 'Smooth',
-    value: 'rendering-quality',
-    recommended: true
-  }
-]
-
-const soundOptions = [
-  {
-    description: 'ON',
-    value: false,
-    recommended: true
-  },
-  {
-    description: 'OFF',
-    value: true
-  }
-]
-
-const genericOptions = [
-  {
-    description: 'ON',
-    value: true,
-    recommended: true
-  },
-  {
-    description: 'OFF',
-    value: false
-  }
-]
+import { cloneDeep } from 'lodash'
+import { computed } from 'vue'
+import * as options from '/src/js/Options.js'
 
 export default {
   name: 'HomeColor',
   components: { WToggleSwitch },
   emits: ['done', 'back'],
   data: function () {
+    let isTouchScreen = this.$global.isTouchScreen
+    options.mobileAssists[0].recommended = isTouchScreen
+    options.mobileAssists[1].recommended = !isTouchScreen
+
     return {
       settingsArray: [
         'vibration', 'orientation', 'sound', 'autoScale', 'mobileAssists', 'upscaleStyle', 'superSampling'
       ],
       settings: {
         vibration: {
-          options: vibrationOptions,
+          options: options.vibration,
           description: 'Rumble',
           onChange: this.changeVibration
         },
         orientation: {
-          options: orientationOptions,
+          options: options.orientation,
           description: 'Orient.',
           onChange: this.changeOrientation
         },
         sound: {
-          options: soundOptions,
+          options: options.sound,
           description: 'Sound',
           onChange: this.changeSound
         },
         autoScale: {
-          options: genericOptions,
+          options: options.generic,
           description: 'Auto Scale',
           onChange: this.changeAutoScale
         },
         mobileAssists: {
-          options: genericOptions,
+          options: options.mobileAssists,
           description: 'Mobile Assists',
           onChange: this.changeMobileAssists
         },
         upscaleStyle: {
-          options: upscaleStyleOptions,
+          options: options.upscaleStyle,
           description: 'Bitmap Upscale',
           onChange: this.changeUpscaleStyle
         },
         superSampling: {
-          options: superSamplingOptions,
+          options: computed(() => this.superSamplingOptions),
           description: 'Super Sampling',
           onChange: this.changeSuperSampling
         }
@@ -154,6 +74,16 @@ export default {
     }
   },
   computed: {
+    superSamplingOptions: function () {
+      const renderingClass = this.$global.renderingClass
+      const superSamplingOptionsCopy = cloneDeep(options.superSampling)
+      if (renderingClass === 'rendering-quality') {
+        superSamplingOptionsCopy[2].recommended = true
+      } else if (renderingClass === 'rendering-pixel') {
+        superSamplingOptionsCopy[1].recommended = true
+      }
+      return superSamplingOptionsCopy
+    }
   },
   created: function () {
   },
