@@ -28,13 +28,15 @@ import { pokeNames, sillyLoadingMessages } from './js/Strings'
 export default {
   name: 'App',
   data: function () {
+    let isTouchScreen = this.isTouchScreen()
     return {
       globalValues: {
         colorHueDeg: computed(() => this.colorHueDeg),
         superSample: 3,
         setSuperSample: this.setSuperSample,
         autoScale: true,
-        mobileAssists: true,
+        mobileAssists: isTouchScreen,
+        isTouchScreen: isTouchScreen,
         isLandscape: computed(() => this.isLandscape),
         scalingFactor: computed(() => this.getScalingFactor),
         userColorIndex: 2,
@@ -48,7 +50,8 @@ export default {
         rgbMode: false,
         setRgbMode: this.setRgbMode,
         audio: undefined,
-        orientation: 0
+        orientation: 0,
+        chromeFix: this.getBrowserEngine() === 'chrome'
       },
       loading: true,
       coldStart: true,
@@ -203,6 +206,23 @@ export default {
     },
     getRandomName: function () {
       return pokeNames[Math.round(Math.random() * (pokeNames.length - 1))]
+    },
+    getBrowserEngine: function () {
+      let UA = navigator.userAgent
+      if (/Gecko\/[0-9.-]*/.test(UA)) {
+        return 'gecko'
+      } else if (/Chrome\/[0-9.-]*/.test(UA)) {
+        return 'chrome'
+      } else {
+        return 'other'
+      }
+    },
+    isTouchScreen: function () {
+      if ("maxTouchPoints" in navigator || "msMaxTouchPoints" in navigator) {
+        return navigator.maxTouchPoints > 0
+      } else {
+        return false
+      }
     }
   }
 }

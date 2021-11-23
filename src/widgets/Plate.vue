@@ -86,8 +86,9 @@ export default {
       return obj
     },
     scaledPlateStyle: function () {
-      // eslint-disable-next-line no-unused-vars
       const ss = this.$global.superSample
+      // fixes chrome's slight tile unaligment issues (causes other side effects, but still looks better...)
+      const fix = this.$global.chromeFix ? (ss < 2 ? 0 : 0.4) : 0
       const obj = {}
 
       if (this.colorHueDeg != null) {
@@ -136,9 +137,12 @@ export default {
             const slice = {
               backgroundImage: 'url(' + img.url + ')',
               backgroundRepeat: 'no-repeat',
-              backgroundPosition: `${spec.positionX[variant]} ${img.offsetX}px ${spec.positionY[variant]} ${img.offsetY}px`,
-              backgroundSize: (spec.sizeX[variant] ? `calc(100% - ${img.offsetY * 2}px)` : `${img.w}px`) + ' ' +
-                (spec.sizeY[variant] ? `calc(100% - ${img.offsetX * 2}px)` : `${img.h}px`)
+              backgroundPosition: `
+                ${spec.positionX[variant]} ${img.offsetX}px
+                ${spec.positionY[variant]} ${img.offsetY}px`,
+              backgroundSize:
+                (spec.sizeX[variant] ? `calc(100% - ${img.offsetY * 2 - fix}px)` : `${img.w + fix}px`) + ' ' +
+                (spec.sizeY[variant] ? `calc(100% - ${img.offsetX * 2 - fix}px)` : `${img.h + (fix * 2)}px`)
             }
 
             this.mergeSlice(obj, slice)
