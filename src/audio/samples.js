@@ -266,12 +266,9 @@ const programs = {
         modify: (pixelsFilled, width) => {
           let speed = pixelsFilled / width
           speed = 0.15 + speed / 1.33
-          const rand = Math.random()
           gainNode.gain.cancelScheduledValues(this.audioContext.currentTime)
-          gainNode.gain.setValueAtTime(speed / 200, this.audioContext.currentTime)
-          gainNode.gain.linearRampToValueAtTime(speed / 10, this.audioContext.currentTime + 0.1)
-          gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.25)
-          oscillator.frequency.linearRampToValueAtTime((200 + rand * 10) - (speed * speed * 200), this.audioContext.currentTime + 0.025)
+          gainNode.gain.setValueAtTime(speed / 20, this.audioContext.currentTime)
+          oscillator.frequency.linearRampToValueAtTime((210) - (speed * speed * 200), this.audioContext.currentTime + 0.025)
         },
         stop: () => {
           if (timeout) {

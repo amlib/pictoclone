@@ -162,13 +162,14 @@ export default {
         this.canvasContext.globalCompositeOperation = 'source-over'
       }
 
+      this.strokePreviousTimestamp = undefined
       this.beginPosition = { x: Math.round(x), y: Math.round(y) }
       this.$emit('stroke-start', this.tool)
     },
     moveStroke: function (x, y) {
       if (this.painting) {
-        requestAnimationFrame(() => {
-          if (this.painting) {
+        requestAnimationFrame((timestamp) => {
+          if (this.painting && (this.strokePreviousTimestamp == null || timestamp - this.strokePreviousTimestamp > 16)) {
             this.stroking = true
 
             const destPosition = {
@@ -210,6 +211,7 @@ export default {
 
             this.beginPosition = destPosition
             this.$emit('stroke-move', dist)
+            this.strokePreviousTimestamp = timestamp
           }
         })
       }
@@ -368,6 +370,7 @@ export default {
       // stack is a pair of y coord and a list of x coords matched/to test
       const stack = [startY, [startX]]
 
+      let previousTimestamp = 0
       let stackLoopCount = 0
       let stackLoopSkip = 2
       while (stack.length > 0) {
@@ -421,8 +424,16 @@ export default {
           } else if (stackLoopCount > 200000) {
             break
           }
+
           this.$emit('flood-move', { pixelsFilled: matchedX.length, width: width })
-          await new Promise(requestAnimationFrame)
+
+          do {
+            const timestamp = await new Promise(requestAnimationFrame)
+            if (timestamp - previousTimestamp > 16) {
+              previousTimestamp = timestamp
+              break
+            }
+          } while (true)
         }
         stackLoopCount += 1
       }
