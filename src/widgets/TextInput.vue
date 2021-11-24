@@ -1,5 +1,5 @@
 <template>
-  <div class="input">
+  <div :class="['input', denyBlink ? 'deny' : '']" ref="main" @transitionend="mainTransitionEnd">
     <div class="tile tile-input-border" :style="getPreBorderLeft"/>
     <template v-for="(i, index) in chars" :key="i">
       <template v-if="index === caretPosition">
@@ -37,6 +37,7 @@ export default {
   },
   data: function () {
     return {
+      denyBlink: false
     }
   },
   computed: {
@@ -89,7 +90,16 @@ export default {
       return obj
     }
   },
-  mounted () {
+  methods: {
+    deny: function () {
+      this.$global.audio.playProgram('pc-deny')
+      this.denyBlink = true
+    },
+    mainTransitionEnd: function () {
+      console.log('ended')
+      this.denyBlink = false
+      this.$refs.main.classList.remove('deny')
+    }
   }
 }
 </script>
@@ -115,10 +125,15 @@ export default {
 .input {
   display: flex;
   justify-content: center;
+  transition: filter 0.2s ease-in-out;
 }
 
 .tile-caret {
-  animation: effect 0.7s linear alternate infinite;
+  animation: effect 0.4s ease-in-out alternate infinite;
+}
+
+.deny {
+  filter: sepia(100%) saturate(400%) contrast(0.8) brightness(0.8) hue-rotate(-40deg);
 }
 
 @keyframes effect {
@@ -126,7 +141,7 @@ export default {
     opacity: 1.0;
   }
   100% {
-    opacity: 0.7;
+    opacity: 0.6;
   }
 }
 </style>

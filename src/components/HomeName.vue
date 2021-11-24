@@ -1,6 +1,6 @@
 <template>
   <div :class="['main', faded ? 'main-fade' : '']" @transitionend.self="mainTransitionEnd">
-    <text-input v-model="userName" class="name-field"/>
+    <text-input v-model="userName" class="name-field" ref="text-input"/>
     <div class="keyboard-wrapper">
       <div class="keyboard-buttons-wrapper">
         <w-button-toggle class="keyboard-buttons-toggle" v-model="keyboardMode"
@@ -94,6 +94,10 @@ export default {
       }
     },
     done: async function () {
+      if (this.userName.length <= 0) {
+        this.$refs['text-input'].deny()
+        return
+      }
       this.$emit('name-selected', this.userName)
       this.mainTransitionEndCallback = () => { this.$emit('done') }
       this.faded = true
