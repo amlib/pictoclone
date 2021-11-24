@@ -222,7 +222,7 @@ export default {
     pointerLeave: function (event) {
       if (this.draggingCapturedElement) {
         if (this.$global.vibration > 0) {
-          window.navigator.vibrate(this.$global.vibration * 0.8)
+          window.navigator.vibrate && window.navigator.vibrate(this.$global.vibration * 0.8)
         }
         this.hideTypingBubbleDbounced.flush()
         this.draggingCapturedElement.removeEventListener('pointerleave', this.pointerLeave)

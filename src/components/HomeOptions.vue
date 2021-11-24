@@ -131,7 +131,7 @@ export default {
     changeVibration: function (val) {
       this.$global.setVibration(val)
       if (val > 0) {
-        window.navigator.vibrate(val)
+        window.navigator.vibrate && window.navigator.vibrate(val)
       }
     },
     changeSound: function (muted) {
@@ -174,7 +174,9 @@ export default {
 }
 
 .main > div {
-  flex: 1 1 min-content;
+  /*flex: 1 1 min-content;*/
+  /*flex: 1 1 auto;*/
+  flex: calc(86px * var(--global-ss)) 1 0;
   margin: calc(7px * var(--global-ss)) calc(7px * var(--global-ss));
 }
 

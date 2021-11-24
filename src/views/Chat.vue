@@ -26,6 +26,11 @@
                   @click="onScrollDown"/>
       </div>
       <div class="separator landscape-hide"></div>
+      <div v-if="fun" class="button-bar-wrapper">
+        <w-button class="rainbow-button" @click="toggleRainbow" :toggled="this.$global.rgbMode" audio-feedback>
+          <div class="rainbow-button">{{ this.$global.rgbMode ? '☸' : '☺' }}</div>
+        </w-button>
+      </div>
       <div ref="buttons-mount-portrait"></div>
     </div>
     <div class="main-wrapper">
@@ -70,11 +75,6 @@
       </div>
     </div>
     <teleport v-if="mounted" :to="$refs[$global.isLandscape ? 'buttons-mount-landscape' : 'buttons-mount-portrait']">
-      <div v-if="fun" class="button-bar-wrapper">
-        <w-button class="rainbow-button" @click="toggleRainbow" :toggled="this.$global.rgbMode" audio-feedback>
-          <div class="rainbow-button">{{ this.$global.rgbMode ? '☸' : '☺' }}</div>
-        </w-button>
-      </div>
       <w-button-toggle v-model="selectedTool" class="button-bar-wrapper"
                        :common-options="{ class: 'closer', 'normal-class': 'simple-button-normal', 'active-class': 'simple-button-active', iconMargin: [1, 1] }"
                        :click-callbacks="toolClickCallbacks"
@@ -93,7 +93,7 @@
       </w-button-toggle>
       <div class="separator"></div>
       <w-button-toggle v-model="keyboardMode" class="button-bar-wrapper"
-                       :common-options="{ 'plate-notch': [true, false, false, false], 'normal-tile': 'small-button', 'active-tile': 'small-button-highlight', 'plate-padding': 1 }"
+                       :common-options="{ class: 'keyboard-buttons', 'plate-notch': [true, false, false, false], 'normal-tile': 'small-button', 'active-tile': 'small-button-highlight', 'plate-padding': 1 }"
                        :click-callbacks="keyboardModeClickCallbacks"
                        :options="[
         { icon: 'romaji', name: 'romaji' },
@@ -321,7 +321,6 @@ export default {
   background-size: calc(2px * var(--global-ss)) calc(4px * var(--global-ss));
 }
 
-/* also non scoped version */
 .button-bar-wrapper > button {
   display: block;
   margin: calc(1px * var(--global-ss)) calc(2px * var(--global-ss));
@@ -459,21 +458,21 @@ export default {
 </style>
 
 <style>
-.button-bar-wrapper > button {
-  display: block;
-  margin: calc(1px * var(--global-ss)) calc(2px * var(--global-ss));
-}
-
+/* using scoped classes here to allow buttons generated inside ButtonToggle.vue to inherit these */
 .button-bar-wrapper > button:first-child {
-  margin-top: calc(3px * var(--global-ss));
+  margin-top: calc(2px * var(--global-ss));
 }
 
 .button-bar-wrapper > button:last-child {
-  margin-bottom: calc(3px * var(--global-ss));
+  margin-bottom: calc(2px * var(--global-ss));
 }
 
 .button-bar-wrapper > .closer {
-  margin-top: 0;
-  margin-bottom: 0;
+  display: block;
+  margin: 0 calc(2px * var(--global-ss));
+}
+
+.button-bar-wrapper > .keyboard-buttons {
+  margin: calc(1px * var(--global-ss)) calc(2px * var(--global-ss));
 }
 </style>

@@ -154,7 +154,7 @@ const programs = {
           gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.15)
 
           if (this.vibrationStrength > 0) {
-            window.navigator.vibrate(peak * peak * this.vibrationStrength * 0.05)
+            window.navigator.vibrate && window.navigator.vibrate(peak * peak * this.vibrationStrength * 0.05)
           }
         },
         stop: () => {
@@ -229,7 +229,7 @@ const programs = {
           strokeTimeUnlock = this.audioContext.currentTime + attackTimeMod + holdTimeMod + downTimeMod + silenceTimeMod
 
           if (this.vibrationStrength > 0) {
-            window.navigator.vibrate(peak * peak * this.vibrationStrength * 0.1)
+            window.navigator.vibrate && window.navigator.vibrate(peak * peak * this.vibrationStrength * 0.1)
           }
         },
         stop: () => {
@@ -318,7 +318,7 @@ const programs = {
           whiteNoiseNode.playbackRate.linearRampToValueAtTime(speed * speed + (rand/4), this.audioContext.currentTime + 0.025)
 
           if (this.vibrationStrength > 0) {
-            window.navigator.vibrate(Math.pow(speed, 1.4) * this.vibrationStrength * 0.2)
+            window.navigator.vibrate && window.navigator.vibrate(Math.pow(speed, 1.4) * this.vibrationStrength * 0.2)
           }
         },
         stop: () => {

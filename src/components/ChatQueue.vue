@@ -152,7 +152,11 @@ export default {
     },
     onScrollDown: function () {
       if (this.selectedEntryIndex >= this.queue.length - 1) {
-        this.$global.audio.playProgram('pc-deny')
+        const time = performance.now()
+        if (this.previousScrollTime == null || time - this.previousScrollTime > 125) {
+          this.$global.audio.playProgram('pc-deny')
+          this.previousScrollTime = time
+        }
       } else {
         this.$global.audio.playProgram('pc-scroll')
         this.selectedEntryIndex += 1
@@ -224,6 +228,7 @@ export default {
   user-select: none;
   touch-action: none;
   overflow-y: hidden;
+  will-change: scroll-position, contents;
   /*scroll-behavior: smooth;*/
   /*overflow-y: auto;*/
   /*scrollbar-width: none; !* hides scrollbar on mozilla *!*/

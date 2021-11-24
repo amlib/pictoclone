@@ -1,6 +1,7 @@
 <template>
   <div class="drag-box"
-       :style="{ left: this.offsetX + 'px', top: this.offsetY + 'px' }">
+       :style="{ transform: `translate(${this.offsetX}px, ${this.offsetY}px)` }">
+<!--       :style="{ left: this.offsetX + 'px', top: this.offsetY + 'px' }">-->
     <w-plate v-if="showBubble" class="box-balloon" :padding="0"
              :global-tint="$global.rgbMode"
              :tile-name="highlight ? 'main-color-fill' : 'main-button'"
@@ -50,6 +51,8 @@ export default {
   display: flex;
   justify-content: center;
   z-index: 10;
+  /*will-change: left, top;*/
+  will-change: transform;
 }
 
 .box-balloon {

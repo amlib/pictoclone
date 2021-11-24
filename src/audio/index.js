@@ -125,7 +125,7 @@ export class AudioFX {
 
     const vibrate = options.vibrate ? options.vibrate : program.vibrate
     if (vibrate != null && this.vibrationStrength > 0) {
-      window.navigator.vibrate(vibrate * this.vibrationStrength)
+      window.navigator.vibrate && window.navigator.vibrate(vibrate * this.vibrationStrength)
     }
 
     if (this.volume <= 0) {

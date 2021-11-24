@@ -178,6 +178,7 @@ export default {
 <style scoped>
 .button {
   padding: unset;
+  margin: unset;
   border: none;
   position: relative;
   background-repeat: no-repeat;
