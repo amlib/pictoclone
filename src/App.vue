@@ -70,9 +70,20 @@ export default {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
     this.globalValues.audio = new AudioFX(this.globalValues.vibration, !this.globalValues.muted)
     this.globalValues.userName = this.getRandomName()
+
+    this.$watch(() => this.globalValues.autoScale, () => {
+      const appEl = document.getElementById('app')
+      if (this.globalValues.autoScale) {
+        appEl.classList.add('app-overflow')
+      } else {
+        appEl.classList.remove('app-overflow')
+      }
+    }, {
+      immediate: true
+    })
   },
   mounted: async function () {
-    this.onResize()
+    requestAnimationFrame(() => { this.onResize() })
 
     await this.$mapperGenerate({
       superSample: this.globalValues.superSample,
@@ -83,7 +94,7 @@ export default {
     this.loading = false
     this.coldStart = false
 
-    this.onResizeThrottled = throttle(this.onResize, 100, { leading: false, trailing: true })
+    this.onResizeThrottled = () => requestAnimationFrame(() => { this.onResize() })
     this.documentObserver = new ResizeObserver(this.onResizeThrottled).observe(document.firstElementChild)
     this.viewObserver = new ResizeObserver(this.onResizeThrottled).observe(this.$refs.view)
   },
@@ -139,10 +150,6 @@ export default {
         '--global-cfaded': colorsHexFaded[colorIndex],
         '--global-ss': this.globalValues.superSample,
         '--global-sf': this.getScalingFactor
-      }
-
-      if (this.globalValues.autoScale) {
-        obj['overflow-x'] = 'hidden'
       }
 
       if (this.globalValues.autoScale) {
@@ -251,6 +258,7 @@ body {
   margin: 0;
   padding: 0;
   touch-action: auto;
+  overflow-x: hidden;
   height: 100%;
   background-color: black;
 }
@@ -258,6 +266,10 @@ body {
 #app {
   height: 100%;
   overflow-y: hidden;
+}
+
+.app-overflow {
+  overflow-x: hidden;
 }
 
 .no-scale {
