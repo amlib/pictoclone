@@ -129,7 +129,6 @@ export default {
       this.$refs.component.done()
     },
     onBack: function () {
-      console.log('foo')
       if (this.view === 'name') {
         return
       }

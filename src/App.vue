@@ -51,7 +51,7 @@ export default {
         setRgbMode: this.setRgbMode,
         audio: undefined,
         orientation: 0,
-        chromeFix: this.getBrowserEngine() === 'chrome'
+        chromeFix: this.getBrowserEngine().match(/(chrome)|(webkit)/) != null
       },
       loading: true,
       coldStart: true,
@@ -213,10 +213,12 @@ export default {
     },
     getBrowserEngine: function () {
       let UA = navigator.userAgent
-      if (/Gecko\/[0-9.-]*/.test(UA)) {
+      if (/Gecko\/[0-9.-]+/.test(UA)) {
         return 'gecko'
-      } else if (/Chrome\/[0-9.-]*/.test(UA)) {
+      } else if (/Chrome\/[0-9.-]+/.test(UA)) {
         return 'chrome'
+      } else if (/AppleWebKit\/[0-9.-]+/.test(UA)) {
+        return 'webkit'
       } else {
         return 'other'
       }
