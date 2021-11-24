@@ -2,6 +2,8 @@
 
 A fully featured Pictochat clone made in Vue.js 3 and Vite.
 
+Try the live version at https://amlib.github.io/pictoclone
+
 No actual chatting yet, but the UI is 100% complete and functional. You can draw, use every function, "fake send" it, play with the message queue, navigate trough the sleek setting screens (which were inspired by the Nintendo DS system settings menus!) and experience every little feature I've added so far, like the interactive flood fill, keyboard excatly like the original one (for good or for worse), drag and dropping symbols off the keyboard all in a fully modern and responsive web layout! Also, say the secret message and you shall be handsomely rewarded!
 
 This project so far has been tested on Desktop Firefox, Chrome and Epiphany (Webkit) and Mobile Firefox and Chrome. Works well across all of then, with epiphany being the buggiest (audio won't play properly... go figure). If someone has one of those fancy i devices I would gladly accept a report on how this runs on Safari.
