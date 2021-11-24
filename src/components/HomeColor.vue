@@ -60,8 +60,9 @@ export default {
       const x = this.colorBoxPos.x - (this.colorMarginSize / 2 * this.$global.superSample)
       const y = this.colorBoxPos.y - (this.colorMarginSize / 2 * this.$global.superSample)
 
-      obj.left = x + 'px'
-      obj.top = y + 'px'
+      obj.transform = `translateX(${x}px) translateY(${y}px)`
+      // obj.left = x + 'px'
+      // obj.top = y + 'px'
 
       return obj
     },
@@ -276,6 +277,7 @@ export default {
   height: calc(1px * (var(--color-size) + var(--color-margin-size)) * var(--global-ss));
   box-sizing: border-box;
   transition-timing-function: linear;
-  transition: top 0.05s, left 0.05s;
+  /*transition: top 0.05s, left 0.05s;*/
+  transition: transform 0.05s;
 }
 </style>
