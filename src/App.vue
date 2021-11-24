@@ -51,7 +51,8 @@ export default {
         setRgbMode: this.setRgbMode,
         audio: undefined,
         orientation: 0,
-        chromeFix: this.getBrowserEngine().match(/(chrome)|(webkit)/) != null
+        chromeFix: this.getBrowserEngine().match(/(chrome)|(webkit)/) != null,
+        showGithubLink: true
       },
       loading: true,
       coldStart: true,
@@ -123,7 +124,7 @@ export default {
     },
     getViewStyle: function () {
       return {
-        height: this.$global.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined,
+        height: this.globalValues.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined,
         visibility: this.loading ? 'hidden' : null,
         '--global-chd': this.colorHueDeg + 'deg', // defining here rather than at the root element speeds up firefox when rgb mode is constantly changing this style
       }
@@ -140,7 +141,7 @@ export default {
         '--global-sf': this.getScalingFactor
       }
 
-      if (this.autoScale) {
+      if (this.globalValues.autoScale) {
         obj['overflow-x'] = 'hidden'
       }
 

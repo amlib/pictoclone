@@ -552,6 +552,20 @@ const gridBackground = [
   }
 ]
 
+const decoBand = [
+  {
+    x: 0, y: 0, w: 8, h: 16, alias: 'bottom',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 8, y: 0, w: 8, h: 16, alias: 'top',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+]
+
+
 const tileMap = [
   {
     groupName: 'main-button', x: 0, y: 0,
@@ -649,6 +663,10 @@ const tileMap = [
   {
     groupName: 'grid-background', x: 0, y: 259,
     map: cloneDeep(gridBackground)
+  },
+  {
+    groupName: 'deco-band', x: 0, y: 276,
+    map: cloneDeep(decoBand)
   }
 ]
 

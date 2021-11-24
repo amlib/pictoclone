@@ -1,5 +1,8 @@
 <template>
   <div class="background" :style="componentStyle">
+    <deco-band v-if="$global.showGithubLink" :size="4" :class="['deco-band', view !== 'name' ? 'deco-band-fade' : '']">
+      <a href="https://github.com/amlib/pictoclone" target="_blank" class="deco-band-link">Fork-me!</a>
+    </deco-band>
     <div class="top">
       {{ views[view].topHint }}
     </div>
@@ -39,6 +42,7 @@ import HomeOptions from '/src/components/HomeOptions.vue'
 
 import { shallowRef } from 'vue'
 import { throttle } from 'lodash'
+import DecoBand from '../widgets/DecoBand.vue'
 
 const views = {
   name: {
@@ -57,7 +61,7 @@ const views = {
 
 export default {
   name: 'Home',
-  components: { WButton },
+  components: { DecoBand, WButton },
   data: function () {
     return {
       view: undefined,
@@ -306,5 +310,19 @@ export default {
 }
 .rendering-quality .background {
   image-rendering: smooth;
+}
+
+.deco-band {
+  transition: opacity 0.2s ease-in-out, transform  0.3s ease-in-out;
+}
+
+.deco-band-fade {
+  opacity: 0.0;
+  transform: translateY(-100px) translateX(100px);
+}
+
+.deco-band-link {
+  color: white;
+  text-decoration: none;
 }
 </style>

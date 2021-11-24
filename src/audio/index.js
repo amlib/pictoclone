@@ -6,6 +6,7 @@ export class AudioFX {
   audioContext
   bufferMap = {}
   vibrationStrength
+  // TODO volume is only used for switching off audio when = 0, needs to implement actual volume adjustment
   volume
   loaded = false
   noiseBuffer
