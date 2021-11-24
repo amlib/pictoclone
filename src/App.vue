@@ -322,7 +322,10 @@ body {
   }
 }
 
-#nav a.router-link-exact-active {
-  color: #42b983;
+@font-face {
+  font-family: 'NDS12';
+  src: url('/nds12/NDS12.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
 }
 </style>

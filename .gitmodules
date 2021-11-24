@@ -1,0 +1,3 @@
+[submodule "pictoclone-assets"]
+	path = pictoclone-assets
+	url = https://github.com/amlib/pictoclone-assets.git
