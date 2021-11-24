@@ -39,7 +39,7 @@ export default {
         isTouchScreen: isTouchScreen,
         isLandscape: computed(() => this.isLandscape),
         scalingFactor: computed(() => this.getScalingFactor),
-        userColorIndex: 2,
+        userColorIndex: Math.round((colorsHexL2.length - 1) * Math.random()),
         userName: '',
         vibration: 120,
         setVibration: this.setVibration,
