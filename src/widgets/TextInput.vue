@@ -3,7 +3,7 @@
     <div class="tile tile-input-border" :style="getPreBorderLeft"/>
     <template v-for="(i, index) in chars" :key="i">
       <template v-if="index === caretPosition">
-        <div class="tile tile-input" :style="getCaretStyle"/>
+        <div class="tile tile-input tile-caret" :style="getCaretStyle"/>
       </template>
       <template v-else-if="index === 0">
         <div class="tile tile-input" :style="getBorderLeftStyle">
@@ -115,5 +115,18 @@ export default {
 .input {
   display: flex;
   justify-content: center;
+}
+
+.tile-caret {
+  animation: effect 0.7s linear alternate infinite;
+}
+
+@keyframes effect {
+  0% {
+    opacity: 1.0;
+  }
+  100% {
+    opacity: 0.7;
+  }
 }
 </style>

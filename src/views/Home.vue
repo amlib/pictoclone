@@ -17,7 +17,7 @@
                  @color-selected="colorSelected" @name-selected="nameSelected"/>
     </div>
     <div class="bottom">
-      <w-button class="text-button" :plate-padding="3"
+      <w-button :disabled="!canGoBack" class="text-button" :plate-padding="3"
                 normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
                 @click="onBackThrottled" audio-feedback>
         Back
@@ -91,6 +91,9 @@ export default {
       return {
         backgroundImage: `url(${this.$tileMap('icon-normal-arrow-down').url})`
       }
+    },
+    canGoBack: function () {
+      return this.view !== 'name'
     }
   },
   created: function () {
@@ -126,6 +129,7 @@ export default {
       this.$refs.component.done()
     },
     onBack: function () {
+      console.log('foo')
       if (this.view === 'name') {
         return
       }

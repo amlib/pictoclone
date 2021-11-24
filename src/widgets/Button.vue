@@ -2,7 +2,7 @@
   <button :style="buttonStyle" :class="['button',
       $global.rgbMode && !globalTint ? 'global-color-hue-tint' : '',
       clicking || toggled ? activeClass : normalClass]"
-      @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="onPointerCancel" @pointerleave="onPointerLeave">
+      @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="onPointerCancel" @pointerleave="onPointerLeave" :disabled="disabled">
     <w-plate v-if="normalTile" :global-tint="globalTint" :notch="plateNotch"
              :tile-name="toggled || clicking ? activeTile : normalTile"
              :padding="platePadding" :class="['button-plate',
@@ -63,6 +63,11 @@ export default {
       default: false
     },
     toggled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       required: false,
       default: false
@@ -146,8 +151,13 @@ export default {
         obj.backgroundColor = 'unset'
       }
 
+      obj.filter = ''
       if (this.colorHueDeg) {
-        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
+        obj.filter += ' hue-rotate(' + this.colorHueDeg + 'deg)'
+      }
+
+      if (this.disabled) {
+        obj.filter += ' contrast(0.3) brightness(1.4)'
       }
 
       return obj
@@ -155,6 +165,9 @@ export default {
   },
   methods: {
     onPointerDown: function (event) {
+      if (this.disabled) {
+        return
+      }
       if (event.buttons & 1) {
         this.clicking = true
       }
@@ -183,6 +196,7 @@ export default {
   position: relative;
   background-repeat: no-repeat;
   background-position: center;
+  transition: filter 0.5s;
 }
 
 .plate-icon {
