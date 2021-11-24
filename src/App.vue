@@ -140,6 +140,10 @@ export default {
         '--global-sf': this.getScalingFactor
       }
 
+      if (this.autoScale) {
+        obj['overflow-x'] = 'hidden'
+      }
+
       if (this.globalValues.autoScale) {
         obj.marginLeft = marginCompensation + 'px'
         obj.marginRight = marginCompensation + 'px'
