@@ -1,5 +1,5 @@
 <template>
-  <div :class="getClass" :style="getStyle"/>
+  <div :class="['mini-entry', isGlobal && $global.rgbMode && 'global-rgb']" :style="getStyle"/>
 </template>
 
 <script>
@@ -17,6 +17,9 @@ export default {
     this.colorsHexL2 = colorsHexL2
   },
   computed: {
+    isGlobal: function () {
+      return this.entry.payload.color === 'global'
+    },
     getStyle: function () {
       const obj = {}
 
@@ -26,8 +29,11 @@ export default {
         if (this.entry.type === 'message') {
           obj.backgroundColor = colorsHexL2[this.entry.payload.colorIndex]
         } else if (this.entry.type === 'notification') {
-          if (this.entry.payload.color === 'global') {
+          if (this.isGlobal) {
             obj.backgroundColor = 'var(--global-cl2)'
+            if (this.$global.rgbMode) {
+              obj.filter = `hue-rotate(${this.$global.colorHueDeg}deg)`
+            }
           } else {
             obj.backgroundColor = '#415969'
           }
@@ -37,15 +43,6 @@ export default {
       }
 
       return obj
-    },
-    getClass: function () {
-      const arr = ['mini-entry']
-
-      if (this.entry.visible && this.entry.type === 'notification' && this.entry.payload.color === 'global') {
-        arr.push('global-color-hue-tint')
-      }
-
-      return arr
     }
   }
 }

@@ -1,13 +1,13 @@
 <template>
   <div class="plate" :style="plateStyle">
     <template v-if="mode === 'scale'">
-      <div :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '' ]" :style="scaledPlateStyle"/>
-      <div v-if="stripeMode" :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '', 'scaled-mode-stripe-' + stripeMode ]" :style="scaledModeStripeStyle"/>
+      <div class="plate-slice" :style="scaledPlateStyle"/>
+      <div v-if="stripeMode" :class="[ 'plate-slice', 'scaled-mode-stripe-' + stripeMode ]"/>
     </template>
     <template v-else-if="mode === 'tile'">
-      <div :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '' ]" :style="tiledStraightTBSlices"></div>
-      <div :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '' ]" :style="tiledStraightLRSlices"></div>
-      <div v-if="!noBorders" :class="[ 'plate-slice', globalTint ? 'global-color-hue-tint' : '' ]" :style="tiledCornerSlices"></div>
+      <div :class="[ 'plate-slice' ]" :style="tiledStraightTBSlices"></div>
+      <div :class="[ 'plate-slice' ]" :style="tiledStraightLRSlices"></div>
+      <div v-if="!noBorders" :class="[ 'plate-slice' ]" :style="tiledCornerSlices"></div>
     </template>
     <slot></slot>
   </div>
@@ -20,11 +20,6 @@ export default {
   name: 'WPlate',
   props: {
     padding: {
-      type: Number,
-      required: false,
-      default: null
-    },
-    colorHueDeg: {
       type: Number,
       required: false,
       default: null
@@ -76,24 +71,11 @@ export default {
         padding: this.internalPadding + 'px'
       }
     },
-    scaledModeStripeStyle: function () {
-      const obj = {}
-
-      if (this.colorHueDeg != null) {
-        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
-
-      return obj
-    },
     scaledPlateStyle: function () {
       const ss = this.$global.superSample
       // fixes chrome and webkit slight tile unaligment issues (causes other side effects, but still looks better...)
       const fix = this.$global.chromeFix ? (ss < 2 ? 0 : 0.4) : 0
       const obj = {}
-
-      if (this.colorHueDeg != null) {
-        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
 
       if (this.noBorders) {
         const tile = this.tileName + '-center'
@@ -157,10 +139,6 @@ export default {
       this.$global.superSample
       const obj = {}
 
-      if (this.colorHueDeg != null) {
-        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
-
       this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notch && this.notch[0] ? '1' : '2') + '-tl'))
       this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notch && this.notch[1] ? '1' : '2') + '-tr'))
       this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notch && this.notch[2] ? '1' : '2') + '-br'))
@@ -172,10 +150,6 @@ export default {
       // eslint-disable-next-line no-unused-expressions
       this.$global.superSample
       const obj = {}
-
-      if (this.colorHueDeg != null) {
-        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
 
       if (this.stripeMode === 1) {
         obj.backgroundImage = 'linear-gradient(0deg, #bababa calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 1px), transparent calc(var(--global-ss) * 4px), #bababa calc(var(--global-ss) * 4px), #bababa calc(var(--global-ss) * 5px), transparent calc(var(--global-ss) * 5px), transparent calc(var(--global-ss) * 8px))'
@@ -200,10 +174,6 @@ export default {
       // eslint-disable-next-line no-unused-expressions
       this.$global.superSample
       const obj = {}
-
-      if (this.colorHueDeg != null) {
-        obj.filter = 'hue-rotate(' + this.colorHueDeg + 'deg)'
-      }
 
       if (this.noBorders) {
         const tile = this.tileName + '-center'

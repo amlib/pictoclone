@@ -26,12 +26,13 @@
                   @click="onScrollDown"/>
       </div>
       <div class="separator landscape-hide"></div>
-      <div v-if="fun" class="button-bar-wrapper">
-        <w-button class="rainbow-button" @click="toggleRainbow" :toggled="this.$global.rgbMode" audio-feedback>
-          <div class="rainbow-button">{{ this.$global.rgbMode ? '☸' : '☺' }}</div>
+      <div v-if="fun" class="button-bar-wrapper" :class="[$global.rgbMode && 'global-rgb']" :style="rgbStyle">
+        <w-button class="rainbow-button"
+                  @click="toggleRainbow" :toggled="$global.rgbMode" audio-feedback>
+          <div class="rainbow-button">{{ $global.rgbMode ? '☸' : '☺' }}</div>
         </w-button>
       </div>
-      <div ref="buttons-mount-portrait"></div>
+      <div ref="buttons-mount-portrait" :class="[$global.rgbMode && 'global-rgb']" :style="rgbStyle"></div>
     </div>
     <div class="main-wrapper">
       <div class="main-queue-container">
@@ -42,7 +43,7 @@
         </w-plate>
       </div>
       <div class="button-bar portrait-hide">
-        <div ref="buttons-mount-landscape"></div>
+        <div ref="buttons-mount-landscape" :class="[$global.rgbMode && 'global-rgb']" :style="rgbStyle"></div>
       </div>
       <div class="main-interface-container">
         <w-plate class="main-interface-wrapper" tile-name="main-background"
@@ -54,7 +55,7 @@
                    ref="user-message" class="user-message"
                    :rainbow-brush="rainbowBrush" @fun="onFun"/>
           <div class="main-interface-bottom">
-            <keyboard class="keyboard" :mode="keyboardMode"
+            <keyboard class="keyboard" :mode="keyboardMode" :class="[$global.rgbMode && 'global-rgb']" :style="rgbStyle"
                       @keyboard-key-press="handleKeyPress" @symbol-drag="handleSymbolDrag" @keyboard-swap-char="handleSwapChar"/>
             <div class="button-cluster">
               <w-button class="button-cluster-button" icon="send"
@@ -167,6 +168,17 @@ export default {
       if (document.exitFullscreen) {
         document.exitFullscreen()
       }
+    }
+  },
+  computed: {
+    rgbStyle: function () {
+      const obj = {}
+
+      if (this.$global.rgbMode) {
+        obj.filter = `hue-rotate(${this.$global.colorHueDeg}deg)`
+      }
+
+      return obj
     }
   },
   methods: {

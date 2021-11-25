@@ -1,12 +1,11 @@
 <template>
-  <button :style="buttonStyle" :class="['button',
-      $global.rgbMode && !globalTint ? 'global-color-hue-tint' : '',
-      clicking || toggled ? activeClass : normalClass]"
-      @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="onPointerCancel" @pointerleave="onPointerLeave" :disabled="disabled">
+  <button :style="buttonStyle" :disabled="disabled"
+      :class="['button', clicking || toggled ? activeClass : normalClass]"
+      @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="onPointerCancel" @pointerleave="onPointerLeave">
     <w-plate v-if="normalTile" :global-tint="globalTint" :notch="plateNotch"
              :tile-name="toggled || clicking ? activeTile : normalTile"
              :padding="platePadding" :class="['button-plate',
-             expandPlate ? 'plate-expand' : '']">
+             expandPlate && 'plate-expand']">
       <slot></slot>
       <div v-if="icon" class="plate-icon" :style="iconBase"></div>
     </w-plate>
@@ -51,11 +50,6 @@ export default {
       type: String,
       required: false,
       default: ''
-    },
-    colorHueDeg: {
-      type: Number,
-      required: false,
-      default: null
     },
     globalTint: {
       type: Boolean,
@@ -149,11 +143,6 @@ export default {
 
       if (this.normalTile) {
         obj.backgroundColor = 'unset'
-      }
-
-      obj.filter = ''
-      if (this.colorHueDeg) {
-        obj.filter += ' hue-rotate(' + this.colorHueDeg + 'deg)'
       }
 
       if (this.disabled) {

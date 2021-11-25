@@ -1,7 +1,7 @@
 <template>
   <w-plate class="notification" tile-name="main-inverted"
            :notch="[true, true, true, true]">
-    <div :style="getStyle" :class="[ notificationPayload.color === 'global' ? 'global-color-hue-tint' : '']">{{ notificationPayload.text }}</div>
+    <div :style="getStyle" :class="[isGlobal && $global.rgbMode && 'global-rgb']">{{ notificationPayload.text }}</div>
   </w-plate>
 </template>
 
@@ -18,11 +18,17 @@ export default {
     }
   },
   computed: {
+    isGlobal: function () {
+      return this.notificationPayload.color === 'global'
+    },
     getStyle: function () {
       const obj = {}
 
-      if (this.notificationPayload.color === 'global') {
+      if (this.isGlobal) {
         obj.color = 'var(--global-cl2)'
+        if (this.$global.rgbMode) {
+          obj.filter = `hue-rotate(${this.$global.colorHueDeg}deg)`
+        }
       } else {
         obj.color = 'gray'
       }

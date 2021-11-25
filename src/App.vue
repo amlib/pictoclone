@@ -105,8 +105,6 @@ export default {
     if (this.viewObserver) {
       this.viewObserver.unobserve(this.$refs.view)
     }
-    this.onResizeThrottled.cancel()
-    this.onResizeThrottled = undefined
   },
   computed: {
     isLandscape: function () {
@@ -136,8 +134,7 @@ export default {
     getViewStyle: function () {
       return {
         height: this.globalValues.autoScale ? `calc(${this.documentHeight}px * 1 / var(--global-sf))` : undefined,
-        visibility: this.loading ? 'hidden' : null,
-        '--global-chd': this.colorHueDeg + 'deg', // defining here rather than at the root element speeds up firefox when rgb mode is constantly changing this style
+        visibility: this.loading ? 'hidden' : null
       }
     },
     getAppStyle: function () {
@@ -175,8 +172,9 @@ export default {
       }, 500)
     },
     processRgb: function (timestamp) {
-      if (timestamp - this.rgbAnimationTimestamp > 25) {
-        this.rgbColorHue += 5
+      // meant to be used together with a 0.5s transition property on select elements
+      if (timestamp - this.rgbAnimationTimestamp > 495) {
+        this.rgbColorHue += 120
         this.rgbAnimationTimestamp = timestamp
       }
       if (this.globalValues.rgbMode) {
@@ -282,8 +280,10 @@ body {
   height: 100%;
 }
 
-.global-color-hue-tint {
-  filter: hue-rotate(var(--global-chd));
+.global-rgb {
+  will-change: filer;
+  transition: filter 0.5s linear;
+  /*image-rendering: pixelated;*/
 }
 
 .pixel-rendering {
