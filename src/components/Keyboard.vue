@@ -1,7 +1,7 @@
 <template>
   <w-plate tile-name="main-foreground" :padding="0" v-bind="$attrs"
            :notch="[true, true, true, true]">
-    <div v-if="layouts[mode]" :class="['keyboard', mode]" ref="keyboard"
+    <div v-if="layouts[mode]" :class="['keyboard', mode]" ref="keyboard" :style="keyboardStyle"
          @pointerdown="pointerDown" @pointermove="pointerMove" @pointerup="pointerUp" @pointercancel="pointerCancel">
       <template v-for="(section, index) in layouts[mode].sections" :key="index">
         <div :class="section.class">
@@ -113,6 +113,19 @@ export default {
 
     if (this.keyRepeatInterval) {
       clearInterval(this.keyRepeatInterval)
+    }
+  },
+  computed: {
+    keyboardStyle: function () {
+      const obj = {}
+      if (this.$global.rgbMode) {
+        obj['--btn-color-normal'] = '#ffebeb'
+        obj['--btn-color-sp'] = '#ffcbcb'
+      } else {
+        obj['--btn-color-normal'] = '#EBEBEB'
+        obj['--btn-color-sp'] = '#cbcbcb'
+      }
+      return obj
     }
   },
   methods: {
@@ -533,7 +546,7 @@ export default {
 }
 
 .keyboard-button-normal {
-  background-color: #EBEBEB
+  background-color: var(--btn-color-normal)
 }
 
 .keyboard-button-active {
@@ -541,7 +554,7 @@ export default {
 }
 
 .keyboard-spbutton-normal {
-  background-color: #cbcbcb
+  background-color: var(--btn-color-sp)
 }
 
 .keyboard-spbutton-active {

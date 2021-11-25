@@ -32,7 +32,7 @@ export default {
           if (this.isGlobal) {
             obj.backgroundColor = 'var(--global-cl2)'
             if (this.$global.rgbMode) {
-              obj.filter = `hue-rotate(${this.$global.colorHueDeg}deg)`
+              obj.filter = `hue-rotate(${this.$global.rgbColorHueDeg}deg)`
             }
           } else {
             obj.backgroundColor = '#415969'

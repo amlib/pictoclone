@@ -146,7 +146,7 @@ export default {
       }
 
       if (this.disabled) {
-        obj.filter += ' contrast(0.3) brightness(1.4)'
+        obj.filter = 'contrast(0.3) brightness(1.4)'
       }
 
       return obj

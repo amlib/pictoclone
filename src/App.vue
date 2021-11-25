@@ -31,7 +31,6 @@ export default {
     let isTouchScreen = this.isTouchScreen()
     return {
       globalValues: {
-        colorHueDeg: computed(() => this.colorHueDeg),
         superSample: 3,
         setSuperSample: this.setSuperSample,
         autoScale: true,
@@ -49,6 +48,7 @@ export default {
         renderingClass: 'rendering-quality', // use super sampling 2x or 3x with this
         rgbMode: false,
         setRgbMode: this.setRgbMode,
+        rgbColorHueDeg: computed(() => this.rgbColorHueDeg),
         audio: undefined,
         orientation: 0,
         chromeFix: this.getBrowserEngine().match(/(chrome)|(webkit)/) != null,
@@ -116,7 +116,7 @@ export default {
         return false
       }
     },
-    colorHueDeg: function () {
+    rgbColorHueDeg: function () {
       if (this.globalValues.rgbMode) {
         return this.rgbColorHue
       } else {
