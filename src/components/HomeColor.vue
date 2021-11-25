@@ -1,5 +1,5 @@
 <template>
-  <div :class="['main', faded ? 'main-fade' : '']" :style="mainStyle" @transitionend.self="mainTransitionEnd">
+  <div :class="['main', faded && 'main-fade']" :style="mainStyle" @transitionend.self="mainTransitionEnd">
     <w-plate class="colors-window" tile-name="thin-frame" :padding="2">
       <div class="window-colors-content">
         <div class="selected-color-box" :style="selectedColorBoxStyle" @transitionend.stop="colorBoxTransitionEnd"/>

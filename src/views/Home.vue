@@ -1,6 +1,6 @@
 <template>
   <div class="background" :style="componentStyle">
-    <deco-band v-if="$global.showGithubLink" :size="4" :class="['deco-band', view !== 'name' ? 'deco-band-fade' : '']">
+    <deco-band v-if="$global.showGithubLink" :size="4" :class="['deco-band', view !== 'name' && 'deco-band-fade']">
       <a href="https://github.com/amlib/pictoclone" target="_blank" class="deco-band-link">Fork-me!</a>
     </deco-band>
     <div class="top">
@@ -8,11 +8,11 @@
     </div>
     <div class="middle" @scroll="onMiddleScrollThrottled" ref="middle">
       <div class="scroll-up-wrapper">
-        <div :class="['scroll-indicator', 'scroll-up-indicator', scrollUpIndicator ? '' : 'scroll-hide']"
+        <div :class="['scroll-indicator', 'scroll-up-indicator', !scrollUpIndicator && 'scroll-hide']"
              :style="scrollUpStyle"/>
       </div>
       <div class="scroll-down-wrapper">
-        <div :class="['scroll-indicator', 'scroll-down-indicator', scrollDownIndicator ? '' : 'scroll-hide']"
+        <div :class="['scroll-indicator', 'scroll-down-indicator', !scrollDownIndicator && 'scroll-hide']"
              :style="scrollDownStyle"/>
       </div>
       <component :is="views[view].component" ref="component" :style="componentStyle" class="component"

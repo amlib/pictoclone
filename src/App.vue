@@ -2,8 +2,8 @@
   <div :class="['view',
       this.globalValues.renderingClass,
       this.isLandscape ? 'landscape' : 'portrait',
-      this.globalValues.autoScale ? undefined : 'no-scale',
-      this.globalValues.mobileAssists ? 'mobile-assists' : undefined]"
+      !this.globalValues.autoScale && 'no-scale',
+      this.globalValues.mobileAssists && 'mobile-assists']"
        :style="getAppStyle" ref="view">
     <div v-if="loading" class="loading">
       <div class="loading-circle"/>

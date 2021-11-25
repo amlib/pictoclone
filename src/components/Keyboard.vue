@@ -83,8 +83,6 @@ export default {
       typingBubbleHighlight: false
     }
   },
-  computed: {
-  },
   created: function () {
     this.layouts = Object.freeze(layouts)
     this.uniqueKeyTile = uniqueKeyTile

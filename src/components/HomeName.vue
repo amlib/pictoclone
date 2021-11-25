@@ -1,5 +1,5 @@
 <template>
-  <div :class="['main', faded ? 'main-fade' : '']" @transitionend.self="mainTransitionEnd">
+  <div :class="['main', faded && 'main-fade']" @transitionend.self="mainTransitionEnd">
     <text-input v-model="userName" class="name-field" ref="text-input"/>
     <div class="keyboard-wrapper">
       <div class="keyboard-buttons-wrapper">

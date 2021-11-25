@@ -1,8 +1,8 @@
 <template>
-  <div :class="['main', faded ? 'main-fade' : '']" @transitionend.self="mainTransitionEnd">
+  <div :class="['main', faded && 'main-fade']" @transitionend.self="mainTransitionEnd">
     <template v-for="(setting, index) in settingsArray" :key="index">
       <w-toggle-switch v-model="settings[setting].value" :options="settings[setting].options" :ref="(el) => setSettingRef(el, index)"
-                       :class="['switch', this.settingsDisplay[index] ? '' : 'switch-hidden']"
+                       :class="['switch', !this.settingsDisplay[index] && 'switch-hidden']"
                        @update:modelValue="(val) => settings[setting].onChange(val)">
         {{ settings[setting].description }}
       </w-toggle-switch>

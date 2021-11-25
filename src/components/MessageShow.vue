@@ -4,7 +4,7 @@
            :stripe-mode="stripe">
     <slot/>
     <div v-if="!noDrawing" class="drawing-area drawing-area-show pixel-rendering" :style="getViewStyle"/>
-    <w-plate :class="[isMessageOneSegment ? 'fill' : '', 'message-area-user-tag']"
+    <w-plate :class="[isMessageOneSegment && 'fill', 'message-area-user-tag']"
              tile-name="main-color-background"
              :notch="[true, false, true, isMessageOneSegment]"
              ref="user-tag">

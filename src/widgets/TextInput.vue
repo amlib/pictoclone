@@ -1,5 +1,5 @@
 <template>
-  <div :class="['input', denyBlink ? 'deny' : '']" ref="main" @transitionend="mainTransitionEnd">
+  <div :class="['input', denyBlink && 'deny']" ref="main" @transitionend="mainTransitionEnd">
     <div class="tile tile-input-border" :style="getPreBorderLeft"/>
     <template v-for="(i, index) in chars" :key="i">
       <template v-if="index === caretPosition">

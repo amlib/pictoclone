@@ -7,7 +7,7 @@
     </div>
     <div class="toggle-switch-button-wrapper">
       <template v-for="(option, index) in options" :key="index">
-        <div :class="['options-text', index === selectedIndex ? 'text-selected' : (option.recommended ? 'text-recommended' : '')]">
+        <div :class="['options-text', index === selectedIndex ? 'text-selected' : (option.recommended && 'text-recommended')]">
           {{ option.description }}
         </div>
       </template>
