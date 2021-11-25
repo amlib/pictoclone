@@ -68,8 +68,9 @@ export default {
     },
     scaledPlateStyle: function () {
       const ss = this.$global.superSample
-      // fixes chrome and webkit slight tile unaligment issues (causes other side effects, but still looks better...)
-      const fix = this.$global.chromeFix ? (ss < 2 ? 0 : 0.4) : 0
+      // fixes chrome slight tile unaligment (artifacts) issues (due to autoscale css scale transform)
+      // also, causes other side effects, but still looks better...
+      const fix = this.$global.chromeFix && this.$global.autoScale ? (ss < 2 ? 0 : 0.4) : 0
       const obj = {}
 
       if (this.noBorders) {

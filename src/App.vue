@@ -1,10 +1,10 @@
 <template>
-  <div :class="['view',
+  <div :class="['app-view',
       this.globalValues.renderingClass,
       this.isLandscape ? 'landscape' : 'portrait',
       !this.globalValues.autoScale && 'no-scale',
       this.globalValues.mobileAssists && 'mobile-assists']"
-       :style="getAppStyle" ref="view">
+       :style="getAppViewStyle" ref="app-view">
     <div v-if="loading" class="loading">
       <div class="loading-circle"/>
       {{ loadingMessage }}...
@@ -51,15 +51,15 @@ export default {
         rgbColorHueDeg: 0,
         audio: undefined,
         orientation: 0,
-        chromeFix: this.getBrowserEngine().match(/(chrome)|(webkit)/) != null,
+        chromeFix: this.getBrowserEngine().match(/(chrome)/) != null,
         showGithubLink: true
       },
       loading: true,
       coldStart: true,
       documentWidth: 1,
       documentHeight: 1,
-      viewWidth: 1,
-      viewHeight: 1,
+      appViewWidth: 1,
+      appViewHeight: 1,
       landscapeBreakpointRatio: 18 / 9,
       landscapeConstrainRatio: 26 / 9,
       portraitConstrainRatio: 8 / 9
@@ -95,14 +95,14 @@ export default {
 
     this.onResizeThrottled = () => requestAnimationFrame(() => { this.onResize() })
     this.documentObserver = new ResizeObserver(this.onResizeThrottled).observe(document.firstElementChild)
-    this.viewObserver = new ResizeObserver(this.onResizeThrottled).observe(this.$refs.view)
+    this.appViewObserver = new ResizeObserver(this.onResizeThrottled).observe(this.$refs['app-view'])
   },
   beforeUnmount: function () {
     if (this.documentObserver) {
       this.documentObserver.unobserve(document.firstElementChild.offsetWidth)
     }
-    if (this.viewObserver) {
-      this.viewObserver.unobserve(this.$refs.view)
+    if (this.appViewObserver) {
+      this.appViewObserver.unobserve(this.$refs['app-view'])
     }
   },
   computed: {
@@ -121,9 +121,9 @@ export default {
     getScalingFactor: function () {
       const documentRatio = this.documentWidth / this.documentHeight
       if (this.isLandscape) {
-        return this.documentWidth / this.viewWidth * Math.min((this.landscapeConstrainRatio / documentRatio), 1)
+        return this.documentWidth / this.appViewWidth * Math.min((this.landscapeConstrainRatio / documentRatio), 1)
       } else {
-        return this.documentWidth / this.viewWidth * Math.min((this.portraitConstrainRatio / documentRatio), 1)
+        return this.documentWidth / this.appViewWidth * Math.min((this.portraitConstrainRatio / documentRatio), 1)
       }
     },
     getViewStyle: function () {
@@ -132,8 +132,8 @@ export default {
         visibility: this.loading ? 'hidden' : null
       }
     },
-    getAppStyle: function () {
-      const marginCompensation = (this.documentWidth - (this.viewWidth * this.getScalingFactor)) / 2
+    getAppViewStyle: function () {
+      const marginCompensation = (this.documentWidth - (this.appViewWidth * this.getScalingFactor)) / 2
       const colorIndex = this.globalValues.userColorIndex
       const obj = {
         '--global-cl1': colorsHexL1[colorIndex],
@@ -200,9 +200,9 @@ export default {
     onResize: function () {
       this.documentWidth = document.firstElementChild.offsetWidth
       this.documentHeight = document.firstElementChild.offsetHeight
-      if (this.$refs.view) {
-        this.viewWidth = this.$refs.view.offsetWidth
-        this.viewHeight = this.$refs.view.offsetHeight
+      if (this.$refs['app-view']) {
+        this.appViewWidth = this.$refs['app-view'].offsetWidth
+        this.appViewHeight = this.$refs['app-view'].offsetHeight
       }
     },
     beforeEnterTransition: function () {
@@ -270,10 +270,14 @@ body {
   margin: 0 auto;
 }
 
-.view {
+.app-view {
   width: min-content;
   transform-origin: top left;
   height: 100%;
+  /* speeds up autoscales css scale transform, some browsers needs this to trigger faster rendering (chrome/webkit)
+   also eliminates scaling artifacts in webkit. Was supposed to eliminate in chrome but does not!*/
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .global-rgb {
