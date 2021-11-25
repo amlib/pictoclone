@@ -24,11 +24,6 @@ export default {
       required: false,
       default: null
     },
-    globalTint: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
     noBorders: {
       type: Boolean,
       required: false,

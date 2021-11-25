@@ -48,7 +48,7 @@ export default {
         renderingClass: 'rendering-quality', // use super sampling 2x or 3x with this
         rgbMode: false,
         setRgbMode: this.setRgbMode,
-        rgbColorHueDeg: computed(() => this.rgbColorHueDeg),
+        rgbColorHueDeg: 0,
         audio: undefined,
         orientation: 0,
         chromeFix: this.getBrowserEngine().match(/(chrome)|(webkit)/) != null,
@@ -62,8 +62,7 @@ export default {
       viewHeight: 1,
       landscapeBreakpointRatio: 18 / 9,
       landscapeConstrainRatio: 26 / 9,
-      portraitConstrainRatio: 8 / 9,
-      rgbColorHue: 0
+      portraitConstrainRatio: 8 / 9
     }
   },
   created: function () {
@@ -116,12 +115,8 @@ export default {
         return false
       }
     },
-    rgbColorHueDeg: function () {
-      if (this.globalValues.rgbMode) {
-        return this.rgbColorHue
-      } else {
-        return colorsCssHueDeg[this.globalValues.userColorIndex]
-      }
+    colorHueDeg: function () {
+      return colorsCssHueDeg[this.globalValues.userColorIndex]
     },
     getScalingFactor: function () {
       const documentRatio = this.documentWidth / this.documentHeight
@@ -146,7 +141,8 @@ export default {
         '--global-cmain': colorsHexMain[colorIndex],
         '--global-cfaded': colorsHexFaded[colorIndex],
         '--global-ss': this.globalValues.superSample,
-        '--global-sf': this.getScalingFactor
+        '--global-sf': this.getScalingFactor,
+        '--global-chd': this.colorHueDeg + 'deg',
       }
 
       if (this.globalValues.autoScale) {
@@ -174,7 +170,7 @@ export default {
     processRgb: function (timestamp) {
       // meant to be used together with a 0.5s transition property on select elements
       if (timestamp - this.rgbAnimationTimestamp > 495) {
-        this.rgbColorHue += 120
+        this.globalValues.rgbColorHueDeg += 120
         this.rgbAnimationTimestamp = timestamp
       }
       if (this.globalValues.rgbMode) {
@@ -187,7 +183,7 @@ export default {
         this.rgbAnimationTimestamp = 0
         this.rgbAnimationRef = requestAnimationFrame(this.processRgb)
       } else {
-        this.rgbColorHue = 0
+        this.globalValues.rgbColorHueDeg = 0
         this.globalValues.rgbMode = false
         window.cancelAnimationFrame(this.rgbAnimationRef)
         this.rgbAnimationRef = undefined
@@ -284,6 +280,10 @@ body {
   will-change: filer;
   transition: filter 0.5s linear;
   /*image-rendering: pixelated;*/
+}
+
+.global-color-hue-tint {
+  filter: hue-rotate(var(--global-chd));
 }
 
 .pixel-rendering {

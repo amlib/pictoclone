@@ -11,9 +11,9 @@
           {{ option.description }}
         </div>
       </template>
-      <w-button class="toggle-switch-button" :plate-padding="2" expand-plate :style="getButtonStyle"
+      <w-button class="toggle-switch-button global-color-hue-tint" :plate-padding="2" expand-plate :style="getButtonStyle"
                 normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                @click="toggle" global-tint>
+                @click="toggle">
       </w-button>
     </div>
   </w-plate>

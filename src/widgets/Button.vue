@@ -2,7 +2,7 @@
   <button :style="buttonStyle" :disabled="disabled"
       :class="['button', clicking || toggled ? activeClass : normalClass]"
       @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="onPointerCancel" @pointerleave="onPointerLeave">
-    <w-plate v-if="normalTile" :global-tint="globalTint" :notch="plateNotch"
+    <w-plate v-if="normalTile" :notch="plateNotch"
              :tile-name="toggled || clicking ? activeTile : normalTile"
              :padding="platePadding" :class="['button-plate',
              expandPlate && 'plate-expand']">
@@ -50,11 +50,6 @@ export default {
       type: String,
       required: false,
       default: ''
-    },
-    globalTint: {
-      type: Boolean,
-      required: false,
-      default: false
     },
     toggled: {
       type: Boolean,

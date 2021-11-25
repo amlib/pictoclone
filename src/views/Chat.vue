@@ -1,15 +1,15 @@
 <template>
   <div class="main">
     <div class="button-bar">
-      <div class="button-bar-wrapper">
+      <div :class="['button-bar-wrapper', 'global-color-hue-tint', $global.rgbMode && 'global-rgb']" :style="rgbStyle">
         <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                  @click="onClose" audio-feedback global-tint>
+                  @click="onClose" audio-feedback>
           ✖
         </w-button>
         <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                  @click="toggleFullscreen" audio-feedback global-tint>
+                  @click="toggleFullscreen" audio-feedback>
           <span style="padding-left: calc(0.5px * var(--global-ss))">↕</span>
         </w-button>
       </div>

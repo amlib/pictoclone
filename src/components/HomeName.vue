@@ -3,13 +3,12 @@
     <text-input v-model="userName" class="name-field" ref="text-input"/>
     <div class="keyboard-wrapper">
       <div class="keyboard-buttons-wrapper">
-        <w-button-toggle class="keyboard-buttons-toggle" v-model="keyboardMode"
+        <w-button-toggle class="keyboard-buttons-toggle global-color-hue-tint" v-model="keyboardMode"
                          :common-options="{
           'normal-tile': 'beveled-button',
           'active-tile': 'beveled-button-highlight',
           'plate-padding': 2,
           'audio-feedback': true,
-          'global-tint': true,
           'icon-prefix-highlight': 'icon-normal' }"
                          :options="[
           { icon: 'romaji', name: 'romaji' },
