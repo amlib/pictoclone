@@ -226,7 +226,7 @@ export default {
   flex-direction: column;
   flex-grow: 1;
   user-select: none;
-  touch-action: none;
+  touch-action: pinch-zoom;
   overflow-y: hidden;
   will-change: scroll-position, contents;
   /*scroll-behavior: smooth;*/

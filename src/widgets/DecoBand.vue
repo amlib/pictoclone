@@ -77,6 +77,7 @@ export default {
 .tile { /* 8x16 tile */
   width: calc(8px * var(--global-ss));
   height: calc(16px * var(--global-ss));
+  background-size: calc(8px * var(--global-ss));
 }
 
 .half-tile { /* which is actually 8x8 */

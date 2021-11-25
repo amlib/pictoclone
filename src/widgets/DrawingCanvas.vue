@@ -682,7 +682,7 @@ export default {
 }
 
 .canvas {
-  touch-action: none; /* will keep screen from zooming or panning when touching in mobile */
+  touch-action: pinch-zoom; /* will keep screen from zooming or panning when touching in mobile */
 }
 
 .canvas-buffer {

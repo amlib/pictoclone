@@ -303,7 +303,7 @@ export default {
 <style scoped>
 .keyboard {
   user-select: none;
-  touch-action: none;
+  touch-action: pinch-zoom;
   display: flex;
   position: relative; /* necessary to make symbol dragging absolute positioning work! */
   flex-direction: column;

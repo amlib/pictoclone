@@ -31,7 +31,7 @@ export default {
     let isTouchScreen = this.isTouchScreen()
     return {
       globalValues: {
-        superSample: 3,
+        superSample: isTouchScreen ? 2 : 3,
         setSuperSample: this.setSuperSample,
         autoScale: true,
         mobileAssists: isTouchScreen,
@@ -74,6 +74,7 @@ export default {
       const appEl = document.getElementById('app')
       if (this.globalValues.autoScale) {
         appEl.classList.add('app-overflow')
+        appEl.scroll(0,0)
       } else {
         appEl.classList.remove('app-overflow')
       }

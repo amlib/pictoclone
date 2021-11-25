@@ -78,7 +78,11 @@ export default {
       const renderingClass = this.$global.renderingClass
       const superSamplingOptionsCopy = cloneDeep(options.superSampling)
       if (renderingClass === 'rendering-quality') {
-        superSamplingOptionsCopy[2].recommended = true
+        if (this.$global.isTouchScreen) {
+          superSamplingOptionsCopy[1].recommended = true
+        } else {
+          superSamplingOptionsCopy[2].recommended = true
+        }
       } else if (renderingClass === 'rendering-pixel') {
         superSamplingOptionsCopy[1].recommended = true
       }
