@@ -199,6 +199,7 @@ export default {
   flex-direction: column;
   height: 100%;
   position: relative;
+  overflow-x: hidden;
 }
 
 .landscape .background {

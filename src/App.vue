@@ -120,6 +120,9 @@ export default {
       return colorsCssHueDeg[this.globalValues.userColorIndex]
     },
     getScalingFactor: function () {
+      if (!this.globalValues.autoScale) {
+        return 1
+      }
       const documentRatio = this.documentWidth / this.documentHeight
       if (this.isLandscape) {
         return this.documentWidth / this.appViewWidth * Math.min((this.landscapeConstrainRatio / documentRatio), 1)
