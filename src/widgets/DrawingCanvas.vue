@@ -387,6 +387,7 @@ export default {
       let stackLoopCount = 0
       let stackLoopSkip = 2
       let matchedAcc = 0
+      let previousMatchedX = 0
       while (stack.length > 0) {
         const matchedX = stack.pop()
         const currentLineY = stack.pop()
@@ -452,8 +453,8 @@ export default {
             }
           }
 
-          this.$emit('flood-move', { pixelsFilled: matchedX.length, width: width })
-
+          this.$emit('flood-move', { pixelsFilled: matchedX.length === previousMatchedX ? Math.round(Math.random() * width) : matchedX.length, width: width })
+          previousMatchedX = matchedX.length
           do {
             const timestamp = await new Promise(requestAnimationFrame)
             if (timestamp - previousTimestamp > 16) {
