@@ -13,9 +13,6 @@ export default {
       required: true
     }
   },
-  created () {
-    this.colorsHexL2 = colorsHexL2
-  },
   computed: {
     isGlobal: function () {
       return this.entry.payload.color === 'global'
@@ -53,9 +50,5 @@ export default {
   height: calc(2px * var(--global-ss));
   margin-top: calc(2px * var(--global-ss));
   /*margin-bottom: calc(2px * var(--global-ss));*/
-}
-
-.mini-entry-not-visible {
-  background-color: black;
 }
 </style>

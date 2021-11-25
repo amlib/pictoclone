@@ -138,7 +138,6 @@ import { getCanvasBlob, hexToRgb } from '/src/js/Utils'
 //
 //   return imageData;
 // }
-
 import { colorsHexL1, colorsHexL2, colorsHexL3, colorsHexL4 } from '../js/Colors'
 const colorMapCache = {}
 
@@ -308,8 +307,7 @@ const mapper = {
                 // firefox also seems a little bit faster then before... could just be a placebo
                 const finishSlice = async () => {
                   const blob = await getCanvasBlob(canvas)
-                  const url = URL.createObjectURL(blob)
-                  slice.url = url
+                  slice.url = URL.createObjectURL(blob)
                   newImageSlices[slice.alias] = slice
                   if (group.colorVariations && colorIndex === baseColorIndex) {
                     newImageSlices[baseAlias] = slice

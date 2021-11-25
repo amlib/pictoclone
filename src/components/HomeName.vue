@@ -1,6 +1,6 @@
 <template>
   <div :class="['main', faded && 'main-fade']" @transitionend.self="mainTransitionEnd">
-    <text-input v-model="userName" class="name-field" ref="text-input"/>
+    <w-text-input v-model="userName" class="name-field" ref="text-input"/>
     <div class="keyboard-wrapper">
       <div class="keyboard-buttons-wrapper">
         <w-button-toggle class="keyboard-buttons-toggle global-color-hue-tint" v-model="keyboardMode"
@@ -27,11 +27,11 @@
 <script>
 import Keyboard from '/src/components/Keyboard.vue'
 import WButtonToggle from '/src/widgets/ButtonToggle.vue'
-import TextInput from '/src/widgets/TextInput.vue'
+import WTextInput from '/src/widgets/TextInput.vue'
 
 export default {
   name: 'HomeName',
-  components: { TextInput, WButtonToggle, Keyboard },
+  components: { WTextInput, WButtonToggle, Keyboard },
   emits: ['name-selected', 'done', 'back'],
   data: function () {
     return {

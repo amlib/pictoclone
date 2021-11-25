@@ -18,7 +18,6 @@
 </template>
 
 <script>
-import { throttle } from 'lodash'
 import { computed } from 'vue'
 import { colorsHexL1, colorsHexL2, colorsCssHueDeg, colorsHexMain, colorsHexFaded } from '/src/js/Colors'
 import { AudioFX } from '/src/audio'
@@ -67,7 +66,7 @@ export default {
   },
   created: function () {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
-    this.globalValues.audio = new AudioFX(this.globalValues.vibration, !this.globalValues.muted)
+    this.globalValues.audio = new AudioFX(this.globalValues.vibration, this.globalValues.muted ? 0.0 : 1.0)
     this.globalValues.userName = this.getRandomName()
 
     this.$watch(() => this.globalValues.autoScale, () => {

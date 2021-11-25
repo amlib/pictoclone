@@ -41,7 +41,7 @@
 <script>
 import WPlate from '/src/widgets/Plate.vue'
 import WButton from '/src/widgets/Button.vue'
-import { throttle, debounce } from 'lodash'
+import { debounce } from 'lodash'
 import {
   layouts,
   uniqueKeyTile,
@@ -164,11 +164,7 @@ export default {
         this.capsLocked = false
       } else if (key === 'caps' || key === 'katakana') {
         this.capsLocked = !this.capsLocked
-        if (this.capsLocked) {
-          this.shifting = true
-        } else {
-          this.shifting = false
-        }
+        this.shifting = this.capsLocked;
       } else if (key === 'hiragana') {
         this.shifting = false
         this.capsLocked = false

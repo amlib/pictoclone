@@ -22,7 +22,7 @@
 
 <script>
 export default {
-  name: 'TextInput',
+  name: 'WTextInput',
   emits: ['update:modelValue'],
   props: {
     chars: {

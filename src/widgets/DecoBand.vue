@@ -24,7 +24,7 @@
 
 <script>
 export default {
-  name: 'DecoBand',
+  name: 'WDecoBand',
   props: {
     size: {
       type: Number,

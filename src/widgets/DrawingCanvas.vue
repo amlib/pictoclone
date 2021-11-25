@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { asyncSetTimeout, getCanvasBlob, hexToRgb } from '/src/js/Utils'
+import { getCanvasBlob, hexToRgb } from '/src/js/Utils'
 import { rainbowBrushColors } from '/src/js/Colors'
 
 const brushType = 'brush-normal'
@@ -286,21 +286,21 @@ export default {
         return -1
       }
     },
-    imageDataCompareRGBAToPixel(imageData, r1, g1, b1, a1, x2, y2) {
+    imageDataCompareRGBAToPixel(imageData, r1, g1, b1, a1, x, y) {
       const { data, height, width } = imageData
 
-      if (y2 < 0 || y2 > (height - 1) ||
-        x2 < 0 || x2 > (width - 1)) {
+      if (y < 0 || y > (height - 1) ||
+        x < 0 || x > (width - 1)) {
         return -1
       }
 
-      const dataOffset2 = (y2 * width * 4) + (x2 * 4)
-      const p2R = data[dataOffset2]
-      const p2G = data[dataOffset2 + 1]
-      const p2B = data[dataOffset2 + 2]
-      const p2A = data[dataOffset2 + 3]
+      const dataOffset2 = (y * width * 4) + (x * 4)
+      const pR = data[dataOffset2]
+      const pG = data[dataOffset2 + 1]
+      const pB = data[dataOffset2 + 2]
+      const pA = data[dataOffset2 + 3]
 
-      if (r1 === p2R && g1 === p2G && b1 === p2B && a1 === p2A) {
+      if (r1 === pR && g1 === pG && b1 === pB && a1 === pA) {
         return dataOffset2
       } else {
         return -1
@@ -382,7 +382,6 @@ export default {
       // stack is a pair of y coord and a list of x coords matched/to test
       const stack = [startY, [startX]]
 
-      let rainbowBrushColorIndex = 0
       let previousTimestamp = 0
       let stackLoopCount = 0
       let stackLoopSkip = 2
@@ -702,11 +701,5 @@ export default {
   bottom: 0;
   pointer-events: none;
   /*visibility: hidden;*/
-}
-
-.brush-image {
-  display: none;
-  position: absolute;
-  line-height: 0;
 }
 </style>

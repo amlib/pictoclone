@@ -13,9 +13,9 @@ export class AudioFX {
   zipSampleBundle = true
 
   constructor (vibrationStrength = 120, volume = 1.0) {
-    this.vibrationStrength = 120
-    this.volume = 1.0
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)()
+    this.vibrationStrength = vibrationStrength
+    this.volume = volume
+    this.audioContext = new window.AudioContext()
   }
 
   resume () {
