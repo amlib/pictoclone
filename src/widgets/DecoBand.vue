@@ -88,8 +88,8 @@ export default {
 .text {
   position: absolute;
   /* top is dynamic */
-  left: calc(16px * var(--global-ss));
-  right: calc(16px * var(--global-ss));
+  left: calc(20px * var(--global-ss));
+  right: calc(22px * var(--global-ss));
   transform: rotate(45deg);
   white-space: nowrap;
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="background" :style="componentStyle">
     <w-deco-band v-if="$global.showGithubLink" :size="4" :class="['deco-band', view !== 'name' && 'deco-band-fade']">
-      <a href="https://github.com/amlib/pictoclone" target="_blank" class="deco-band-link">Fork-me!</a>
+      <a href="https://github.com/amlib/pictoclone" target="_blank" class="deco-band-link">Fork me!</a>
     </w-deco-band>
     <div class="top">
       {{ views[view].topHint }}
@@ -324,7 +324,7 @@ export default {
 }
 
 .deco-band-link {
-  color: white;
+  color: #eeeeee;
   text-decoration: none;
 }
 </style>

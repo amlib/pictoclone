@@ -1,11 +1,4 @@
-const errors = [
-  'ERROR_MESSAGE_RESULT_TIMEOUT',
-  'ERROR_MESSAGE_RESULT_NO_PROMISE',
-  'ERROR_MESSAGE_RESULT_EXPIRED',
-  'ERROR_MESSAGE_UNIMPLEMENTED_MESSAGE_TYPE'
-]
-
-import { messageTypesStr, messageTypesInt } from '../audio/enums.js'
+import { messageTypesStr, messageTypesInt, errorsStr, errorsInt } from './enums.js'
 
 export class ChatClient {
   socket
@@ -25,16 +18,16 @@ export class ChatClient {
     this.socket = new WebSocket("ws://localhost:9001")
     this.socket.onmessage = (event) => { this.handleMessage(event) }
     this.newConnectionPromise = new Promise((resolve, reject) => {
-      this.messageResultPromiseAdd('newConnectionResult', resolve, reject)
+      this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), resolve, reject)
     })
 
-    this.handleMessageMap.set('createRoomResult', this.handleCreateRoomResult)
-    this.handleMessageMap.set('connectRoomResult', this.handleConnectRoomResult)
-    this.handleMessageMap.set('sendChatMessageResult', this.handleSendChatMessageResult)
-    this.handleMessageMap.set('newConnectionResult', this.handleNewConnection)
+    this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_CREATE_ROOM_RESULT'), this.handleCreateRoomResult)
+    this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_CONNECT_ROOM_RESULT'), this.handleConnectRoomResult)
+    this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE_RESULT'), this.handleSendChatMessageResult)
+    this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), this.handleNewConnection)
 
-    this.handleMessageMap.set('genericError', this.handleGenericError)
-    this.handleMessageMap.set('receiveChatMessages', this.handleReceiveChatMessages)
+    this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_GENERIC_ERROR'), this.handleGenericError)
+    this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_RECEIVE_CHAT_MESSAGES'), this.handleReceiveChatMessages)
   }
 
   onOpen (callback) {
@@ -60,7 +53,7 @@ export class ChatClient {
       const currentPromise = this.messageResultPromiseBank.get(messageType)
       if (currentPromise.timestamp === timestamp) {
         this.messageResultPromiseBank.delete(messageType)
-        const e = new Error('messageResultPromiseAdd: a promise for ' + messageType + ' has expired, timing out!')
+        const e = new Error(`messageResultPromiseAdd: a promise for ${messageTypesInt.get(messageType)} (${messageType}) has expired, timing out!`)
         e.name = 'ERROR_MESSAGE_RESULT_TIMEOUT'
         reject(e)
       }
@@ -76,12 +69,12 @@ export class ChatClient {
   }
 
   messageResultPromiseArrived (messageType) {
-    if (messageType.match('Result$') == null) {
+    if (messageTypesInt.get(messageType).match('_RESULT$') == null) {
       return null
     }
 
     if (!this.messageResultPromiseBank.has(messageType)) {
-      const e = new Error('messageResultPromiseArrived: no promises for message type: ' + messageType)
+      const e = new Error(`messageResultPromiseArrived: no promises for message type: ${messageTypesInt.get(messageType)} (${messageType})`)
       e.name = 'ERROR_MESSAGE_RESULT_NO_PROMISE'
       throw e
     }
@@ -91,7 +84,7 @@ export class ChatClient {
     clearTimeout(promise.timeout)
 
     if (promise.status === 'arrived') {
-      const e = new Error('messageResultPromiseArrived: already processed for message type: ' + messageType)
+      const e = new Error(`messageResultPromiseArrived: already processed for message type: ${messageTypesInt.get(messageType)} (${messageType})`)
       e.name = 'ERROR_MESSAGE_RESULT_EXPIRED'
       throw e
     }
@@ -116,8 +109,8 @@ export class ChatClient {
         code: code
       }
 
-      this.sendMessage('createRoom', message)
-      this.messageResultPromiseAdd('createRoomResult', resolve, reject)
+      this.sendMessage(messageTypesStr.get('MSG_TYPE_CREATE_ROOM'), message)
+      this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_CREATE_ROOM_RESULT'), resolve, reject)
     })
   }
 
@@ -128,8 +121,8 @@ export class ChatClient {
         userName: username,
       }
 
-      this.sendMessage('connectRoom', message)
-      this.messageResultPromiseAdd('connectRoomResult', resolve, reject)
+      this.sendMessage(messageTypesStr.get('MSG_TYPE_CONNECT_ROOM'), message)
+      this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_CONNECT_ROOM_RESULT'), resolve, reject)
     })
   }
 
@@ -139,8 +132,8 @@ export class ChatClient {
         messagePayload: messagePayload,
       }
 
-      this.sendMessage('sendChatMessage', message)
-      this.messageResultPromiseAdd('sendChatMessageResult', resolve, reject)
+      this.sendMessage(messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE'), message)
+      this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE_RESULT'), resolve, reject)
     })
   }
 
@@ -152,7 +145,7 @@ export class ChatClient {
     const callback = this.handleMessageMap.get(message.type)
     const promise = this.messageResultPromiseArrived(message.type)
     if (callback != null) {
-      console.log('handleMessage:', message.type)
+      console.log('handleMessage:', messageTypesInt.get(message.type))
       if (promise == null) {
         callback.call(this, message)
       } else {
