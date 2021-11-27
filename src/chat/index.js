@@ -207,8 +207,8 @@ export class ChatClient {
   }
 
   errorFromMessage (message) {
-    const e = new Error(message.errorMessage != null ? message.errorMessage : message.errorCode)
-    e.name = message.errorCode
+    const e = new Error(message.errorMessage != null ? message.errorMessage : `${errorsInt.get(message.errorCode)} (${message.errorCode})`)
+    e.name = errorsInt.get(message.errorCode)
     return e
   }
 }
