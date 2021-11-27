@@ -648,6 +648,7 @@ export default {
 
       return {
         url: URL.createObjectURL(blob), // TODO revoke!!!
+        blob: blob,
         ...imageData
       }
     },

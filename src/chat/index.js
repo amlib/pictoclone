@@ -14,20 +14,32 @@ export class ChatClient {
 
   onReceiveChatMessages
 
-  constructor (openCallback) {
-    this.socket = new WebSocket("ws://localhost:9001")
-    this.socket.onmessage = (event) => { this.handleMessage(event) }
-    this.newConnectionPromise = new Promise((resolve, reject) => {
-      this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), resolve, reject)
-    })
-
+  constructor () {
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_CREATE_ROOM_RESULT'), this.handleCreateRoomResult)
+    this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_LEAVE_ROOM_RESULT'), this.handleLeaveRoomResult)
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_CONNECT_ROOM_RESULT'), this.handleConnectRoomResult)
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE_RESULT'), this.handleSendChatMessageResult)
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), this.handleNewConnection)
 
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_GENERIC_ERROR'), this.handleGenericError)
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_RECEIVE_CHAT_MESSAGES'), this.handleReceiveChatMessages)
+  }
+
+  startConnection () {
+    this.socket = new WebSocket("ws://localhost:9001")
+    this.socket.onmessage = (event) => { this.handleMessage(event) }
+    this.newConnectionPromise = new Promise((resolve, reject) => {
+      this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), resolve, reject)
+    })
+  }
+
+  endConnection () {
+    this.socket.close()
+    this.onReceiveChatMessages = undefined
+
+    this.roomConnected = undefined
+    this.roomCode = undefined
+    this.uniqueId = undefined
   }
 
   onOpen (callback) {
@@ -94,7 +106,7 @@ export class ChatClient {
     return promise
   }
 
-  /* Outgoing message */
+  /* Outgoing message handlers */
 
   sendMessage (type, response) {
     console.log('sendMessage: ', type)
@@ -111,6 +123,16 @@ export class ChatClient {
 
       this.sendMessage(messageTypesStr.get('MSG_TYPE_CREATE_ROOM'), message)
       this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_CREATE_ROOM_RESULT'), resolve, reject)
+    })
+  }
+
+  sendLeaveRoom () {
+    return new Promise((resolve, reject) => {
+      const message = {
+      }
+
+      this.sendMessage(messageTypesStr.get('MSG_TYPE_LEAVE_ROOM'), message)
+      this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_LEAVE_ROOM_RESULT'), resolve, reject)
     })
   }
 
@@ -137,7 +159,7 @@ export class ChatClient {
     })
   }
 
-  /* Incoming messages */
+  /* Incoming messages handlers */
 
   handleMessage (event) {
     console.log('handleMessage:', event.data)
@@ -167,6 +189,14 @@ export class ChatClient {
     }
   }
 
+  handleLeaveRoomResult (promise, message) {
+    if (message.success) {
+      promise.resolve()
+    } else {
+      promise.reject(this.errorFromMessage(message))
+    }
+  }
+
   handleConnectRoomResult (promise, message) {
     if (message.success) {
       console.log("connected to room", message.code)
@@ -174,7 +204,6 @@ export class ChatClient {
       this.roomConnected = true
       promise.resolve()
     } else {
-      console.log("could not connect to room", message.reason)
       this.roomCode = message.code
       this.roomConnected = false
       promise.reject(this.errorFromMessage(message))

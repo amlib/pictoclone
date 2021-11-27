@@ -4,7 +4,7 @@
       <div :class="['button-bar-wrapper', 'global-color-hue-tint', $global.rgbMode && 'global-rgb']" :style="rgbStyle">
         <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                  @click="testChat" audio-feedback>
+                  @click="onClose" audio-feedback>
           ✖
         </w-button>
         <w-button :plate-padding="0" class="more-button"
@@ -159,6 +159,8 @@ export default {
     this.keyboardModeClickCallbacks = [
       click, click, click, click, click // click
     ]
+
+    this.connect()
   },
   mounted: function () {
     this.mounted = true
@@ -184,9 +186,10 @@ export default {
     }
   },
   methods: {
-    testChat: function () {
+    connect: function () {
       try {
-        const chatClient = new ChatClient()
+        const chatClient = this.$global.chatClient
+        chatClient.startConnection()
         chatClient.onOpen(async (newConnectionPromise) => {
           await newConnectionPromise
           try {
@@ -198,10 +201,6 @@ export default {
           }
 
           await chatClient.sendConnectRoom(555, this.$global.userName)
-          await chatClient.sendChatMessage({
-            text: 'test message text from user ' + this.$global.userName +' rand ' + Math.round(Math.random() * 10000),
-            timestamp: Date.now()
-          })
         })
 
         chatClient.onReceiveChatMessages = (newMessages) => {
@@ -237,15 +236,25 @@ export default {
       try {
         const payload = await this.$refs['user-message'].getMessage()
 
+        this.$refs['user-message'].clearDrawing()
+        this.$global.audio.playProgram('pc-send')
+
+        // await this.$global.chatClient.sendChatMessage({
+        //   width: payload.width,
+        //   height: payload.height,
+        //   timestamp: Date.now()
+        // }, payload.blob)
+
+        await this.$global.chatClient.sendChatMessage({
+          text: 'test message text from user ' + this.$global.userName +' rand ' + Math.round(Math.random() * 10000),
+          timestamp: Date.now()
+        })
+
+        payload.blob = undefined
         const entry = {
           type: 'message',
           payload: payload
         }
-
-        this.$refs['user-message'].clearDrawing()
-
-        // fake send
-        this.$global.audio.playProgram('pc-send')
         this.$refs.queue.addEntry(entry)
       } catch (e) {
         if (e.message === 'empty') {

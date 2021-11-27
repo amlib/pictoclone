@@ -21,6 +21,7 @@
 import { computed } from 'vue'
 import { colorsHexL1, colorsHexL2, colorsCssHueDeg, colorsHexMain, colorsHexFaded } from '/src/js/Colors'
 import { AudioFX } from '/src/audio'
+import { ChatClient } from '/src/chat'
 import tileMap from '/tilemap.png'
 import { pokeNames, sillyLoadingMessages } from './js/Strings'
 
@@ -51,7 +52,8 @@ export default {
         audio: undefined,
         orientation: 0,
         chromeFix: this.getBrowserEngine().match(/(chrome)/) != null,
-        showGithubLink: true
+        showGithubLink: true,
+        chatClient: new ChatClient()
       },
       loading: true,
       coldStart: true,
