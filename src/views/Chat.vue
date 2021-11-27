@@ -4,7 +4,7 @@
       <div :class="['button-bar-wrapper', 'global-color-hue-tint', $global.rgbMode && 'global-rgb']" :style="rgbStyle">
         <w-button :plate-padding="0" class="more-button"
                   normal-tile="beveled-button" active-tile="beveled-button-highlight"
-                  @click="onClose" audio-feedback>
+                  @click="testChat" audio-feedback>
           ✖
         </w-button>
         <w-button :plate-padding="0" class="more-button"
@@ -122,6 +122,8 @@ const brushSizes = {
   'brush-small': 1
 }
 
+import { ChatClient } from '../chat'
+
 export default {
   name: 'Chat',
   components: { MessageDraw, ChatQueue, Keyboard, WButtonToggle, WPlate, WButton },
@@ -182,6 +184,33 @@ export default {
     }
   },
   methods: {
+    testChat: function () {
+      try {
+        const chatClient = new ChatClient()
+        chatClient.onOpen(async (newConnectionPromise) => {
+          await newConnectionPromise
+          try {
+            await chatClient.sendCreateRoom(555)
+          } catch (e) {
+            if (e.name !== 'ERROR_ROOM_ALREADY_EXISTS') {
+              throw e
+            }
+          }
+
+          await chatClient.sendConnectRoom(555, this.$global.userName)
+          await chatClient.sendChatMessage({
+            text: 'test message text from user ' + this.$global.userName +' rand ' + Math.round(Math.random() * 10000),
+            timestamp: Date.now()
+          })
+        })
+
+        chatClient.onReceiveChatMessages = (newMessages) => {
+          console.log('got new messages!', newMessages)
+        }
+      } catch (e) {
+        console.log(e.name, e.message)
+      }
+    },
     handleKeyPress: function (key) {
       this.$refs['user-message'].keyPress(key)
     },
