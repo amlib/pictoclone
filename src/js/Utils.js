@@ -42,4 +42,15 @@ const getPngDimensions = function (uint8png) {
 
 const asyncSetTimeout = delay => new Promise(resolve => setTimeout(resolve, delay))
 
-export { getCanvasBlob, asyncSetTimeout, hexToRgb, getPngDimensions }
+const decimalToHex = function (d, padding) {
+  var hex = Number(d).toString(16);
+  padding = typeof (padding) === "undefined" || padding === null ? padding = 2 : padding;
+
+  while (hex.length < padding) {
+    hex = "0" + hex;
+  }
+
+  return hex;
+}
+
+export { getCanvasBlob, asyncSetTimeout, hexToRgb, getPngDimensions, decimalToHex }

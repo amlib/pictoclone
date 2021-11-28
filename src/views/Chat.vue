@@ -212,12 +212,12 @@ export default {
             const pngDimensions = getPngDimensions(message.image)
             if (pngDimensions == null) {
               console.warn('discarding malformed message')
-              break
+              continue
             }
 
             if (pngDimensions.width > messageWidth || pngDimensions > messageHeight) {
               console.warn('discarding malformed message')
-              break
+              continue
             }
 
             const blob = new Blob([message.image], { type: 'image/png' })

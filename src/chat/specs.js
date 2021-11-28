@@ -36,7 +36,8 @@ const errorsStr = new Map([
   ['ERROR_ROOM_DOES_NOT_EXISTS', 21],
   ['ERROR_ROOM_NO_FREE_SLOTS', 22],
   ['ERROR_ROOM_USER_ALREADY_TAKEN', 23],
-  ['ERROR_ROOM_NOT_IN_ANY_ROOM', 24]
+  ['ERROR_ROOM_NOT_IN_ANY_ROOM', 24],
+  ['ERROR_CHAT_MESSAGE_INVALID_IMAGE', 30],
 ])
 
 const errorsInt = new Map([...errorsStr].map(x => [x[1], x[0]]))
@@ -158,7 +159,17 @@ const messageTypesDecoder = new Map([
     message.text = string
     view = new DataView(payload, newPayloadOffset)
     const imageSize =  view.getUint32(0)
-    message.image = (new Uint8Array(payload, newPayloadOffset + 4, imageSize)).slice() // without slice arraybuffer would become detached, maybe use SharedArrayBuffer?
+
+    // SharedArrayBuffer keeps buffer from detaching
+    // maybe it yields more performance?
+    const shared = new SharedArrayBuffer(imageSize)
+    const uint8 = new Uint8Array(shared)
+    uint8.set(new Uint8Array(payload, newPayloadOffset + 4, imageSize))
+    message.image = uint8
+
+    // Another way of fixing is using slice()
+    // without slice arraybuffer would become detached
+    // message.image = (new Uint8Array(payload, newPayloadOffset + 4, imageSize)).slice()
     return newPayloadOffset
   }],
   // MSG_TYPE_SEND_CHAT_MESSAGE_RESULT
@@ -197,6 +208,7 @@ const messageTypesDecoder = new Map([
       view = new DataView(payload, currentArrayOffset)
       const imageSize = view.getUint32(0)
       chatMessage.image = new Uint8Array(payload, currentArrayOffset + 4, imageSize)
+      currentArrayOffset = currentArrayOffset + 4 + imageSize
     }
 
     return currentArrayOffset
@@ -375,6 +387,7 @@ const messageTypesEncoder = new Map([
       view = new DataView(payload, currentArrayOffset)
       view.setUint32(0, chatMessage.image.byteLength)
       uint8.set(chatMessage.image, currentArrayOffset + 4)
+      currentArrayOffset = currentArrayOffset + 4 + chatMessage.image.byteLength
     }
 
     return payload

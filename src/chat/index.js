@@ -118,7 +118,7 @@ export class ChatClient {
   /* Base incoming and outgoing message handling */
 
   sendMessage (type, message) {
-    console.log(`sendMessage: ${messageTypesInt.get(type)} (${type})`)
+    import.meta.env.DEV && console.log(`ChatClient.sendMessage: ${messageTypesInt.get(type)} (${type})`)
     message.type = type
     message.uniqueId = this.uniqueId
     this.socket.send(encodeMessage(message))
@@ -128,11 +128,10 @@ export class ChatClient {
     const payload = event.data
     const { message, payloadOffset } = decodeMessageHeader(payload)
     const newOffset = decodeMessage(message, payload, payloadOffset)
-    console.log('handleMessage:', message, payload)
     const callback = this.handleMessageMap.get(message.type)
     const promise = this.messageResultPromiseArrived(message.type)
     if (callback != null) {
-      console.log('handleMessage:', messageTypesInt.get(message.type))
+      import.meta.env.DEV && console.log(`ChatClient.handleMessage: ${messageTypesInt.get(message.type)} (${message.type})`)
       if (promise == null) {
         callback.call(this, message)
       } else {
@@ -192,7 +191,6 @@ export class ChatClient {
 
   handleCreateRoomResult (promise, message) {
     if (message.success) {
-      console.log("created room", promise.contextPayload.code)
       promise.resolve()
     } else {
       promise.reject(this.errorFromMessage(message))
@@ -209,7 +207,7 @@ export class ChatClient {
 
   handleConnectRoomResult (promise, message) {
     if (message.success) {
-      console.log("connected to room", promise.contextPayload.code)
+      import.meta.env.DEV && console.log("ChatClient.handleConnectRoomResult: connected to room", promise.contextPayload.code)
       this.roomCode = message.code
       this.roomConnected = true
       promise.resolve()
@@ -237,13 +235,13 @@ export class ChatClient {
     if (this.onReceiveChatMessages != null) {
       this.onReceiveChatMessages(message.chatMessages)
     } else {
-      console.warn('handleReceiveChatMessages: no handler')
+      import.meta.env.DEV && console.warn('ChatClient.handleReceiveChatMessages: no handler!')
     }
   }
 
   handleGenericError(message) {
     const e = this.errorFromMessage(message)
-    console.log(e.message)
+    import.meta.env.DEV && console.error('ChatClient.handleGenericError:', e)
     throw e
   }
 
