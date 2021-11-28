@@ -168,11 +168,12 @@ export class ChatClient {
     })
   }
 
-  sendConnectRoom (code, username) {
+  sendConnectRoom (code, username, colorIndex) {
     return new Promise((resolve, reject) => {
       const message = {
         code: code,
         userName: username,
+        colorIndex: colorIndex
       }
 
       this.sendMessage(messageTypesStr.get('MSG_TYPE_CONNECT_ROOM'), message)

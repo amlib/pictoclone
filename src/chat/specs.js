@@ -25,6 +25,8 @@ const errorsStr = new Map([
   ['ERROR_GENERIC_ERROR', 0],
   ['ERROR_NO_UNIQUE_ID', 1],
   ['ERROR_INVALID_UNIQUE_ID', 2],
+  ['ERROR_INVALID_USER_NAME', 3],
+  ['ERROR_INVALID_COLOR_INDEX', 4],
   ['ERROR_MESSAGE_RESULT_REJECTED', 10],
   ['ERROR_MESSAGE_RESULT_TIMEOUT', 11],
   ['ERROR_MESSAGE_RESULT_NO_PROMISE', 12],
@@ -39,14 +41,16 @@ const errorsStr = new Map([
 
 const errorsInt = new Map([...errorsStr].map(x => [x[1], x[0]]))
 
-const messageHeaderOffset = 5
+const messageHeaderOffset = 9
+const colorIndexSize = 15
+const nameSize = 10
 
 /* Decoding Stuff */
 
 const decodeMessageHeader = function (payload) {
   const view = new DataView(payload)
   const type = view.getUint8(0)
-  const uniqueId = view.getUint32(1)
+  const uniqueId = Number(view.getBigUint64(1))
   let payloadOffset = messageHeaderOffset
 
   const message = {
@@ -110,7 +114,8 @@ const messageTypesDecoder = new Map([
   [12, function (message, payload, payloadOffset) {
     const view = new DataView(payload, payloadOffset)
     message.code = view.getUint32(0)
-    let { string, newPayloadOffset } = decodeString(payload, payloadOffset + 4)
+    message.colorIndex = view.getUint8(4)
+    let { string, newPayloadOffset } = decodeString(payload, payloadOffset + 5)
     message.userName = string
     return newPayloadOffset
   }],
@@ -175,8 +180,9 @@ const messageTypesDecoder = new Map([
       const view = new DataView(payload, currentArrayOffset)
       const chatMessageSize = view.getUint32(0)
       chatMessage.timestamp = Number(view.getBigInt64(4))
+      chatMessage.colorIndex = view.getUint8(12)
       let string, newPayloadOffset;
-      ({ string, newPayloadOffset } = decodeString(payload, currentArrayOffset + 12))
+      ({ string, newPayloadOffset } = decodeString(payload, currentArrayOffset + 13))
       chatMessage.text = string;
       ({ string, newPayloadOffset } = decodeString(payload, newPayloadOffset))
       chatMessage.userName = string
@@ -192,7 +198,7 @@ const messageTypesDecoder = new Map([
 const encodeMessageHeader = function (message, payload) {
   const view = new DataView(payload)
   view.setUint8(0, message.type)
-  view.setUint32(1, message.uniqueId)
+  view.setBigUint64(1, BigInt(message.uniqueId))
 }
 
 const encodeMessage = function (message) {
@@ -250,11 +256,12 @@ const messageTypesEncoder = new Map([
   }],
   // MSG_TYPE_CONNECT_ROOM
   [12, function (message, headerOffset) {
-    const payload = new ArrayBuffer(headerOffset + 4 + (4 + message.userName.length))
+    const payload = new ArrayBuffer(headerOffset + 5 + (4 + message.userName.length))
     const view = new DataView(payload, headerOffset)
 
     view.setUint32(0, message.code)
-    encodeString(message.userName, payload, headerOffset + 4)
+    view.setUint8(4, message.colorIndex)
+    encodeString(message.userName, payload, headerOffset + 5)
     return payload
   }],
   // MSG_TYPE_CONNECT_ROOM_RESULT
@@ -324,7 +331,7 @@ const messageTypesEncoder = new Map([
     let totalChatMessageSizes = 0
     for (let i = 0; i < message.chatMessages.length; ++i) {
       const chatMessage = message.chatMessages[i]
-      const chatMessageSize = (4) + (8) + (4 + chatMessage.text.length) + (4 + chatMessage.userName.length)
+      const chatMessageSize = (4) + (8) + (1) + (4 + chatMessage.text.length) + (4 + chatMessage.userName.length)
       chatMessageSizes.push(chatMessageSize)
       totalChatMessageSizes += chatMessageSize
     }
@@ -341,7 +348,8 @@ const messageTypesEncoder = new Map([
       const view = new DataView(payload, currentArrayOffset)
       view.setUint32(0, chatMessageSize)
       view.setBigInt64(4, BigInt(chatMessage.timestamp))
-      currentArrayOffset = encodeString(chatMessage.text, payload, currentArrayOffset + 12)
+      view.setUint8(12, chatMessage.colorIndex)
+      currentArrayOffset = encodeString(chatMessage.text, payload, currentArrayOffset + 13)
       currentArrayOffset = encodeString(chatMessage.userName, payload, currentArrayOffset)
     }
 
@@ -352,5 +360,6 @@ const messageTypesEncoder = new Map([
 export {
   messageTypesStr, messageTypesInt, isMessageTypeResult,
   errorsStr, errorsInt,
+  nameSize, colorIndexSize,
   decodeMessageHeader, decodeMessage, encodeMessage
 }
