@@ -201,7 +201,7 @@ export default {
             }
           }
 
-          await chatClient.sendConnectRoom(555, this.$global.userName, this.$global.colorIndex)
+          await chatClient.sendConnectRoom(555, this.$global.userName, this.$global.userColorIndex)
         })
 
         chatClient.onReceiveChatMessages = (newMessages) => {
