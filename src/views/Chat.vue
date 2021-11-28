@@ -123,6 +123,7 @@ const brushSizes = {
 }
 
 import { ChatClient } from '../chat'
+import { getPngDimensions } from '../js/Utils'
 
 export default {
   name: 'Chat',
@@ -205,6 +206,34 @@ export default {
 
         chatClient.onReceiveChatMessages = (newMessages) => {
           console.log('got new messages!', newMessages)
+
+          for (let i = 0; i < newMessages.length; ++i) {
+            const message = newMessages[i]
+            const pngDimensions = getPngDimensions(message.image)
+            if (pngDimensions == null) {
+              console.warn('discarding malformed message')
+              break
+            }
+
+            if (pngDimensions.width > messageWidth || pngDimensions > messageHeight) {
+              console.warn('discarding malformed message')
+              break
+            }
+
+            const blob = new Blob([message.image], { type: 'image/png' })
+
+            const entry = {
+              type: 'message',
+              payload: {
+                user: message.userName,
+                colorIndex: message.colorIndex,
+                width: pngDimensions.width,
+                height: pngDimensions.height,
+                url: URL.createObjectURL(blob)
+              }
+            }
+            this.$refs.queue.addEntry(entry)
+          }
         }
       } catch (e) {
         console.log(e.name, e.message)
@@ -239,14 +268,11 @@ export default {
         this.$refs['user-message'].clearDrawing()
         this.$global.audio.playProgram('pc-send')
 
-        // await this.$global.chatClient.sendChatMessage({
-        //   width: payload.width,
-        //   height: payload.height,
-        //   timestamp: Date.now()
-        // }, payload.blob)
+        const image = await payload.blob.arrayBuffer()
 
         await this.$global.chatClient.sendChatMessage({
           text: 'test message text from user ' + this.$global.userName +' rand ' + Math.round(Math.random() * 10000),
+          image: image,
           timestamp: Date.now()
         })
 

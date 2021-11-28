@@ -1,11 +1,11 @@
 <template>
   <w-plate class="message-area" tile-name="main-drawing-area"
-           :notch="[true, true, true, true]"
+           :notch="[true, true, true, true]" :color-index="messagePayload.colorIndex"
            :stripe-mode="stripe">
     <slot/>
     <div v-if="!noDrawing" class="drawing-area drawing-area-show pixel-rendering" :style="getViewStyle"/>
     <w-plate :class="[isMessageOneSegment && 'fill', 'message-area-user-tag']"
-             tile-name="main-color-background"
+             tile-name="main-color-background" :color-index="messagePayload.colorIndex"
              :notch="[true, false, true, isMessageOneSegment]"
              ref="user-tag">
       <div :style="{ color: colorsHexL3[messagePayload.colorIndex] }">{{ messagePayload.user }}</div>

@@ -44,6 +44,7 @@ const errorsInt = new Map([...errorsStr].map(x => [x[1], x[0]]))
 const messageHeaderOffset = 9
 const colorIndexSize = 15
 const nameSize = 10
+const maxImageSize = 32 * 1024 // TODO use
 
 /* Decoding Stuff */
 
@@ -68,10 +69,10 @@ const decodeMessage = function (message, payload, payloadOffset) {
   return messageTypesDecoder.get(message.type)(message, payload, payloadOffset)
 }
 
-const decodeString = function (payload, payloadOffset) {
+const decodeString = function (payload, payloadOffset, maxSize = null) {
   const view = new DataView(payload, payloadOffset)
   const stringSize = view.getUint32(0)
-  const string = textDec.decode(new Uint8Array(payload, payloadOffset + 4, stringSize))
+  const string = textDec.decode(new Uint8Array(payload, payloadOffset + 4, maxSize != null && stringSize > maxSize ? maxSize : stringSize))
   return {
     string,
     newPayloadOffset: payloadOffset + 4 + stringSize
@@ -127,7 +128,7 @@ const messageTypesDecoder = new Map([
       return 1
     } else {
       message.errorCode = view.getUint8(1)
-      let { string, newPayloadOffset } = decodeString(payload, payloadOffset + 2)
+      let { string, newPayloadOffset } = decodeString(payload, payloadOffset + 2, nameSize * 4)
       message.errorMessage = string
       return newPayloadOffset
     }
@@ -151,10 +152,13 @@ const messageTypesDecoder = new Map([
   }],
   // MSG_TYPE_SEND_CHAT_MESSAGE
   [20, function (message, payload, payloadOffset) {
-    const view = new DataView(payload, payloadOffset)
+    let view = new DataView(payload, payloadOffset)
     message.timestamp = view.getBigInt64(0)
     let { string, newPayloadOffset } = decodeString(payload, payloadOffset + 8)
     message.text = string
+    view = new DataView(payload, newPayloadOffset)
+    const imageSize =  view.getUint32(0)
+    message.image = (new Uint8Array(payload, newPayloadOffset + 4, imageSize)).slice() // without slice arraybuffer would become detached, maybe use SharedArrayBuffer?
     return newPayloadOffset
   }],
   // MSG_TYPE_SEND_CHAT_MESSAGE_RESULT
@@ -164,7 +168,10 @@ const messageTypesDecoder = new Map([
     if (message.success) {
       return 1
     } else {
-      console.warn('unimplemented')
+      message.errorCode = view.getUint8(1)
+      let { string, newPayloadOffset } = decodeString(payload, payloadOffset + 2)
+      message.errorMessage = string
+      return newPayloadOffset
     }
   }],
   // MSG_TYPE_RECEIVE_CHAT_MESSAGES
@@ -177,7 +184,7 @@ const messageTypesDecoder = new Map([
     for (let i = 0; i < chatMessagesLength; ++i) {
       const chatMessage = {}
       message.chatMessages[i] = chatMessage
-      const view = new DataView(payload, currentArrayOffset)
+      let view = new DataView(payload, currentArrayOffset)
       const chatMessageSize = view.getUint32(0)
       chatMessage.timestamp = Number(view.getBigInt64(4))
       chatMessage.colorIndex = view.getUint8(12)
@@ -187,6 +194,9 @@ const messageTypesDecoder = new Map([
       ({ string, newPayloadOffset } = decodeString(payload, newPayloadOffset))
       chatMessage.userName = string
       currentArrayOffset = newPayloadOffset
+      view = new DataView(payload, currentArrayOffset)
+      const imageSize = view.getUint32(0)
+      chatMessage.image = new Uint8Array(payload, currentArrayOffset + 4, imageSize)
     }
 
     return currentArrayOffset
@@ -306,11 +316,15 @@ const messageTypesEncoder = new Map([
   }],
   // MSG_TYPE_SEND_CHAT_MESSAGE
   [20, function (message, headerOffset) {
-    const payload = new ArrayBuffer(headerOffset + 8 + (4 + message.text.length))
-    const view = new DataView(payload, headerOffset)
+    const payload = new ArrayBuffer(headerOffset + 8 + (4 + message.text.length) + (4 + message.image.byteLength))
+    let view = new DataView(payload, headerOffset)
+    const uint8 = new Uint8Array(payload)
 
     view.setBigInt64(0, BigInt(message.timestamp))
-    encodeString(message.text, payload, headerOffset + 8)
+    let newOffset = encodeString(message.text, payload, headerOffset + 8)
+    view = new DataView(payload, newOffset)
+    view.setUint32(0, message.image.byteLength)
+    uint8.set(new Uint8Array(message.image), newOffset + 4)
     return payload
   }],
   // MSG_TYPE_SEND_CHAT_MESSAGE_RESULT
@@ -322,7 +336,13 @@ const messageTypesEncoder = new Map([
       view.setUint8(0, message.success)
       return payload
     } else {
-      console.warn('unimplemented')
+      const payload = new ArrayBuffer(headerOffset + 2 + (4 + message.errorMessage.length))
+      const view = new DataView(payload, headerOffset)
+
+      view.setUint8(0, message.success)
+      view.setUint8(1, message.errorCode)
+      encodeString(message.errorMessage, payload, headerOffset + 2)
+      return payload
     }
   }],
   // MSG_TYPE_RECEIVE_CHAT_MESSAGES
@@ -331,13 +351,14 @@ const messageTypesEncoder = new Map([
     let totalChatMessageSizes = 0
     for (let i = 0; i < message.chatMessages.length; ++i) {
       const chatMessage = message.chatMessages[i]
-      const chatMessageSize = (4) + (8) + (1) + (4 + chatMessage.text.length) + (4 + chatMessage.userName.length)
+      const chatMessageSize = (4) + (8) + (1) + (4 + chatMessage.text.length) + (4 + chatMessage.userName.length) + (4 + chatMessage.image.byteLength)
       chatMessageSizes.push(chatMessageSize)
       totalChatMessageSizes += chatMessageSize
     }
 
     const payload = new ArrayBuffer(headerOffset + 1 + totalChatMessageSizes)
     const view = new DataView(payload, headerOffset)
+    const uint8 = new Uint8Array(payload)
 
     view.setUint8(0, message.chatMessages.length)
 
@@ -345,12 +366,15 @@ const messageTypesEncoder = new Map([
     for (let i = 0; i < message.chatMessages.length; ++i) {
       const chatMessage = message.chatMessages[i]
       const chatMessageSize = chatMessageSizes[i]
-      const view = new DataView(payload, currentArrayOffset)
+      let view = new DataView(payload, currentArrayOffset)
       view.setUint32(0, chatMessageSize)
       view.setBigInt64(4, BigInt(chatMessage.timestamp))
       view.setUint8(12, chatMessage.colorIndex)
       currentArrayOffset = encodeString(chatMessage.text, payload, currentArrayOffset + 13)
       currentArrayOffset = encodeString(chatMessage.userName, payload, currentArrayOffset)
+      view = new DataView(payload, currentArrayOffset)
+      view.setUint32(0, chatMessage.image.byteLength)
+      uint8.set(chatMessage.image, currentArrayOffset + 4)
     }
 
     return payload
@@ -360,6 +384,6 @@ const messageTypesEncoder = new Map([
 export {
   messageTypesStr, messageTypesInt, isMessageTypeResult,
   errorsStr, errorsInt,
-  nameSize, colorIndexSize,
+  nameSize, colorIndexSize, maxImageSize,
   decodeMessageHeader, decodeMessage, encodeMessage
 }
