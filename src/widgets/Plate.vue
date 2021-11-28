@@ -44,6 +44,11 @@ export default {
       type: Number,
       required: false,
       default: null
+    },
+    colorIndex: {
+      type: Number,
+      required: false,
+      default: null
     }
   },
   data: function () {
@@ -66,6 +71,9 @@ export default {
         padding: this.internalPadding + 'px'
       }
     },
+    getColorIndex: function () {
+      return this.colorIndex != null ? this.colorIndex : this.$global.userColorIndex
+    },
     scaledPlateStyle: function () {
       const ss = this.$global.superSample
       // fixes chrome slight tile unaligment (artifacts) issues (due to autoscale css scale transform)
@@ -75,7 +83,7 @@ export default {
 
       if (this.noBorders) {
         const tile = this.tileName + '-center'
-        const img = this.$tileMap(tile, this.$global.userColorIndex)
+        const img = this.$tileMap(tile, this.getColorIndex)
         if (img == null) {
           throw new Error('Could not find tile: ' + tile)
         }
@@ -107,7 +115,7 @@ export default {
             }
 
             const tile = this.tileName + '-' + spec.name + notch + (variant && variant !== '' ? ('-' + variant) : '')
-            const img = this.$tileMap(tile, this.$global.userColorIndex)
+            const img = this.$tileMap(tile, this.getColorIndex)
             if (img == null) {
               throw new Error('Could not find tile: ' + tile)
             }
@@ -173,7 +181,7 @@ export default {
 
       if (this.noBorders) {
         const tile = this.tileName + '-center'
-        const img = this.$tileMap(tile, this.$global.userColorIndex)
+        const img = this.$tileMap(tile, this.getColorIndex)
         if (img == null) {
           throw new Error('Could not find tile: ' + tile)
         }
@@ -192,7 +200,7 @@ export default {
   methods: {
     getSlice: function (alias) {
       const obj = {}
-      const img = this.$tileMap(alias, this.$global.userColorIndex)
+      const img = this.$tileMap(alias, this.getColorIndex)
       if (img == null) {
         return null
       }
