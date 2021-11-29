@@ -209,7 +209,7 @@ export default {
       if (this.keyRepeatInterval) {
         clearInterval(this.keyRepeatInterval)
       }
-      this.keyRepeatInterval = setInterval(() => this.keyUp(key, null, true), 50)
+      this.keyRepeatInterval = setInterval(() => this.keyUp(key, null, true), 75)
     },
     unhighlightTypingBubble: function () {
       this.typingBubbleHighlight = false
