@@ -7,6 +7,7 @@ import {
 export class ChatClient {
   socket
   newConnectionPromise
+  onCloseCallback
 
   messageResultPromiseWrappers = new Map()
   globalTimeout = 5 * 1000
@@ -36,22 +37,38 @@ export class ChatClient {
     }
   }
 
-  startConnection () {
+  startConnection (onCloseCallback) {
     this.socket = new WebSocket("ws://localhost:9001")
     this.socket.binaryType = 'arraybuffer'
+
     this.socket.onmessage = (event) => { this.handleMessage(event) }
+    this.socket.onclose = () => { this.onClose() }
+
+    this.onCloseCallback = onCloseCallback
     this.newConnectionPromise = new Promise((resolve, reject) => {
       this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), resolve, reject)
     })
   }
 
-  endConnection () {
-    this.socket.close()
+  onOpen (callback) {
+    this.socket.onopen = () => {
+      callback(this.newConnectionPromise)
+    }
+  }
+
+  onClose () {
+    this.messageResultPromiseCancel(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'))
     this.onReceiveChatMessages = undefined
 
     this.roomConnected = undefined
     this.roomCode = undefined
     this.uniqueId = undefined
+    this.onCloseCallback()
+  }
+
+  endConnection () {
+    this.socket.close()
+    this.onClose()
   }
 
   /* Message result Promise stuff */
@@ -115,6 +132,25 @@ export class ChatClient {
     return promiseWrapper
   }
 
+  messageResultPromiseCancel (messageType, doReject = false) {
+    const promiseWrapper = this.messageResultPromiseWrappers.get(messageType)
+    if (promiseWrapper != null && promiseWrapper.status === 'pending') {
+      promiseWrapper.status = 'canceled'
+      this.messageResultPromiseWrappers.delete(messageType)
+      clearTimeout(promiseWrapper.timeout)
+      doReject && promiseWrapper.reject()
+    }
+  }
+
+  isAwaitingResult (messageType) {
+    const promiseWrapper = this.messageResultPromiseWrappers.get(messageType)
+    if (promiseWrapper != null && promiseWrapper.status === 'pending') {
+      return true
+    } else {
+      return false
+    }
+  }
+
   /* Base incoming and outgoing message handling */
 
   sendMessage (type, message) {
@@ -146,6 +182,7 @@ export class ChatClient {
 
   /* Specific outgoing message handlers */
 
+  // deprecated
   sendCreateRoom (code) {
     return new Promise((resolve, reject) => {
       const message = {
@@ -169,6 +206,11 @@ export class ChatClient {
 
   sendConnectRoom (code, username, colorIndex) {
     return new Promise((resolve, reject) => {
+      if (this.isAwaitingResult(messageTypesStr.get('MSG_TYPE_CONNECT_ROOM_RESULT'))) {
+        reject()
+        return
+      }
+
       const message = {
         code: code,
         userName: username,
@@ -182,6 +224,10 @@ export class ChatClient {
 
   sendChatMessage (message) {
     return new Promise((resolve, reject) => {
+      if (this.isAwaitingResult(messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE_RESULT'))) {
+        reject()
+        return
+      }
       this.sendMessage(messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE'), message)
       this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE_RESULT'), resolve, reject, message)
     })
@@ -199,6 +245,8 @@ export class ChatClient {
 
   handleLeaveRoomResult (promise, message) {
     if (message.success) {
+      this.roomCode = undefined
+      this.roomConnected = false
       promise.resolve()
     } else {
       promise.reject(this.errorFromMessage(message))
@@ -212,7 +260,7 @@ export class ChatClient {
       this.roomConnected = true
       promise.resolve()
     } else {
-      this.roomCode = message.code
+      this.roomCode = undefined
       this.roomConnected = false
       promise.reject(this.errorFromMessage(message))
     }

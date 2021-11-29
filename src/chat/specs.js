@@ -2,7 +2,7 @@ const textDec = new TextDecoder('utf-8')
 const textEnc = new TextEncoder('utf-8')
 
 // each value in key value pair must be unique!
-const messageTypesStr = new Map([
+const messageTypesStr = Object.freeze(new Map([
   ['MSG_TYPE_GENERIC_ERROR', 0],
   ['MSG_TYPE_NEW_CONNECTION_RESULT', 1],
   ['MSG_TYPE_CREATE_ROOM', 10],
@@ -14,14 +14,28 @@ const messageTypesStr = new Map([
   ['MSG_TYPE_SEND_CHAT_MESSAGE', 20],
   ['MSG_TYPE_SEND_CHAT_MESSAGE_RESULT', 21],
   ['MSG_TYPE_RECEIVE_CHAT_MESSAGES', 30]
-])
+]))
 
-const messageTypesInt = new Map([...messageTypesStr].map(x => [x[1], x[0]]))
+const messageTypesInt = Object.freeze(new Map([...messageTypesStr].map(x => [x[1], x[0]])))
 
-const isMessageTypeResult = new Map([...messageTypesStr].map(x => [ x[1], x[0].match('_RESULT$') != null]))
+const isMessageTypeResult = Object.freeze(new Map([...messageTypesStr].map(x => [ x[1], x[0].match('_RESULT$') != null])))
+
+const maxIncomingPayloadSize = Object.freeze(new Map([
+  [messageTypesStr.get('MSG_TYPE_GENERIC_ERROR'), -1],
+  [messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), -1],
+  [messageTypesStr.get('MSG_TYPE_CREATE_ROOM'), 32],
+  [messageTypesStr.get('MSG_TYPE_CREATE_ROOM_RESULT'), -1],
+  [messageTypesStr.get('MSG_TYPE_CONNECT_ROOM'), 64],
+  [messageTypesStr.get('MSG_TYPE_CONNECT_ROOM_RESULT'), -1],
+  [messageTypesStr.get('MSG_TYPE_LEAVE_ROOM'), 32],
+  [messageTypesStr.get('MSG_TYPE_LEAVE_ROOM_RESULT'), -1],
+  [messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE'), 32 * 1024],
+  [messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE_RESULT'), -1],
+  [messageTypesStr.get('MSG_TYPE_RECEIVE_CHAT_MESSAGES'), -1]
+]))
 
 // each value in key value pair must be unique!
-const errorsStr = new Map([
+const errorsStr = Object.freeze(new Map([
   ['ERROR_GENERIC_ERROR', 0],
   ['ERROR_NO_UNIQUE_ID', 1],
   ['ERROR_INVALID_UNIQUE_ID', 2],
@@ -38,14 +52,14 @@ const errorsStr = new Map([
   ['ERROR_ROOM_USER_ALREADY_TAKEN', 23],
   ['ERROR_ROOM_NOT_IN_ANY_ROOM', 24],
   ['ERROR_CHAT_MESSAGE_INVALID_IMAGE', 30],
-])
+]))
 
-const errorsInt = new Map([...errorsStr].map(x => [x[1], x[0]]))
+const errorsInt = Object.freeze(new Map([...errorsStr].map(x => [x[1], x[0]])))
 
 const messageHeaderOffset = 9
 const colorIndexSize = 15
 const nameSize = 10
-const maxImageSize = 32 * 1024 // TODO use
+const maxImageSize = 32 * 1024
 
 /* Decoding Stuff */
 
@@ -80,7 +94,7 @@ const decodeString = function (payload, payloadOffset, maxSize = null) {
   }
 }
 
-const messageTypesDecoder = new Map([
+const messageTypesDecoder = Object.freeze(new Map([
   // MSG_TYPE_GENERIC_ERROR
   [0, function (message, payload, payloadOffset) {
     const view = new DataView(payload, payloadOffset)
@@ -213,7 +227,7 @@ const messageTypesDecoder = new Map([
 
     return currentArrayOffset
   }],
-])
+]))
 
 /* Encoding stuff */
 
@@ -236,7 +250,7 @@ const encodeString = function (string, payload, payloadOffset) {
   return payloadOffset + 4 + written
 }
 
-const messageTypesEncoder = new Map([
+const messageTypesEncoder = Object.freeze(new Map([
   // MSG_TYPE_GENERIC_ERROR
   [0, function (message, headerOffset) {
     const payload = new ArrayBuffer(headerOffset + 1 + (4 + message.errorMessage.length))
@@ -392,10 +406,10 @@ const messageTypesEncoder = new Map([
 
     return payload
   }],
-])
+]))
 
 export {
-  messageTypesStr, messageTypesInt, isMessageTypeResult,
+  messageTypesStr, messageTypesInt, isMessageTypeResult, maxIncomingPayloadSize,
   errorsStr, errorsInt,
   nameSize, colorIndexSize, maxImageSize,
   decodeMessageHeader, decodeMessage, encodeMessage

@@ -190,22 +190,16 @@ export default {
     connect: function () {
       try {
         const chatClient = this.$global.chatClient
-        chatClient.startConnection()
+        chatClient.startConnection(() => {
+          import.meta.env.DEV && console.log('outside: connection closed')
+        })
         chatClient.onOpen(async (newConnectionPromise) => {
           await newConnectionPromise
-          try {
-            await chatClient.sendCreateRoom(555)
-          } catch (e) {
-            if (e.name !== 'ERROR_ROOM_ALREADY_EXISTS') {
-              throw e
-            }
-          }
-
           await chatClient.sendConnectRoom(555, this.$global.userName, this.$global.userColorIndex)
         })
 
         chatClient.onReceiveChatMessages = (newMessages) => {
-          console.log('got new messages!', newMessages)
+          import.meta.env.DEV && console.log('got new messages!', newMessages)
 
           for (let i = 0; i < newMessages.length; ++i) {
             const message = newMessages[i]
@@ -236,7 +230,7 @@ export default {
           }
         }
       } catch (e) {
-        console.log(e.name, e.message)
+        console.log('general failure:', e)
       }
     },
     handleKeyPress: function (key) {
@@ -264,10 +258,6 @@ export default {
     sendMessage: async function () {
       try {
         const payload = await this.$refs['user-message'].getMessage()
-
-        this.$refs['user-message'].clearDrawing()
-        this.$global.audio.playProgram('pc-send')
-
         const image = await payload.blob.arrayBuffer()
 
         await this.$global.chatClient.sendChatMessage({
@@ -277,15 +267,16 @@ export default {
         })
 
         payload.blob = undefined
+        this.$refs['user-message'].clearDrawing()
+        this.$global.audio.playProgram('pc-send')
+
         const entry = {
           type: 'message',
           payload: payload
         }
         this.$refs.queue.addEntry(entry)
       } catch (e) {
-        if (e.message === 'empty') {
-          this.$global.audio.playProgram('pc-deny')
-        }
+        this.$global.audio.playProgram('pc-deny')
       }
     },
     clearDrawing: function () {
