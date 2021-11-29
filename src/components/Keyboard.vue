@@ -148,7 +148,10 @@ export default {
     },
     keyUp: function (key, event, fromRepeat = false) {
       if (!fromRepeat) {
-        this.startKeyRepeatDebounced.cancel()
+        if (this.startKeyRepeatDebounced != null) {
+          this.startKeyRepeatDebounced.cancel()
+        }
+
         if (this.keyRepeatInterval) {
           clearInterval(this.keyRepeatInterval)
           this.keyRepeatInterval = null
@@ -193,7 +196,10 @@ export default {
       this.$emit('keyboard-key-press', this.getKey(key))
     },
     keyLeave: function () {
-      this.startKeyRepeatDebounced.cancel()
+      if (this.startKeyRepeatDebounced != null) {
+        this.startKeyRepeatDebounced.cancel()
+      }
+
       if (this.keyRepeatInterval) {
         clearInterval(this.keyRepeatInterval)
         this.keyRepeatInterval = null
