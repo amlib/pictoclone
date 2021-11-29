@@ -96,7 +96,6 @@ export default {
       this.denyBlink = true
     },
     mainTransitionEnd: function () {
-      console.log('ended')
       this.denyBlink = false
       this.$refs.main.classList.remove('deny')
     }

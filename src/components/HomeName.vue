@@ -102,7 +102,6 @@ export default {
       this.faded = true
     },
     back: async function () {
-      this.$emit('back')
       this.mainTransitionEndCallback = () => { this.$emit('back') }
       this.faded = true
     }
