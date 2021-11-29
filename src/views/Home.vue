@@ -39,6 +39,7 @@ import WButton from '/src/widgets/Button.vue'
 import HomeName from '/src/components/HomeName.vue'
 import HomeColor from '/src/components/HomeColor.vue'
 import HomeOptions from '/src/components/HomeOptions.vue'
+import HomeLobby from '../components/HomeLobby.vue'
 
 import { shallowRef } from 'vue'
 import { throttle } from 'lodash'
@@ -56,12 +57,22 @@ const views = {
   options: {
     component: shallowRef(HomeOptions),
     topHint: 'Please customize the experience'
+  },
+  lobby: {
+    component: shallowRef(HomeLobby),
+    topHint: 'Please choose a room to connect'
   }
 }
 
 export default {
   name: 'Home',
   components: { WDecoBand, WButton },
+  props: {
+    loadView: {
+      type: String,
+      default: 'name'
+    }
+  },
   data: function () {
     return {
       view: undefined,
@@ -101,7 +112,7 @@ export default {
     }
   },
   created: function () {
-    this.view = 'name'
+    this.view = this.loadView
     // throttle definitions moved from mounted to here because they break when building production version in vite (!?)
     this.onBackThrottled = throttle(this.onBack, 666, { leading: true })
     this.onDoneThrottled = throttle(this.onDone, 666, { leading: true })
@@ -140,7 +151,13 @@ export default {
     },
     goToChat: function () {
       this.$global.audio.playProgram('pc-enter')
-      this.$router.replace('/chat')
+      const chatClient = this.$global.chatClient
+      this.$router.replace({
+        name: 'Chat',
+        query: {
+          r: chatClient && chatClient.connected ? chatClient.roomCode : undefined
+        }
+      })
     },
     onDoneCompleted: function () {
       if (this.view === 'name') {
@@ -148,10 +165,18 @@ export default {
       } else if (this.view === 'color') {
         this.view = 'options'
       } else if (this.view === 'options') {
+        this.view = 'lobby'
+      } else if (this.view === 'lobby') {
         this.goToChat()
         return
       }
 
+      this.$router.replace({
+        name: 'Home',
+        query: {
+          v: this.view
+        }
+      })
       this.$refs.middle.scrollTo(0, 0)
       this.onMiddleScrollThrottled()
     },
@@ -162,8 +187,16 @@ export default {
         this.view = 'name'
       } else if (this.view === 'options') {
         this.view = 'color'
+      } else if (this.view === 'lobby') {
+        this.view = 'options'
       }
 
+      this.$router.replace({
+        name: 'Home',
+        query: {
+          v: this.view
+        }
+      })
       this.onMiddleScrollThrottled()
     },
     onMiddleScroll: function () {

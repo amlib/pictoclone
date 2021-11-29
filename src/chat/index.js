@@ -6,7 +6,8 @@ import {
 
 export class ChatClient {
   socket
-  newConnectionPromise
+  connected
+  onOpenCallback
   onCloseCallback
 
   messageResultPromiseWrappers = new Map()
@@ -16,7 +17,6 @@ export class ChatClient {
   roomCode
   roomConnected
   uniqueId
-
   onReceiveChatMessages
 
   constructor () {
@@ -29,46 +29,48 @@ export class ChatClient {
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE_RESULT'), this.handleSendChatMessageResult)
 
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_RECEIVE_CHAT_MESSAGES'), this.handleReceiveChatMessages)
+    this.connected = false
   }
 
-  onOpen (callback) {
-    this.socket.onopen = () => {
-      callback(this.newConnectionPromise)
-    }
+  onOpen () {
+    this.connected = true
+    this.onOpenCallback && this.onOpenCallback()
   }
 
-  startConnection (onCloseCallback) {
+  startConnection (onOpenCallback, onCloseCallback) {
     this.socket = new WebSocket("ws://localhost:9001")
     this.socket.binaryType = 'arraybuffer'
 
     this.socket.onmessage = (event) => { this.handleMessage(event) }
+    this.socket.onopen = () => { this.onOpen() }
     this.socket.onclose = () => { this.onClose() }
 
+    this.onOpenCallback = onOpenCallback
     this.onCloseCallback = onCloseCallback
-    this.newConnectionPromise = new Promise((resolve, reject) => {
+
+    return new Promise((resolve, reject) => {
       this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), resolve, reject)
     })
   }
 
-  onOpen (callback) {
-    this.socket.onopen = () => {
-      callback(this.newConnectionPromise)
-    }
+  endConnection () {
+    this.socket.close()
   }
 
   onClose () {
+    // TODO cancel all promises?
     this.messageResultPromiseCancel(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'))
     this.onReceiveChatMessages = undefined
 
+    this.connected = false
     this.roomConnected = undefined
     this.roomCode = undefined
     this.uniqueId = undefined
-    this.onCloseCallback()
-  }
 
-  endConnection () {
-    this.socket.close()
-    this.onClose()
+    this.onCloseCallback && this.onCloseCallback()
+
+    this.onOpenCallback = undefined
+    this.onCloseCallback = undefined
   }
 
   /* Message result Promise stuff */
@@ -217,8 +219,12 @@ export class ChatClient {
         colorIndex: colorIndex
       }
 
+      const resultContext = {
+        code: code
+      }
+
       this.sendMessage(messageTypesStr.get('MSG_TYPE_CONNECT_ROOM'), message)
-      this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_CONNECT_ROOM_RESULT'), resolve, reject, message)
+      this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_CONNECT_ROOM_RESULT'), resolve, reject, message, resultContext)
     })
   }
 
@@ -256,7 +262,7 @@ export class ChatClient {
   handleConnectRoomResult (promise, message) {
     if (message.success) {
       import.meta.env.DEV && console.log("ChatClient.handleConnectRoomResult: connected to room", promise.contextPayload.code)
-      this.roomCode = message.code
+      this.roomCode = promise.contextPayload.code
       this.roomConnected = true
       promise.resolve()
     } else {

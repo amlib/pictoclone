@@ -128,6 +128,13 @@ import { getPngDimensions } from '../js/Utils'
 export default {
   name: 'Chat',
   components: { MessageDraw, ChatQueue, Keyboard, WButtonToggle, WPlate, WButton },
+  props: {
+    roomCode: {
+      type: String,
+      required: false,
+      default: null
+    }
+  },
   data: function () {
     return {
       keyboardMode: 'romaji',
@@ -160,14 +167,26 @@ export default {
     this.keyboardModeClickCallbacks = [
       click, click, click, click, click // click
     ]
-
-    this.connect()
   },
   mounted: function () {
     this.mounted = true
+    const chatClient = this.$global.chatClient
+
+    if (this.roomCode == null) {
+      console.log('no room code!')
+    }
+
+    if (!chatClient.connected) {
+      import.meta.env.DEV && console.log('Chat.vue: not connected!')
+      this.connect()
+    } else {
+      this.restoreChatHandlers()
+    }
   },
   beforeUnmount: function () {
     this.mounted = false
+    const chatClient = this.$global.chatClient
+    chatClient.connected && chatClient.endConnection()
 
     if (document.fullscreenElement) {
       if (document.exitFullscreen) {
@@ -187,51 +206,35 @@ export default {
     }
   },
   methods: {
-    connect: function () {
+    connect: async function () {
       try {
         const chatClient = this.$global.chatClient
-        chatClient.startConnection(() => {
-          import.meta.env.DEV && console.log('outside: connection closed')
-        })
-        chatClient.onOpen(async (newConnectionPromise) => {
-          await newConnectionPromise
-          await chatClient.sendConnectRoom(555, this.$global.userName, this.$global.userColorIndex)
-        })
-
-        chatClient.onReceiveChatMessages = (newMessages) => {
-          import.meta.env.DEV && console.log('got new messages!', newMessages)
-
-          for (let i = 0; i < newMessages.length; ++i) {
-            const message = newMessages[i]
-            const pngDimensions = getPngDimensions(message.image)
-            if (pngDimensions == null) {
-              console.warn('discarding malformed message')
-              continue
-            }
-
-            if (pngDimensions.width > messageWidth || pngDimensions > messageHeight) {
-              console.warn('discarding malformed message')
-              continue
-            }
-
-            const blob = new Blob([message.image], { type: 'image/png' })
-
-            const entry = {
-              type: 'message',
-              payload: {
-                user: message.userName,
-                colorIndex: message.colorIndex,
-                width: pngDimensions.width,
-                height: pngDimensions.height,
-                url: URL.createObjectURL(blob)
-              }
-            }
-            this.$refs.queue.addEntry(entry)
-          }
+        if (chatClient.connected) {
+          return
         }
+
+        await chatClient.startConnection()
+
+        // TODO remove usage of Number()
+        await chatClient.sendConnectRoom(Number(this.roomCode), this.$global.userName, this.$global.userColorIndex)
+        this.restoreChatHandlers()
       } catch (e) {
+        // TODO handle
         console.log('general failure:', e)
       }
+    },
+    restoreChatHandlers: function () {
+      const chatClient = this.$global.chatClient
+
+      chatClient.onOpenCallback = () => {
+        console.log('re-connected!!')
+        // TODO do something when re-connected?
+      }
+      chatClient.onCloseCallback = () => {
+        console.log('disconnected!!')
+        // TODO do something when disconnected
+      }
+      chatClient.onReceiveChatMessages = this.handleReceiveChatMessages
     },
     handleKeyPress: function (key) {
       this.$refs['user-message'].keyPress(key)
@@ -255,13 +258,45 @@ export default {
         this.$refs['user-message'].pasteFromMessage(message)
       }
     },
+    handleReceiveChatMessages: function (newMessages) {
+      import.meta.env.DEV && console.log('got new messages!', newMessages)
+
+      for (let i = 0; i < newMessages.length; ++i) {
+        const message = newMessages[i]
+        const pngDimensions = getPngDimensions(message.image)
+        if (pngDimensions == null) {
+          console.warn('discarding malformed message')
+          continue
+        }
+
+        if (pngDimensions.width > messageWidth || pngDimensions > messageHeight) {
+          console.warn('discarding malformed message')
+          continue
+        }
+
+        const blob = new Blob([message.image], { type: 'image/png' })
+
+        const entry = {
+          type: 'message',
+          payload: {
+            user: message.userName,
+            colorIndex: message.colorIndex,
+            width: pngDimensions.width,
+            height: pngDimensions.height,
+            url: URL.createObjectURL(blob) // TODO revoke!
+          }
+        }
+
+        this.$refs.queue.addEntry(entry)
+      }
+    },
     sendMessage: async function () {
       try {
         const payload = await this.$refs['user-message'].getMessage()
         const image = await payload.blob.arrayBuffer()
 
         await this.$global.chatClient.sendChatMessage({
-          text: 'test message text from user ' + this.$global.userName +' rand ' + Math.round(Math.random() * 10000),
+          text: '',
           image: image,
           timestamp: Date.now()
         })
@@ -284,7 +319,12 @@ export default {
       this.$refs['user-message'].clearDrawing()
     },
     onClose: function () {
-      this.$router.replace('/')
+      this.$router.replace({
+        name: 'Home',
+        query: {
+          v: 'lobby'
+        }
+      })
     },
     onFun: function () {
       this.$refs.queue.addEntry({
