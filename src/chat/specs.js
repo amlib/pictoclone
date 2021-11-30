@@ -11,6 +11,7 @@ const messageTypesStr = Object.freeze(new Map([
   ['MSG_TYPE_CONNECT_ROOM_RESULT', 13],
   ['MSG_TYPE_LEAVE_ROOM', 14],
   ['MSG_TYPE_LEAVE_ROOM_RESULT', 15],
+  ['MSG_TYPE_USER_LIST_CHANGE', 16],
   ['MSG_TYPE_SEND_CHAT_MESSAGE', 20],
   ['MSG_TYPE_SEND_CHAT_MESSAGE_RESULT', 21],
   ['MSG_TYPE_RECEIVE_CHAT_MESSAGES', 30]
@@ -137,7 +138,25 @@ const messageTypesDecoder = Object.freeze(new Map([
     const view = new DataView(payload, payloadOffset)
     message.success = view.getUint8(0)
     if (message.success) {
-      return 1
+      message.publicId = view.getUint32(1)
+      const userListLength = view.getUint8(5)
+
+      message.userList = new Array(userListLength)
+      let currentArrayOffset = payloadOffset + 1 + 4 + 1
+      for (let i = 0; i < userListLength; ++i) {
+        const user = {}
+        message.userList[i] = user
+        let view = new DataView(payload, currentArrayOffset)
+        const userSize = view.getUint32(0)
+        user.publicId = view.getUint32(4)
+        user.colorIndex = view.getUint8(8)
+        let string, newPayloadOffset;
+        ({ string, newPayloadOffset } = decodeString(payload, currentArrayOffset + 9))
+        user.userName = string
+        currentArrayOffset = newPayloadOffset
+      }
+
+      return currentArrayOffset
     } else {
       message.errorCode = view.getUint8(1)
       let { string, newPayloadOffset } = decodeString(payload, payloadOffset + 2, nameSize * 4)
@@ -161,6 +180,28 @@ const messageTypesDecoder = Object.freeze(new Map([
       message.errorMessage = string
       return newPayloadOffset
     }
+  }],
+  // MSG_TYPE_USER_LIST_CHANGE
+  [16, function (message, payload, payloadOffset) {
+    const view = new DataView(payload, payloadOffset)
+    const userListLength = view.getUint8(0)
+
+    message.userList = new Array(userListLength)
+    let currentArrayOffset = payloadOffset + 1
+    for (let i = 0; i < userListLength; ++i) {
+      const user = {}
+      message.userList[i] = user
+      let view = new DataView(payload, currentArrayOffset)
+      const userSize = view.getUint32(0)
+      user.publicId = view.getUint32(4)
+      user.colorIndex = view.getUint8(8)
+      let string, newPayloadOffset;
+      ({ string, newPayloadOffset } = decodeString(payload, currentArrayOffset + 9))
+      user.userName = string
+      currentArrayOffset = newPayloadOffset
+    }
+
+    return currentArrayOffset
   }],
   // MSG_TYPE_SEND_CHAT_MESSAGE
   [20, function (message, payload, payloadOffset) {
@@ -291,10 +332,34 @@ const messageTypesEncoder = Object.freeze(new Map([
   // MSG_TYPE_CONNECT_ROOM_RESULT
   [13, function (message, headerOffset) {
     if (message.success) {
-      const payload = new ArrayBuffer(headerOffset + 1)
+      const userListSizes = []
+      let totalUserListSizes = 0
+      for (let i = 0; i < message.userList.length; ++i) {
+        const user = message.userList[i]
+        const userSize = (4) + (4) + (1) + (4 + user.userName.length)
+        userListSizes.push(userSize)
+        totalUserListSizes += userSize
+      }
+
+      const payload = new ArrayBuffer(headerOffset + 1 + 4 + 1 + totalUserListSizes)
       const view = new DataView(payload, headerOffset)
 
       view.setUint8(0, message.success)
+      view.setUint32(1, message.publicId)
+      view.setUint8(5, message.userList.length)
+
+      let currentArrayOffset = headerOffset + 1 + 4 + 1
+      for (let i = 0; i < message.userList.length; ++i) {
+        const user = message.userList[i]
+        const userListSize = userListSizes[i]
+        let view = new DataView(payload, currentArrayOffset)
+
+        view.setUint32(0, userListSize)
+        view.setUint32(4, user.publicId)
+        view.setUint8(8, user.colorIndex)
+        currentArrayOffset = encodeString(user.userName, payload, currentArrayOffset + 9)
+      }
+
       return payload
     } else {
       const payload = new ArrayBuffer(headerOffset + 2 + (4 + message.errorMessage.length))
@@ -327,6 +392,36 @@ const messageTypesEncoder = Object.freeze(new Map([
       encodeString(message.errorMessage, payload, headerOffset + 2)
       return payload
     }
+  }],
+  // MSG_TYPE_USER_LIST_CHANGE
+  [16, function (message, headerOffset) {
+    const userListSizes = []
+    let totalUserListSizes = 0
+    for (let i = 0; i < message.userList.length; ++i) {
+      const user = message.userList[i]
+      const userSize = (4) + (4) + (1) + (4 + user.userName.length)
+      userListSizes.push(userSize)
+      totalUserListSizes += userSize
+    }
+
+    const payload = new ArrayBuffer(headerOffset + 1 + totalUserListSizes)
+    const view = new DataView(payload, headerOffset)
+
+    view.setUint8(0, message.userList.length)
+
+    let currentArrayOffset = headerOffset + 1
+    for (let i = 0; i < message.userList.length; ++i) {
+      const user = message.userList[i]
+      const userListSize = userListSizes[i]
+      let view = new DataView(payload, currentArrayOffset)
+
+      view.setUint32(0, userListSize)
+      view.setUint32(4, user.publicId)
+      view.setUint8(8, user.colorIndex)
+      currentArrayOffset = encodeString(user.userName, payload, currentArrayOffset + 9)
+    }
+
+    return payload
   }],
   // MSG_TYPE_SEND_CHAT_MESSAGE
   [20, function (message, headerOffset) {
