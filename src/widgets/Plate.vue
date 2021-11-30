@@ -1,10 +1,10 @@
 <template>
   <div class="plate" :style="plateStyle">
-    <template v-if="mode === 'scale'">
+    <template v-if="!tileMode">
       <div class="plate-slice" :style="scaledPlateStyle"/>
       <div v-if="stripeMode" :class="[ 'plate-slice', 'scaled-mode-stripe-' + stripeMode ]"/>
     </template>
-    <template v-else-if="mode === 'tile'">
+    <template v-else>
       <div :class="[ 'plate-slice' ]" :style="tiledStraightTBSlices"></div>
       <div :class="[ 'plate-slice' ]" :style="tiledStraightLRSlices"></div>
       <div v-if="!noBorders" :class="[ 'plate-slice' ]" :style="tiledCornerSlices"></div>
@@ -49,13 +49,17 @@ export default {
       type: Number,
       required: false,
       default: null
+    },
+    tileMode: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data: function () {
     return {
       over: false,
-      click: false,
-      mode: 'scale'
+      click: false
     }
   },
   computed: {
