@@ -9,6 +9,7 @@ export class ChatClient {
   connected
   onOpenCallback
   onCloseCallback
+  closeResolve
 
   messageResultPromiseWrappers = new Map()
   globalTimeout = 5 * 1000
@@ -37,29 +38,35 @@ export class ChatClient {
     this.onOpenCallback && this.onOpenCallback()
   }
 
-  startConnection (onOpenCallback, onCloseCallback) {
-    this.socket = new WebSocket("ws://localhost:9001")
-    this.socket.binaryType = 'arraybuffer'
-
-    this.socket.onmessage = (event) => { this.handleMessage(event) }
-    this.socket.onopen = () => { this.onOpen() }
-    this.socket.onclose = () => { this.onClose() }
-
-    this.onOpenCallback = onOpenCallback
-    this.onCloseCallback = onCloseCallback
-
+  startConnection (serverAddress, onOpenCallback, onCloseCallback) {
     return new Promise((resolve, reject) => {
       this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), resolve, reject)
+      this.socket = new WebSocket("ws://" + serverAddress)
+      this.socket.binaryType = 'arraybuffer'
+
+      this.socket.onmessage = (event) => { this.handleMessage(event) }
+      this.socket.onopen = () => { this.onOpen() }
+      this.socket.onclose = () => { this.onClose() }
+
+      this.onOpenCallback = onOpenCallback
+      this.onCloseCallback = onCloseCallback
     })
   }
 
   endConnection () {
-    this.socket.close()
+    return new Promise ((resolve) => {
+      if (this.connected) {
+        this.closeResolve = resolve
+        this.socket.close()
+      } else {
+        resolve()
+      }
+    })
   }
 
   onClose () {
     // TODO cancel all promises?
-    this.messageResultPromiseCancel(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'))
+    this.messageResultPromiseCancel(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), true)
     this.onReceiveChatMessages = undefined
 
     this.connected = false
@@ -71,6 +78,9 @@ export class ChatClient {
 
     this.onOpenCallback = undefined
     this.onCloseCallback = undefined
+    if (this.closeResolve) {
+      this.closeResolve()
+    }
   }
 
   /* Message result Promise stuff */
@@ -184,11 +194,9 @@ export class ChatClient {
 
   /* Specific outgoing message handlers */
 
-  // deprecated
   sendCreateRoom (code) {
     return new Promise((resolve, reject) => {
       const message = {
-        code: code
       }
 
       this.sendMessage(messageTypesStr.get('MSG_TYPE_CREATE_ROOM'), message)
@@ -243,7 +251,7 @@ export class ChatClient {
 
   handleCreateRoomResult (promise, message) {
     if (message.success) {
-      promise.resolve()
+      promise.resolve(message.code)
     } else {
       promise.reject(this.errorFromMessage(message))
     }
