@@ -14,6 +14,7 @@
         <component v-if="!coldStart" :is="Component" :style="getViewStyle"/>
       </transition>
     </router-view>
+    <div id="modal-teleport-target" class="modal" :style="getViewStyle"></div>
   </div>
 </template>
 
@@ -53,7 +54,9 @@ export default {
         orientation: 0,
         chromeFix: this.getBrowserEngine().match(/(chrome)/) != null,
         showGithubLink: true,
-        chatClient: new ChatClient()
+        chatClient: new ChatClient(),
+        roomCode: '',
+        serverAddress: import.meta.env.DEV ? 'localhost:9001' : 'localhost:9001'
       },
       loading: true,
       coldStart: true,
@@ -305,6 +308,13 @@ body {
 
 .simple-button-active {
   background-color: var(--global-cl2);
+}
+
+.modal {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  pointer-events: none;
 }
 
 .fade-enter-active,

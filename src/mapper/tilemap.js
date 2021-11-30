@@ -519,6 +519,74 @@ const largeBeveledButton = [
   }
 ]
 
+const modalDialog = [
+  {
+    x: 0, y: 0, w: 7, h: 7, alias: 'corner1-tl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 7, y: 0, w: 7, h: 7, alias: 'corner1-tr',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 14, y: 0, w: 7, h: 7, alias: 'corner1-bl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 21, y: 0, w: 7, h: 7, alias: 'corner1-br',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 0, y: 0, w: 7, h: 7, alias: 'corner2-tl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 7, y: 0, w: 7, h: 7, alias: 'corner2-tr',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'top right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 14, y: 0, w: 7, h: 7, alias: 'corner2-bl',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom left',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 21, y: 0, w: 7, h: 7, alias: 'corner2-br',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'bottom right',
+    top: 0, left: 0, bottom: 0, right: 0, offsetX: 0, offsetY: 0
+  },
+  {
+    x: 28, y: 0, w: 7, h: 5, alias: 'straight-t',
+    backgroundRepeat: 'repeat-x', backgroundPosition: 'top',
+    top: 0, left: 7, bottom: 0, right: 7, offsetX: 0, offsetY: 7
+  },
+  {
+    x: 35, y: 0, w: 7, h: 6, alias: 'straight-r',
+    backgroundRepeat: 'repeat-y', backgroundPosition: 'right',
+    top: 7, left: 0, bottom: 7, right: 0, offsetX: 7, offsetY: 0
+  },
+  {
+    x: 42, y: 0, w: 7, h: 7, alias: 'straight-b',
+    backgroundRepeat: 'repeat-x', backgroundPosition: 'bottom',
+    top: 0, left: 7, bottom: 0, right: 7, offsetX: 0, offsetY: 7
+  },
+  {
+    x: 49, y: 0, w: 7, h: 6, alias: 'straight-l',
+    backgroundRepeat: 'repeat-y', backgroundPosition: 'left',
+    top: 7, left: 0, bottom: 7, right: 0, offsetX: 7, offsetY: 0
+  },
+  {
+    x: 56, y: 0, w: 6, h: 6, alias: 'center',
+    backgroundRepeat: 'repeat', backgroundPosition: 'top',
+    top: 0, left: 7, bottom: 0, right: 7, offsetX: 6, offsetY: 6
+  }
+]
+
 const gridBackground = [
   {
     x: 0, y: 0, w: 16, h: 16, alias: 'blank',
@@ -659,6 +727,10 @@ const tileMap = [
     groupName: 'large-beveled-button-inverted', x: 0, y: 244,
     // eslint-disable-next-line no-return-assign
     map: cloneDeep(largeBeveledButton).map(a => a.alias === 'center' ? (a.x = 2, a.y = 3, a) : a)
+  },
+  {
+    groupName: 'modal-dialog', x: 24, y: 241,
+    map: cloneDeep(modalDialog)
   },
   {
     groupName: 'grid-background', x: 0, y: 259,
