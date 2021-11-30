@@ -108,8 +108,16 @@ export default {
         this.roomCode = String(roomCode)
         this.loading = false
       } catch (e) {
+        if (e.name === 'ERROR_ROOM_DOES_NOT_EXISTS' || e.name === 'ERROR_GENERIC_ERROR') {
+          this.modal = true
+          this.modalText = e.message
+          this.modalCallback = () => {
+            this.modal = false
+          }
+        } else {
+          import.meta.env.DEV && console.log('HomeLobby.connectRoom:', e)
+        }
         this.loading = false
-        import.meta.env.DEV && console.log('HomeLobby.createNewRoom:', e)
       }
     },
     connectRoom: async function (onSuccess) {
