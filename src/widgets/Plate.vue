@@ -152,6 +152,11 @@ export default {
       this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notch && this.notch[2] ? '1' : '2') + '-br'))
       this.mergeSlice(obj, this.getSlice(this.tileName + '-corner' + (this.notch && this.notch[3] ? '1' : '2') + '-bl'))
 
+      obj.left = obj.left + 'px'
+      obj.right = obj.right + 'px'
+      obj.top = obj.top + 'px'
+      obj.bottom = obj.bottom + 'px'
+
       return obj
     },
     tiledStraightLRSlices: function () {
@@ -174,13 +179,20 @@ export default {
       if (!this.noBorders) {
         this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-l'))
         this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-r'))
+        obj.left = obj.left + 'px'
+        obj.right = obj.right + 'px'
+        obj.top = obj.top + 'px'
+        obj.bottom = obj.bottom + 'px'
       }
 
       return obj
     },
     tiledStraightTBSlices: function () {
-      // eslint-disable-next-line no-unused-expressions
-      this.$global.superSample
+      const ss = this.$global.superSample
+      // fixes chrome slight tile unaligment (artifacts) issues (due to autoscale css scale transform)
+      // also, causes other side effects, but still looks better...
+      const fix = this.$global.chromeFix && this.$global.autoScale ? (ss < 2 ? 0 : 0.4) : 0
+
       const obj = {}
 
       if (this.noBorders) {
@@ -196,6 +208,10 @@ export default {
         this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-t'))
         this.mergeSlice(obj, this.getSlice(this.tileName + '-straight-b'))
         this.mergeSlice(obj, this.getSlice(this.tileName + '-center'))
+        obj.left = (obj.left - fix) + 'px'
+        obj.right = (obj.right - fix) + 'px'
+        obj.top = obj.top + 'px'
+        obj.bottom = obj.bottom + 'px'
       }
 
       return obj
@@ -208,7 +224,6 @@ export default {
       if (img == null) {
         return null
       }
-
       obj.backgroundImage = 'url(' + img.url + ')'
       obj.backgroundRepeat = img.backgroundRepeat
       obj.backgroundPosition = img.backgroundPosition
