@@ -58,7 +58,9 @@ export default {
         chatQueueLimit: 64,
         roomCode: '',
         // You may want to change localhost to your local network ip if testing other devices on the same network
-        serverAddress: import.meta.env.DEV ? 'localhost:9001' : 'pictoclone.duckdns.org:9001'
+        //also, chrome seems to limit secure ws addresses to the 443 port...
+        //also, some ad blockers may inhibit connection!
+        serverAddress: import.meta.env.DEV ? 'localhost:9001' : 'pictoclone.duckdns.org:443'
       },
       loading: true,
       coldStart: true,

@@ -93,6 +93,7 @@ export default {
   mounted: function () {
     this.roomCode = this.$global.roomCode
     setTimeout(() => { this.faded = false }, 16)
+    this.failedAttempts = 0
   },
   methods: {
     createNewRoom: async function () {
@@ -109,8 +110,16 @@ export default {
         this.loading = false
       } catch (e) {
         if (e.name === 'ERROR_ROOM_DOES_NOT_EXISTS' || e.name === 'ERROR_GENERIC_ERROR') {
+          this.failedAttempts += 1
           this.modal = true
-          this.modalText = e.message
+          if (this.previousFailedAttemptMessage != null &&
+            e.message === this.previousFailedAttemptMessage &&
+            (this.failedAttempts > 1 && this.failedAttempts % 2 === 0)) {
+            this.modalText = 'Server could be down, or an adblocker may be inhibiting the websocket connection, please check'
+          } else {
+            this.modalText = e.message
+            this.previousFailedAttemptMessage = e.message
+          }
           this.modalCallback = () => {
             this.modal = false
           }
@@ -137,8 +146,16 @@ export default {
         onSuccess()
       } catch (e) {
         if (e.name === 'ERROR_ROOM_DOES_NOT_EXISTS' || e.name === 'ERROR_GENERIC_ERROR') {
+          this.failedAttempts += 1
           this.modal = true
-          this.modalText = e.message
+          if (this.previousFailedAttemptMessage != null &&
+            e.message === this.previousFailedAttemptMessage &&
+            (this.failedAttempts > 1 && this.failedAttempts % 2 === 0)) {
+            this.modalText = 'Server could be down, or an adblocker may be inhibiting the websocket connection, please check'
+          } else {
+            this.modalText = e.message
+            this.previousFailedAttemptMessage = e.message
+          }
           this.modalCallback = () => {
             this.modal = false
           }
