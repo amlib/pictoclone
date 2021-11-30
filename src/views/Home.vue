@@ -17,18 +17,19 @@
       </div>
       <component :is="views[view].component" ref="component" :style="componentStyle" class="component"
                  @done="onDoneCompleted" @back="onBackCompleted"
-                 @color-selected="colorSelected" @name-selected="nameSelected"/>
+                 @color-selected="colorSelected" @name-selected="nameSelected"
+                 @custom-server="customServer"/>
     </div>
     <div class="bottom">
       <w-button :disabled="!canGoBack" class="text-button" :plate-padding="3"
                 normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
                 @click="onBackThrottled" audio-feedback>
-        Back
+        {{ view === 'custom-server' ? 'Cancel' :  'Back' }}
       </w-button>
       <w-button class="text-button" :plate-padding="3"
                 normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
                 @click="onDoneThrottled" audio-feedback>
-        Next
+        {{ view === 'custom-server' ? 'Confirm' :  'Next' }}
       </w-button>
     </div>
   </div>
@@ -40,6 +41,7 @@ import HomeName from '/src/components/HomeName.vue'
 import HomeColor from '/src/components/HomeColor.vue'
 import HomeOptions from '/src/components/HomeOptions.vue'
 import HomeLobby from '../components/HomeLobby.vue'
+import HomeCustomServer from '../components/HomeCustomServer.vue'
 
 import { shallowRef } from 'vue'
 import { throttle } from 'lodash'
@@ -61,6 +63,10 @@ const views = {
   lobby: {
     component: shallowRef(HomeLobby),
     topHint: 'Please choose a room to connect'
+  },
+  'custom-server': {
+    component: shallowRef(HomeCustomServer),
+    topHint: 'Choose a custom server to connect to'
   }
 }
 
@@ -140,6 +146,10 @@ export default {
     colorSelected: function (colorIndex) {
       this.$global.userColorIndex = colorIndex
     },
+    customServer: function () {
+      this.view = 'custom-server'
+      this.viewChanged()
+    },
     onDone: function () {
       this.$refs.component.done()
     },
@@ -169,16 +179,11 @@ export default {
       } else if (this.view === 'lobby') {
         this.goToChat()
         return
+      } else if (this.view === 'custom-server') {
+        this.view = 'lobby'
       }
 
-      this.$router.replace({
-        name: 'Home',
-        query: {
-          v: this.view
-        }
-      })
-      this.$refs.middle.scrollTo(0, 0)
-      this.onMiddleScrollThrottled()
+      this.viewChanged()
     },
     onBackCompleted: function () {
       if (this.view === 'name') {
@@ -189,14 +194,20 @@ export default {
         this.view = 'color'
       } else if (this.view === 'lobby') {
         this.view = 'options'
+      } else if (this.view === 'custom-server') {
+        this.view = 'lobby'
       }
 
+      this.viewChanged()
+    },
+    viewChanged: function () {
       this.$router.replace({
         name: 'Home',
         query: {
           v: this.view
         }
       })
+      this.$refs.middle.scrollTo(0, 0)
       this.onMiddleScrollThrottled()
     },
     onMiddleScroll: function () {

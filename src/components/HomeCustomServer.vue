@@ -1,20 +1,7 @@
 <template>
   <div :class="['main', faded && 'main-fade']" @transitionend.self="mainTransitionEnd">
     <div class="code-field">
-      <w-text-input v-model="roomCode" ref="text-input"/>
-      <div class="buttons">
-        <w-button :plate-padding="3" :disabled="loading" class="button"
-                  normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
-                  @click="createNewRoom" audio-feedback>
-          New room
-        </w-button>
-        <div class="spacer"></div>
-        <w-button :plate-padding="3" :disabled="loading" class="button"
-                  normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
-                  @click="customServer" audio-feedback>
-          Custom
-        </w-button>
-      </div>
+      <w-text-input v-model="serverAddress" ref="text-input" :chars="maxChars" :lines="3"/>
     </div>
     <div class="keyboard-wrapper">
       <div class="keyboard-buttons-wrapper">
@@ -36,14 +23,6 @@
       <keyboard class="keyboard" :mode="keyboardMode" :symbol-drop="false"
                 @keyboard-key-press="keyPress" @keyboard-swap-char="swapChar"/>
     </div>
-    <modal-dialog :show="modal" :padding="16">
-      <div style="color: white">Sorry, room does not exist</div>
-      <w-button :plate-padding="3" class="dismiss-button"
-                normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
-                @click="modal = false" audio-feedback>
-        OK
-      </w-button>
-    </modal-dialog>
   </div>
 </template>
 
@@ -52,20 +31,18 @@ import Keyboard from '/src/components/Keyboard.vue'
 import WButtonToggle from '/src/widgets/ButtonToggle.vue'
 import WTextInput from '/src/widgets/TextInput.vue'
 import WButton from '../widgets/Button.vue'
-import { errorsStr } from '../chat/specs'
-import ModalDialog from '/src/components/ModalDialog.vue'
 
 export default {
-  name: 'HomeLobby',
-  components: { ModalDialog, WButton, WTextInput, WButtonToggle, Keyboard },
-  emits: ['done', 'back', 'custom-server'],
+  name: 'HomeCustomServer',
+  components: { WButton, WTextInput, WButtonToggle, Keyboard },
+  emits: ['done', 'back'],
   data: function () {
     return {
       keyboardMode: 'romaji',
-      roomCode: '',
       faded: true,
       loading: false,
-      modal: false
+      serverAddress: '',
+      maxChars: 14 * 3
     }
   },
   computed: {
@@ -88,69 +65,49 @@ export default {
     this.specialKeys = specialKeys
   },
   mounted: function () {
-    this.roomCode = this.$global.roomCode
+    this.serverAddress = this.$global.serverAddress
     setTimeout(() => { this.faded = false }, 16)
   },
   methods: {
-    createNewRoom: async function () {
+    testChange: async function (callback) {
       try {
         this.loading = true
         const chatClient = this.$global.chatClient
 
-        if (!chatClient.connected) {
-          await chatClient.startConnection(this.$global.serverAddress)
+        if (chatClient.connected) {
+          await chatClient.endConnection()
         }
 
-        const roomCode = await chatClient.sendCreateRoom()
-        this.roomCode = String(roomCode)
+        await chatClient.startConnection(this.serverAddress)
+
+        this.$global.serverAddress = this.serverAddress
         this.loading = false
+        callback()
       } catch (e) {
+        import.meta.env.DEV && console.warn(e)
+        this.$refs['text-input'].deny()
         this.loading = false
-        import.meta.env.DEV && console.log('HomeLobby.createNewRoom:', e)
-      }
-    },
-    connectRoom: async function (onSuccess) {
-      try {
-        const chatClient = this.$global.chatClient
-
-        if (!chatClient.connected) {
-          await chatClient.startConnection(this.$global.serverAddress)
-        }
-
-        if (chatClient.roomConnected) {
-          await chatClient.sendLeaveRoom(this.$global.serverAddress)
-        }
-        await chatClient.sendConnectRoom(Number(this.roomCode), this.$global.userName, this.$global.userColorIndex)
-
-        this.$global.roomCode = this.roomCode
-        onSuccess()
-      } catch (e) {
-        if (e.name === 'ERROR_ROOM_DOES_NOT_EXISTS') {
-          this.modal = true
-        } else {
-          import.meta.env.DEV && console.log('HomeLobby.connectRoom:', e)
-        }
       }
     },
     keyPress: function (key) {
       if (this.specialKeys[key]) {
         this.specialKeys[key](key)
       } else {
-        if (this.roomCode.length < 10) {
-          this.roomCode += key
+        if (this.serverAddress.length < this.maxChars) {
+          this.serverAddress += key
         } else {
           this.$refs['text-input'].deny()
         }
       }
     },
     swapChar: function (char) {
-      if (this.roomCode.length >= 0) {
-        this.roomCode = this.roomCode.substring(0, this.roomCode.length - 1) + char
+      if (this.serverAddress.length >= 0) {
+        this.serverAddress = this.serverAddress.substring(0, this.serverAddress.length - 1) + char
       }
     },
     keyPressBackspace: function () {
-      if (this.roomCode.length > 0) {
-        this.roomCode = this.roomCode.substring(0, this.roomCode.length - 1)
+      if (this.serverAddress.length > 0) {
+        this.serverAddress = this.serverAddress.substring(0, this.serverAddress.length - 1)
       } else {
         this.$refs['text-input'].deny()
       }
@@ -165,22 +122,18 @@ export default {
       }
     },
     done: async function () {
-      if (this.roomCode.length <= 0) {
+      if (this.serverAddress.length <= 0) {
         this.$refs['text-input'].deny()
         return
       }
 
-      this.connectRoom(() => {
+      this.testChange(() => {
         this.mainTransitionEndCallback = () => { this.$emit('done') }
         this.faded = true
       })
     },
     back: async function () {
       this.mainTransitionEndCallback = () => { this.$emit('back') }
-      this.faded = true
-    },
-    customServer: function () {
-      this.mainTransitionEndCallback = () => { this.$emit('custom-server') }
       this.faded = true
     }
   }
@@ -206,6 +159,8 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   padding-bottom: calc(13px * var(--global-ss));
+  position: sticky;
+  bottom: 0;
 }
 
 .landscape .keyboard-wrapper {
@@ -240,7 +195,7 @@ export default {
 
 .code-field {
   padding-top:  calc(7px * var(--global-ss));
-  padding-bottom:  calc(6px * var(--global-ss));
+  padding-bottom:  calc(1px * var(--global-ss));
   display: flex;
   flex-direction: column;
 }

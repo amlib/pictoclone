@@ -176,16 +176,12 @@ export default {
       console.log('no room code!')
     }
 
-    if (!chatClient.connected) {
-      import.meta.env.DEV && console.log('Chat.vue: not connected!')
-      this.connect()
-    } else {
-      this.restoreChatHandlers()
-    }
+    this.connect()
   },
   beforeUnmount: function () {
     this.mounted = false
     const chatClient = this.$global.chatClient
+    // TODO use leve room instead
     chatClient.connected && chatClient.endConnection()
 
     if (document.fullscreenElement) {
@@ -209,14 +205,14 @@ export default {
     connect: async function () {
       try {
         const chatClient = this.$global.chatClient
-        if (chatClient.connected) {
-          return
+        if (!chatClient.connected) {
+          await chatClient.startConnection(this.$global.serverAddress)
         }
 
-        await chatClient.startConnection()
+        if (!chatClient.roomConnected) {
+          await chatClient.sendConnectRoom(Number(this.roomCode), this.$global.userName, this.$global.userColorIndex)
+        }
 
-        // TODO remove usage of Number()
-        await chatClient.sendConnectRoom(Number(this.roomCode), this.$global.userName, this.$global.userColorIndex)
         this.restoreChatHandlers()
       } catch (e) {
         // TODO handle
