@@ -24,8 +24,7 @@ export default {
   props: {
     messagePayload: {
       type: Object,
-      required: false,
-      default: () => {}
+      required: true
     },
     noDrawing: {
       type: Boolean,
@@ -36,10 +35,20 @@ export default {
       type: Number,
       required: false,
       default: null
+    },
+    autoRevoke: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   created () {
     this.colorsHexL3 = colorsHexL3
+  },
+  unmounted () {
+    if (this.autoRevoke && this.messagePayload.url) {
+      URL.revokeObjectURL(this.messagePayload.url)
+    }
   },
   computed: {
     isMessageOneSegment: function () {

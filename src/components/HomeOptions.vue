@@ -28,7 +28,7 @@ export default {
 
     return {
       settingsArray: [
-        'vibration', 'orientation', 'sound', 'autoScale', 'mobileAssists', 'upscaleStyle', 'superSampling'
+        'vibration', 'orientation', 'sound', 'autoScale', 'mobileAssists', 'upscaleStyle', 'superSampling', 'chatQueueLimit'
       ],
       settings: {
         vibration: {
@@ -65,6 +65,11 @@ export default {
           options: computed(() => this.superSamplingOptions),
           description: 'Super Sampling',
           onChange: this.changeSuperSampling
+        },
+        chatQueueLimit: {
+          options: options.chatQueueLimit,
+          description: 'Max Chat History',
+          onChange: this.changeChatQueueLimit
         }
       },
       vibration: undefined,
@@ -99,6 +104,7 @@ export default {
     this.settings.mobileAssists.value = this.$global.mobileAssists
     this.settings.upscaleStyle.value = this.$global.renderingClass
     this.settings.superSampling.value = this.$global.superSample
+    this.settings.chatQueueLimit.value = this.$global.chatQueueLimit
 
     setTimeout(() => { this.faded = false }, 16)
     this.settingsDisplayEffect([...Array(Object.keys(this.settings).length).keys()], true)
@@ -155,6 +161,9 @@ export default {
     },
     changeSuperSampling: function (val) {
       this.$global.setSuperSample(val)
+    },
+    changeChatQueueLimit: function (val) {
+      this.$global.chatQueueLimit = val
     }
   }
 }

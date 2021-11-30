@@ -18,7 +18,9 @@ export class ChatClient {
   roomCode
   roomConnected
   uniqueId
+  userList
   onReceiveChatMessages
+  onUserListChange
 
   constructor () {
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_GENERIC_ERROR'), this.handleGenericError)
@@ -30,6 +32,7 @@ export class ChatClient {
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_SEND_CHAT_MESSAGE_RESULT'), this.handleSendChatMessageResult)
 
     this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_RECEIVE_CHAT_MESSAGES'), this.handleReceiveChatMessages)
+    this.handleMessageMap.set(messageTypesStr.get('MSG_TYPE_USER_LIST_CHANGE'), this.handleUserListChange)
     this.connected = false
   }
 
@@ -68,6 +71,7 @@ export class ChatClient {
     // TODO cancel all promises?
     this.messageResultPromiseCancel(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), true)
     this.onReceiveChatMessages = undefined
+    this.onUserListChange = undefined
 
     this.connected = false
     this.roomConnected = undefined
@@ -274,7 +278,8 @@ export class ChatClient {
       import.meta.env.DEV && console.log("ChatClient.handleConnectRoomResult: connected to room", promise.contextPayload.code)
       this.roomCode = promise.contextPayload.code
       this.roomConnected = true
-      promise.resolve()
+      this.userList = message.userList
+      promise.resolve(message)
     } else {
       this.roomCode = undefined
       this.roomConnected = false
@@ -300,6 +305,15 @@ export class ChatClient {
       this.onReceiveChatMessages(message.chatMessages)
     } else {
       import.meta.env.DEV && console.warn('ChatClient.handleReceiveChatMessages: no handler!')
+    }
+  }
+
+  handleUserListChange (message) {
+    if (this.onUserListChange != null) {
+      this.onUserListChange(this.userList, message.userList)
+      this.userList = message.userList
+    } else {
+      import.meta.env.DEV && console.warn('ChatClient.handleUserListChange: no handler!')
     }
   }
 

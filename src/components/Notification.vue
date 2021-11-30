@@ -1,7 +1,12 @@
 <template>
   <w-plate class="notification" tile-name="main-inverted"
            :notch="[true, true, true, true]">
-    <div :style="getStyle" :class="['text', isGlobal && $global.rgbMode && 'global-rgb']">{{ notificationPayload.text }}</div>
+    <div :style="getStyle" :class="['text', isGlobal && $global.rgbMode && 'global-rgb']">
+      {{ notificationPayload.text }}
+      <span v-if="notificationPayload.textB != null" :style="{ color: notificationPayload.colorB }">
+        {{ notificationPayload.textB }}
+      </span>
+    </div>
   </w-plate>
 </template>
 

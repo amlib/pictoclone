@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { colorsHexL2 } from '/src/js/Colors'
+import { colorsHexL1, colorsHexL2 } from '/src/js/Colors'
 
 export default {
   name: 'MiniEntry',
@@ -20,23 +20,25 @@ export default {
     getStyle: function () {
       const obj = {}
 
-      if (!this.entry.visible) {
-        obj.backgroundColor = '#b2c3db'
-      } else {
-        if (this.entry.type === 'message') {
+      if (this.entry.type === 'message') {
+        if (!this.entry.visible) {
+          obj.backgroundColor = colorsHexL1[this.entry.payload.colorIndex]
+        } else {
           obj.backgroundColor = colorsHexL2[this.entry.payload.colorIndex]
-        } else if (this.entry.type === 'notification') {
-          if (this.isGlobal) {
-            obj.backgroundColor = 'var(--global-cl2)'
-            if (this.$global.rgbMode) {
-              obj.filter = `hue-rotate(${this.$global.rgbColorHueDeg}deg)`
-            }
-          } else {
-            obj.backgroundColor = '#415969'
+        }
+      } else if (this.entry.type === 'notification') {
+        if (!this.entry.visible) {
+          obj.backgroundColor = '#D1D1D1'
+        } else if (this.isGlobal) {
+          obj.backgroundColor = 'var(--global-cl2)'
+          if (this.$global.rgbMode) {
+            obj.filter = `hue-rotate(${this.$global.rgbColorHueDeg}deg)`
           }
         } else {
-          throw new Error('unknown entry type: ' + this.entry.type)
+          obj.backgroundColor = '#606060'
         }
+      } else {
+        throw new Error('unknown entry type: ' + this.entry.type)
       }
 
       return obj

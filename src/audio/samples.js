@@ -116,7 +116,8 @@ const programs = {
     sample: 'samples/pc-bells.mp3'
   },
   'pc-receive': {
-    sample: 'samples/pc-receive.mp3'
+    sample: 'samples/pc-receive.mp3',
+    volume: 0.5
   },
   'pc-pen-cp': {
     complex: function () {

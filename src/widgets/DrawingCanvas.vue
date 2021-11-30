@@ -647,7 +647,7 @@ export default {
       }
 
       return {
-        url: URL.createObjectURL(blob), // TODO revoke!!!
+        url: URL.createObjectURL(blob), // Shall be eventually revoked by chat queue
         blob: blob,
         ...imageData
       }

@@ -183,19 +183,13 @@ export default {
   },
   mounted: function () {
     this.mounted = true
-    const chatClient = this.$global.chatClient
-
-    if (this.roomCode == null) {
-      console.log('no room code!')
-    }
-
     this.connect()
   },
   beforeUnmount: function () {
     this.mounted = false
     const chatClient = this.$global.chatClient
-    // TODO use leave room instead
-    chatClient.connected && chatClient.endConnection()
+
+    chatClient.connected && chatClient.sendLeaveRoom()
 
     if (document.fullscreenElement) {
       if (document.exitFullscreen) {
@@ -223,15 +217,17 @@ export default {
         }
 
         if (!chatClient.roomConnected) {
-          await chatClient.sendConnectRoom(Number(this.roomCode), this.$global.userName, this.$global.userColorIndex)
+          const message = await chatClient.sendConnectRoom(Number(this.roomCode), this.$global.userName, this.$global.userColorIndex)
         }
 
         this.restoreChatHandlers()
         this.$refs.queue.addEntry({
           type: 'notification',
           payload: {
-            text: `Connected to room ${this.roomCode}`,
-            color: '#e2f201'
+            text: 'Connected to room: ',
+            textB: Number(this.roomCode).toLocaleString('pt-BR'),
+            color: '#e2f201',
+            colorB: '#EEE'
           }
         })
       } catch (e) {
@@ -257,6 +253,7 @@ export default {
         this.modalCallback = this.onClose
       }
       chatClient.onReceiveChatMessages = this.handleReceiveChatMessages
+      chatClient.onUserListChange = this.handleUserListChange
     },
     handleKeyPress: function (key) {
       this.$refs['user-message'].keyPress(key)
@@ -305,16 +302,57 @@ export default {
             colorIndex: message.colorIndex,
             width: pngDimensions.width,
             height: pngDimensions.height,
-            url: URL.createObjectURL(blob) // TODO revoke!
+            url: URL.createObjectURL(blob) // Shall be eventually revoked by chat queue
           }
         }
 
         this.$refs.queue.addEntry(entry)
       }
+
+      this.$global.audio.playProgram('pc-receive')
+    },
+    mapUserList: function (userList) {
+      return new Map(userList.map(u => [u.publicId, u]))
+    },
+    handleUserListChange: function (oldUserList, newUserList) {
+      const newUserListMap = this.mapUserList(newUserList)
+      const oldUserListMap = this.mapUserList(oldUserList)
+      const userListUnion = new Map([...newUserListMap, ...oldUserListMap])
+
+      for (let [publicId, user] of userListUnion) {
+        const newHas = newUserListMap.has(publicId)
+        const oldHas = oldUserListMap.has(publicId)
+        if (newHas && !oldHas) {
+          const user = newUserListMap.get(publicId)
+          this.$global.audio.playProgram('pc-bells')
+          this.$refs.queue.addEntry({
+            type: 'notification',
+            payload: {
+              text: 'Now entering: ',
+              textB: user.userName,
+              color: '#e2f201',
+              colorB: '#EEE'
+            }
+          })
+        } else if (!newHas && oldHas) {
+          const user = oldUserListMap.get(publicId)
+          // TODO leave sound?
+          this.$refs.queue.addEntry({
+            type: 'notification',
+            payload: {
+              text: 'Now leaving: ',
+              textB: user.userName,
+              color: '#e2f201',
+              colorB: '#EEE'
+            }
+          })
+        }
+      }
     },
     sendMessage: async function () {
+      let payload
       try {
-        const payload = await this.$refs['user-message'].getMessage()
+        payload = await this.$refs['user-message'].getMessage()
         const image = await payload.blob.arrayBuffer()
 
         await this.$global.chatClient.sendChatMessage({
@@ -334,6 +372,9 @@ export default {
         this.$refs.queue.addEntry(entry)
       } catch (e) {
         this.$global.audio.playProgram('pc-deny')
+        if (payload && payload.url) {
+          URL.revokeObjectURL(payload.url)
+        }
       }
     },
     clearDrawing: function () {
@@ -341,6 +382,7 @@ export default {
       this.$refs['user-message'].clearDrawing()
     },
     onClose: function () {
+      this.modal = false
       this.$router.replace({
         name: 'Home',
         query: {

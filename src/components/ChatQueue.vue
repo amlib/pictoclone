@@ -46,6 +46,7 @@ export default {
   },
   created () {
     this.selectedEntryIndex = this.queue.length - 1 // 0 = first on array/ second on dom (due to spacer not counting)
+    this.maxQueueLength = this.$global.chatQueueLimit
   },
   mounted: function () {
     this.addEntry({
@@ -75,8 +76,22 @@ export default {
     addEntry: function (entry) {
       entry.visible = false
       entry.size = -1
+      const isOnFirst = this.selectedEntryIndex === this.queue.length - 1
+      const isOnLast = this.selectedEntryIndex === 0
+      let hasShifted = false
+
       this.queue.push(entry)
-      this.selectedEntryIndex = this.queue.length - 1
+      if (this.queue.length > this.maxQueueLength) {
+        this.queue.shift()
+        hasShifted = true
+      }
+
+      // only scroll queue to newest message if already was on the newest
+      if (isOnFirst) {
+        this.selectedEntryIndex = this.queue.length - 1
+      } else if (!isOnLast && hasShifted) {
+        this.selectedEntryIndex -= 1
+      }
 
       this.$nextTick(() => {
         const children = this.$refs.queue.children

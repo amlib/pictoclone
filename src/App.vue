@@ -55,6 +55,7 @@ export default {
         chromeFix: this.getBrowserEngine().match(/(chrome)/) != null,
         showGithubLink: true,
         chatClient: new ChatClient(),
+        chatQueueLimit: 64,
         roomCode: '',
         serverAddress: import.meta.env.DEV ? 'localhost:9001' : 'localhost:9001'
       },

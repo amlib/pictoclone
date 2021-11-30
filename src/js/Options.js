@@ -83,6 +83,26 @@ const mobileAssists = [
   }
 ]
 
+const chatQueueLimit = [
+  {
+    description: '42',
+    value: 42
+  },
+  {
+    description: '64',
+    value: 64,
+    recommended: true
+  },
+  {
+    description: '128',
+    value: 128
+  },
+  {
+    description: '256',
+    value: 256
+  }
+]
+
 const generic = [
   {
     description: 'ON',
@@ -95,4 +115,4 @@ const generic = [
   }
 ]
 
-export { superSampling, vibration, generic, mobileAssists, orientation, sound, upscaleStyle }
+export { superSampling, vibration, generic, mobileAssists, orientation, sound, upscaleStyle, chatQueueLimit }
