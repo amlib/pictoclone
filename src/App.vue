@@ -57,7 +57,8 @@ export default {
         chatClient: new ChatClient(),
         chatQueueLimit: 64,
         roomCode: '',
-        serverAddress: import.meta.env.DEV ? 'localhost:9001' : 'localhost:9001'
+        // You may want to change localhost to your local network ip if testing other devices on the same network
+        serverAddress: import.meta.env.DEV ? 'localhost:9001' : 'pictoclone.duckdns.org:9001'
       },
       loading: true,
       coldStart: true,

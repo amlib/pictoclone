@@ -44,7 +44,8 @@ export class ChatClient {
   startConnection (serverAddress, onOpenCallback, onCloseCallback) {
     return new Promise((resolve, reject) => {
       this.messageResultPromiseAdd(messageTypesStr.get('MSG_TYPE_NEW_CONNECTION_RESULT'), resolve, reject)
-      this.socket = new WebSocket("ws://" + serverAddress)
+      const protocol = import.meta.env.DEV ? 'ws' : 'wss'
+      this.socket = new WebSocket(protocol + '://' + serverAddress)
       this.socket.binaryType = 'arraybuffer'
 
       this.socket.onmessage = (event) => { this.handleMessage(event) }
