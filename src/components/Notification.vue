@@ -1,7 +1,7 @@
 <template>
   <w-plate class="notification" tile-name="main-inverted"
            :notch="[true, true, true, true]">
-    <div :style="getStyle" :class="[isGlobal && $global.rgbMode && 'global-rgb']">{{ notificationPayload.text }}</div>
+    <div :style="getStyle" :class="['text', isGlobal && $global.rgbMode && 'global-rgb']">{{ notificationPayload.text }}</div>
   </w-plate>
 </template>
 
@@ -30,7 +30,7 @@ export default {
           obj.filter = `hue-rotate(${this.$global.rgbColorHueDeg}deg)`
         }
       } else {
-        obj.color = 'gray'
+        obj.color = this.notificationPayload.color ? this.notificationPayload.color : 'gray'
       }
 
       return obj
@@ -45,5 +45,10 @@ export default {
   color: gray;
   margin: calc(1px * var(--global-ss)) 0;
   min-height: calc(12px * var(--global-ss));
+}
+
+.text {
+  pointer-events: all;
+  user-select: text;
 }
 </style>

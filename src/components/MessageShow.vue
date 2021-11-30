@@ -8,7 +8,7 @@
              tile-name="main-color-background" :color-index="messagePayload.colorIndex"
              :notch="[true, false, true, isMessageOneSegment]"
              ref="user-tag">
-      <div :style="{ color: colorsHexL3[messagePayload.colorIndex] }">{{ messagePayload.user }}</div>
+      <div class="text" :style="{ color: colorsHexL3[messagePayload.colorIndex] }">{{ messagePayload.user }}</div>
     </w-plate>
   </w-plate>
 </template>
@@ -104,5 +104,9 @@ export default {
 
 .drawing-area-show {
   margin-bottom: calc(-1px * var(--global-ss));
+}
+
+.text {
+  user-select: all;
 }
 </style>
