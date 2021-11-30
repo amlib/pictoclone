@@ -1,22 +1,26 @@
 <template>
   <div :class="['input', denyBlink && 'deny']" ref="main" @transitionend="mainTransitionEnd">
-    <div class="tile tile-input-border" :style="getPreBorderLeft"/>
-    <template v-for="(i, index) in chars" :key="i">
-      <template v-if="index === caretPosition">
-        <div class="tile tile-input tile-caret" :style="getCaretStyle"/>
-      </template>
-      <template v-else-if="index === 0">
-        <div class="tile tile-input" :style="getBorderLeftStyle">
-          {{ modelValue.substring(index, index + 1) }}
-        </div>
-      </template>
-      <template v-else>
-        <div class="tile tile-input" :style="getInputStyle">
-          {{ modelValue.substring(index, index + 1) }}
-        </div>
-      </template>
+    <template v-for="(lineNumber) in [...Array(lines).keys()]" :key="lineNumber">
+      <div class="input-line">
+        <div class="tile tile-input-border" :style="getPreBorderLeft"/>
+        <template v-for="(i) in [...Array(lineSize).keys()]" :key="i">
+          <template v-if="(lineNumber * lineSize) + i === caretPosition">
+            <div class="tile tile-input tile-caret" :style="getCaretStyle"/>
+          </template>
+          <template v-else-if="i === 0">
+            <div class="tile tile-input" :style="getBorderLeftStyle">
+              {{ modelValue.substring((lineNumber * lineSize) + i, (lineNumber * lineSize) + i + 1) }}
+            </div>
+          </template>
+          <template v-else>
+            <div class="tile tile-input" :style="getInputStyle">
+              {{ modelValue.substring((lineNumber * lineSize) + i, (lineNumber * lineSize) + i + 1) }}
+            </div>
+          </template>
+        </template>
+        <div class="tile tile-input-border" :style="getPostBorderRight"/>
+      </div>
     </template>
-    <div class="tile tile-input-border" :style="getPostBorderRight"/>
   </div>
 </template>
 
@@ -30,6 +34,11 @@ export default {
       required: false,
       default: 10
     },
+    lines: {
+      type: Number,
+      required: false,
+      default: 1
+    },
     modelValue: {
       type: String,
       required: true
@@ -41,6 +50,9 @@ export default {
     }
   },
   computed: {
+    lineSize: function () {
+      return Math.round(this.chars / this.lines)
+    },
     caretPosition: function () {
       return this.modelValue.length
     },
@@ -123,8 +135,15 @@ export default {
 
 .input {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   transition: filter 0.2s ease-in-out;
+}
+
+.input-line {
+  display: flex;
+  justify-content: center;
+  margin-bottom: calc(-1px * var(--global-ss));
 }
 
 .tile-caret {
