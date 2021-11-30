@@ -104,6 +104,14 @@
         { icon: 'symbols2', name: 'symbols2' }]">
       </w-button-toggle>
     </teleport>
+    <modal-dialog :show="modal" :padding="16">
+      <div style="color: white">{{ modalText }}</div>
+      <w-button :plate-padding="3" class="dismiss-button"
+                normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
+                @click="modalCallback" audio-feedback>
+        {{ modalButtonText }}
+      </w-button>
+    </modal-dialog>
   </div>
 </template>
 
@@ -114,6 +122,7 @@ import WButtonToggle from '/src/widgets/ButtonToggle.vue'
 import Keyboard from '/src/components/Keyboard.vue'
 import ChatQueue from '/src/components/ChatQueue.vue'
 import MessageDraw from '../components/MessageDraw.vue'
+import ModalDialog from '../components/ModalDialog.vue'
 import { messageWidth, messageHeight } from '/src/js/Message'
 
 const brushSizes = {
@@ -127,7 +136,7 @@ import { getPngDimensions } from '../js/Utils'
 
 export default {
   name: 'Chat',
-  components: { MessageDraw, ChatQueue, Keyboard, WButtonToggle, WPlate, WButton },
+  components: { ModalDialog, MessageDraw, ChatQueue, Keyboard, WButtonToggle, WPlate, WButton },
   props: {
     roomCode: {
       type: String,
@@ -148,7 +157,11 @@ export default {
       },
       mounted: false, // is there a better way?
       fun: false,
-      rainbowBrush: false
+      rainbowBrush: false,
+      modal: false,
+      modalText: '',
+      modalButtonText: 'Ok',
+      modalCallback: null
     }
   },
   created () {
@@ -181,7 +194,7 @@ export default {
   beforeUnmount: function () {
     this.mounted = false
     const chatClient = this.$global.chatClient
-    // TODO use leve room instead
+    // TODO use leave room instead
     chatClient.connected && chatClient.endConnection()
 
     if (document.fullscreenElement) {
@@ -214,21 +227,34 @@ export default {
         }
 
         this.restoreChatHandlers()
+        this.$refs.queue.addEntry({
+          type: 'notification',
+          payload: {
+            text: `Connected to room ${this.roomCode}`,
+            color: '#e2f201'
+          }
+        })
       } catch (e) {
-        // TODO handle
-        console.log('general failure:', e)
+        import.meta.env.DEV && console.warn('Chat.connect:', e)
+        this.modal = true
+        this.modalText = e.message
+        this.modalButtonText = 'Leave'
+        this.modalCallback = this.onClose
       }
     },
     restoreChatHandlers: function () {
       const chatClient = this.$global.chatClient
 
       chatClient.onOpenCallback = () => {
-        console.log('re-connected!!')
+        import.meta.env.DEV && console.warn('Chat: connected')
         // TODO do something when re-connected?
       }
       chatClient.onCloseCallback = () => {
-        console.log('disconnected!!')
-        // TODO do something when disconnected
+        import.meta.env.DEV && console.warn('Chat: disconnected')
+        this.modal = true
+        this.modalText = 'Connection closed unexpectedly'
+        this.modalButtonText = 'Leave'
+        this.modalCallback = this.onClose
       }
       chatClient.onReceiveChatMessages = this.handleReceiveChatMessages
     },
@@ -557,6 +583,12 @@ export default {
 
 .more-button {
   line-height: calc(15px * var(--global-ss));
+}
+
+
+.dismiss-button {
+  margin-top: calc(12px * var(--global-ss));
+  width: calc(96px * var(--global-ss));
 }
 </style>
 

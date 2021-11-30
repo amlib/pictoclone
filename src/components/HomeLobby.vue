@@ -37,11 +37,11 @@
                 @keyboard-key-press="keyPress" @keyboard-swap-char="swapChar"/>
     </div>
     <modal-dialog :show="modal" :padding="16">
-      <div style="color: white">Sorry, room does not exist</div>
+      <div style="color: white">{{ modalText }}</div>
       <w-button :plate-padding="3" class="dismiss-button"
                 normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
-                @click="modal = false" audio-feedback>
-        OK
+                @click="modalCallback" audio-feedback>
+        {{ modalButtonText }}
       </w-button>
     </modal-dialog>
   </div>
@@ -65,7 +65,10 @@ export default {
       roomCode: '',
       faded: true,
       loading: false,
-      modal: false
+      modal: false,
+      modalText: '',
+      modalButtonText: 'OK',
+      modalCallback: null
     }
   },
   computed: {
@@ -125,8 +128,12 @@ export default {
         this.$global.roomCode = this.roomCode
         onSuccess()
       } catch (e) {
-        if (e.name === 'ERROR_ROOM_DOES_NOT_EXISTS') {
+        if (e.name === 'ERROR_ROOM_DOES_NOT_EXISTS' || e.name === 'ERROR_GENERIC_ERROR') {
           this.modal = true
+          this.modalText = e.message
+          this.modalCallback = () => {
+            this.modal = false
+          }
         } else {
           import.meta.env.DEV && console.log('HomeLobby.connectRoom:', e)
         }

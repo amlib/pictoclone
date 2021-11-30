@@ -150,7 +150,9 @@ export class ChatClient {
       promiseWrapper.status = 'canceled'
       this.messageResultPromiseWrappers.delete(messageType)
       clearTimeout(promiseWrapper.timeout)
-      doReject && promiseWrapper.reject()
+      const e = new Error('Connection with chat server failed')
+      e.name = 'ERROR_GENERIC_ERROR'
+      doReject && promiseWrapper.reject(e)
     }
   }
 
