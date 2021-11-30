@@ -360,4 +360,24 @@ body {
   font-weight: normal;
   font-style: normal;
 }
+
+.text-recommended {
+  opacity: 1.0;
+  animation-duration: 0.7s;
+  animation-name: highlight;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes highlight {
+  from {
+    opacity: 1.0;
+    color: cyan;
+  }
+  to {
+    opacity: 0.7;
+    color: blue;
+  }
+}
 </style>

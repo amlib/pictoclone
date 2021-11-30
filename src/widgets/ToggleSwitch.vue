@@ -152,24 +152,4 @@ export default {
     calc(-0.5px * var(--global-ss)) calc(-0.5px * var(--global-ss)) 0 black,
     0 calc(0.5px * var(--global-ss)) 0 rgba(255,255,255,.4);
 }
-
-.text-recommended {
-  opacity: 1.0;
-  animation-duration: 0.7s;
-  animation-name: highlight;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  animation-timing-function: ease-in-out;
-}
-
-@keyframes highlight {
-  from {
-    opacity: 1.0;
-    color: cyan;
-  }
-  to {
-    opacity: 0.7;
-    color: blue;
-  }
-}
 </style>
