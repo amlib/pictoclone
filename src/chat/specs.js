@@ -51,6 +51,7 @@ const errorsStr = Object.freeze(new Map([
   ['ERROR_ROOM_NO_FREE_SLOTS', 22],
   ['ERROR_ROOM_USER_ALREADY_TAKEN', 23],
   ['ERROR_ROOM_NOT_IN_ANY_ROOM', 24],
+  ['ERROR_ROOM_ALREADY_IN_A_ROOM', 25],
   ['ERROR_CHAT_MESSAGE_INVALID_IMAGE', 30],
 ]))
 
@@ -109,21 +110,17 @@ const messageTypesDecoder = Object.freeze(new Map([
   }],
   // MSG_TYPE_CREATE_ROOM
   [10, function (message, payload, payloadOffset) {
-    const view = new DataView(payload, payloadOffset)
-    message.code = view.getUint32(0)
-    return 4
+    return 0
   }],
   // MSG_TYPE_CREATE_ROOM_RESULT
   [11, function (message, payload, payloadOffset) {
     const view = new DataView(payload, payloadOffset)
     message.success = view.getUint8(0)
     if (message.success) {
-      return 1
+      message.code = view.getUint32(1)
+      return 5
     } else {
-      message.errorCode = view.getUint8(1)
-      let { string, newPayloadOffset } = decodeString(payload, payloadOffset + 2)
-      message.errorMessage = string
-      return newPayloadOffset
+      console.log('unimplemented')
     }
   }],
   // MSG_TYPE_CONNECT_ROOM
@@ -266,28 +263,19 @@ const messageTypesEncoder = Object.freeze(new Map([
   }],
   // MSG_TYPE_CREATE_ROOM
   [10, function (message, headerOffset) {
-    const payload = new ArrayBuffer(headerOffset + 4)
-    const view = new DataView(payload, headerOffset)
-
-    view.setUint32(0, message.code)
-    return payload
+    return new ArrayBuffer(headerOffset)
   }],
   // MSG_TYPE_CREATE_ROOM_RESULT
   [11, function (message, headerOffset) {
     if (message.success) {
-      const payload = new ArrayBuffer(headerOffset + 1)
+      const payload = new ArrayBuffer(headerOffset + 5)
       const view = new DataView(payload, headerOffset)
 
       view.setUint8(0, message.success)
+      view.setUint32(1, message.code)
       return payload
     } else {
-      const payload = new ArrayBuffer(headerOffset + 2 + (4 + message.errorMessage.length))
-      const view = new DataView(payload, headerOffset)
-
-      view.setUint8(0, message.success)
-      view.setUint8(1, message.errorCode)
-      encodeString(message.errorMessage, payload, headerOffset + 2)
-      return payload
+      console.log('unimplemented')
     }
   }],
   // MSG_TYPE_CONNECT_ROOM
@@ -393,6 +381,7 @@ const messageTypesEncoder = Object.freeze(new Map([
       const chatMessage = message.chatMessages[i]
       const chatMessageSize = chatMessageSizes[i]
       let view = new DataView(payload, currentArrayOffset)
+      // TODO encode publicId ? if so also add to decoder!
       view.setUint32(0, chatMessageSize)
       view.setBigInt64(4, BigInt(chatMessage.timestamp))
       view.setUint8(12, chatMessage.colorIndex)
