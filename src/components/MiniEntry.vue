@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { colorsHexL1, colorsHexL2 } from '/src/js/Colors'
+import { colorsHexFaded, colorsHexMain } from '/src/js/Colors'
 
 export default {
   name: 'MiniEntry',
@@ -22,9 +22,9 @@ export default {
 
       if (this.entry.type === 'message') {
         if (!this.entry.visible) {
-          obj.backgroundColor = colorsHexL1[this.entry.payload.colorIndex]
+          obj.backgroundColor = colorsHexFaded[this.entry.payload.colorIndex]
         } else {
-          obj.backgroundColor = colorsHexL2[this.entry.payload.colorIndex]
+          obj.backgroundColor = colorsHexMain[this.entry.payload.colorIndex]
         }
       } else if (this.entry.type === 'notification') {
         if (!this.entry.visible) {
