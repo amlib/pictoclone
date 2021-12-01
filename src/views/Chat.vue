@@ -182,6 +182,10 @@ export default {
     ]
   },
   mounted: function () {
+    if (this.roomCode != null && this.roomCode !== '' && this.roomCode !== this.$global.roomCode) {
+      this.$global.roomCode = this.roomCode
+    }
+
     this.mounted = true
     this.connect()
   },
