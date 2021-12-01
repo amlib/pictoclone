@@ -122,7 +122,7 @@ export default {
           if (this.previousFailedAttemptMessage != null &&
             e.message === this.previousFailedAttemptMessage &&
             (this.failedAttempts > 1 && this.failedAttempts % 2 === 0)) {
-            this.modalText = 'Server could be down, or an adblocker may be inhibiting the websocket connection, please check'
+            this.modalText = 'Server could be down, or an adblocker may be inhibiting the websocket connection, if so, please disable it for this page and try again'
           } else {
             this.modalText = e.message
             this.previousFailedAttemptMessage = e.message
@@ -158,7 +158,7 @@ export default {
           if (this.previousFailedAttemptMessage != null &&
             e.message === this.previousFailedAttemptMessage &&
             (this.failedAttempts > 1 && this.failedAttempts % 2 === 0)) {
-            this.modalText = 'Server could be down, or an adblocker may be inhibiting the websocket connection, please check'
+            this.modalText = 'Server could be down, or an adblocker may be inhibiting the websocket connection, if so, please disable it for this page and try again'
           } else {
             this.modalText = e.message
             this.previousFailedAttemptMessage = e.message

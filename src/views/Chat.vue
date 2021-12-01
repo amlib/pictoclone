@@ -359,7 +359,7 @@ export default {
           this?.$refs?.queue.addEntry({
             type: 'notification',
             payload: {
-              text: 'You are now now alone... REMINDER: room will close once it\'s empty',
+              text: 'You are now all alone... REMINDER: room will close once it\'s empty',
               color: '#e2f201'
             }
           })
