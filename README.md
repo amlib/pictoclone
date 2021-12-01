@@ -6,15 +6,16 @@ Try the live version at https://amlib.github.io/pictoclone
 
 Draw your messages just like you did back in 2004! Stylus not included!
 
-Almost every aspect of the interface has been reproduced. From the sound the pencil makes when striking the canvas to the qwerty+ keyboard with it's unique symbol dragging ability, this has it all. The settings screen were heavily inspired by the one included in the Nintendo DS system rom (technically not part of Pictochat, but you still needed it to fiddle with it's settings). Some extra features were added like the interactive flood fill and an extra brush size (wow)! Meanwhile, this is all backed by a fully modern and responsive web layout! Try it in landscape mode! Also, the rainbow pen makes a comeback, but this time you have to guess the secret word...
+Almost every aspect of the interface has been reproduced. From the sound the pencil makes when striking the canvas to the qwerty+ keyboard with it's unique symbol dragging ability, this has it all. The settings screen were heavily inspired by the one included in the Nintendo DS system ROM (technically not part of Pictochat, but you still needed it to fiddle with pictochat's settings). Some extra features were added like the interactive flood fill and an extra brush size (wow!), all backed by a fully modern and responsive web app! Try it in landscape mode. Also, the rainbow pen makes a comeback, but this time you have to guess the secret word...
 
 This project so far has been tested on Firefox, Chrome, Epiphany (Webkit), Mobile Firefox and Mobile Chrome. Works well across all of then, with epiphany being the buggiest (audio won't play properly, scrolling issues) and somewhat laggy. I have no idea how this runs on Safari.
 
 Chatting is implemented by a very simple websocket client/server protocol. There is no p2p support. All messages in the protocol are exchanged in binary and defined in the specs.js file, shared across both projects (pictoclone and pictoclone-server).
 
 There are also two companion repositories:
-https://github.com/amlib/pictoclone-server
-https://github.com/amlib/pictoclone-assets
+- https://github.com/amlib/pictoclone-server
+- https://github.com/amlib/pictoclone-assets
+
 Both needed to get all the assets and the chat server working
 The assets used may contain copyrighted material (Nintendo and the NDS12 font by Caveras) which are being used on a non-commercial basis.
 
