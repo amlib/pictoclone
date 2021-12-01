@@ -60,6 +60,7 @@ import WTextInput from '/src/widgets/TextInput.vue'
 import WButton from '../widgets/Button.vue'
 import { errorsStr } from '../chat/specs'
 import ModalDialog from '/src/components/ModalDialog.vue'
+import { asyncSetTimeout } from '../js/Utils'
 
 export default {
   name: 'HomeLobby',
@@ -222,7 +223,7 @@ export default {
       this.faded = true
     },
     copyUrl: async function () {
-      this.$router.replace({
+      await this.$router.replace({
         name: 'Home',
         query: {
           v: 'lobby',
@@ -231,11 +232,13 @@ export default {
         }
       })
 
+      await asyncSetTimeout(100)
+
       try {
         await navigator.clipboard.writeText(document.URL)
-        this.modalText = 'URL with server and room settings copied to the clipboard!'
+        this.modalText = 'URL with server and room settings copied to the clipboard. Share it for easy access!'
       } catch (e) {
-        this.modalText = 'Could not copy settings URL to the clipboard, try copying from the address bar!'
+        this.modalText = 'Could not copy URL to the clipboard, try copying it from the address bar and share it for easy access!'
       }
 
       this.modal = true
