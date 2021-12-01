@@ -352,6 +352,19 @@ export default {
           })
         }
       }
+
+      if (newUserList.length <= 1) {
+        setTimeout(() => {
+
+          this?.$refs?.queue.addEntry({
+            type: 'notification',
+            payload: {
+              text: 'You are now now alone... REMINDER: room will close once it\'s empty',
+              color: '#e2f201'
+            }
+          })
+        }, 1000)
+      }
     },
     sendMessage: async function () {
       let payload
