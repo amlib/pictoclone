@@ -77,6 +77,14 @@ export default {
     loadView: {
       type: String,
       default: 'name'
+    },
+    providedRoomCode: {
+      type: String,
+      default: null
+    },
+    providedServerAddress: {
+      type: String,
+      default: null
     }
   },
   data: function () {
@@ -123,6 +131,23 @@ export default {
     this.onBackThrottled = throttle(this.onBack, 666, { leading: true })
     this.onDoneThrottled = throttle(this.onDone, 666, { leading: true })
     this.onMiddleScrollThrottled = throttle(this.onMiddleScroll, 333, { leading: false, trailing: true })
+
+    if (this.providedRoomCode !== null) {
+      this.$global.roomCode = this.providedRoomCode
+    }
+
+    if (this.providedServerAddress !== null) {
+      this.$global.serverAddress = this.providedServerAddress
+    }
+
+    if (this.providedRoomCode !== null || this.providedServerAddress !== null) {
+      this.$router.replace({
+        name: 'Home',
+        props: {
+          v: this.view
+        }
+      })
+    }
   },
   mounted: function () {
     this.viewObserver = new ResizeObserver(this.onMiddleScrollThrottled).observe(this.$refs.middle)

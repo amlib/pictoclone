@@ -14,6 +14,12 @@
                   @click="customServer" audio-feedback>
           Custom
         </w-button>
+        <div class="spacer"></div>
+        <w-button :plate-padding="3" :disabled="loading" class="sm-button"
+                  normal-tile="large-beveled-button" active-tile="large-beveled-button-inverted"
+                  @click="copyUrl" audio-feedback>
+          ♨
+        </w-button>
       </div>
     </div>
     <div class="keyboard-wrapper">
@@ -214,6 +220,28 @@ export default {
     customServer: function () {
       this.mainTransitionEndCallback = () => { this.$emit('custom-server') }
       this.faded = true
+    },
+    copyUrl: async function () {
+      this.$router.replace({
+        name: 'Home',
+        query: {
+          v: 'lobby',
+          r: this.roomCode,
+          s: this.$global.serverAddress
+        }
+      })
+
+      try {
+        await navigator.clipboard.writeText(document.URL)
+        this.modalText = 'URL with server and room settings copied to the clipboard!'
+      } catch (e) {
+        this.modalText = 'Could not copy settings URL to the clipboard, try copying from the address bar!'
+      }
+
+      this.modal = true
+      this.modalCallback = () => {
+        this.modal = false
+      }
     }
   }
 }
@@ -288,8 +316,12 @@ export default {
   width: calc(64px * var(--global-ss));
 }
 
+.sm-button {
+  width: calc(20px * var(--global-ss));
+}
+
 .spacer {
-  width: calc(32px * var(--global-ss));
+  width: calc(16px * var(--global-ss));
   height: calc(16px * var(--global-ss));
 }
 

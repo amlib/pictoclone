@@ -6,7 +6,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
-    props: route => ({ loadView: route.query.v }),
+    props: route => ({
+      loadView: route.query.v,
+      providedRoomCode: route.query.r,
+      providedServerAddress: route.query.s
+    }),
     meta: { portraitConstrainRatio: 11.5 / 9, landscapeBreakpointRatio: 18 / 9, landscapeConstrainRatio: 23 / 9 }
   },
   {
