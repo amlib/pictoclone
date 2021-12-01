@@ -1,14 +1,14 @@
 <template>
+  <div v-if="loading" class="loading">
+    <div class="loading-circle"/>
+    {{ loadingMessage }}...
+  </div>
   <div :class="['app-view',
       this.globalValues.renderingClass,
       this.isLandscape ? 'landscape' : 'portrait',
       !this.globalValues.autoScale && 'no-scale',
       this.globalValues.mobileAssists && 'mobile-assists']"
        :style="getAppViewStyle" ref="app-view">
-    <div v-if="loading" class="loading">
-      <div class="loading-circle"/>
-      {{ loadingMessage }}...
-    </div>
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in" @before-enter="beforeEnterTransition">
         <component v-if="!coldStart" :is="Component" :style="getViewStyle"/>
@@ -346,6 +346,9 @@ body {
   color: #cbcbcb;
   text-align: center;
   font-size: calc(10px * 5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 @keyframes effect {
