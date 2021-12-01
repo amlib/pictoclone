@@ -5,6 +5,7 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   assetsInclude: ['**/*.zip'],
   publicDir: 'pictoclone-assets',
+  //base: '/pictoclone/', // uncomment when deploying to a gh pages with a sub directory
   plugins: [vue()],
   build: {
     target: 'es2020'
