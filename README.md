@@ -1,6 +1,6 @@
 # Pictoclone
 
-A fully featured Pictochat clone made in Vue.js 3 and Vite.
+A fully featured and faithful Pictochat clone made in Vue.js 3 and Vite.
 
 Try the live version at https://amlib.github.io/pictoclone
 
