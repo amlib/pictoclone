@@ -75,7 +75,7 @@ export default {
   },
   created: function () {
     this.$.root.appContext.config.globalProperties.$global = this.globalValues
-    this.globalValues.audio = new AudioFX(this.globalValues.vibration, this.globalValues.muted ? 0.0 : 1.0)
+    this.globalValues.audio = new AudioFX(this.globalValues.vibration, this.globalValues.muted ? 0.0 : 1.0, this.getBrowserName() === 'safari')
     this.globalValues.userName = this.getRandomName()
 
     this.$watch(() => this.globalValues.autoScale, () => {
@@ -224,6 +224,14 @@ export default {
     },
     getRandomName: function () {
       return pokeNames[Math.round(Math.random() * (pokeNames.length - 1))]
+    },
+    getBrowserName: function () {
+      let UA = navigator.userAgent
+      if (/Safari\/[0-9.-]+/.test(UA)) {
+        return 'safari'
+      } else {
+        return 'other'
+      }
     },
     getBrowserEngine: function () {
       let UA = navigator.userAgent

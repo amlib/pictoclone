@@ -1,6 +1,7 @@
 import { programs, samples } from '/src/audio/samples'
 import { unzip } from 'fflate';
-import samplesZip from '/samples.zip'
+import samplesZipSafari from '/samples-safari.zip'
+import samplesZipNormal from '/samples.zip'
 
 export class AudioFX {
   audioContext
@@ -11,11 +12,28 @@ export class AudioFX {
   loaded = false
   noiseBuffer
   zipSampleBundle = true
+  isSafari
 
-  constructor (vibrationStrength = 120, volume = 1.0) {
+  constructor (vibrationStrength = 120, volume = 1.0, isSafari) {
     this.vibrationStrength = vibrationStrength
     this.volume = volume
+    this.isSafari = isSafari
+    if (isSafari) {
+      this.safariFix()
+    }
     this.audioContext = new window.AudioContext()
+  }
+
+  safariFix () {
+    for (let i = 0; i < samples.length; ++ i) {
+      samples[i] = samples[i].replace('.opus', '.caf')
+    }
+
+    for (let key in programs) {
+      if (programs[key].sample) {
+        programs[key].sample = programs[key].sample.replace('.opus', '.caf')
+      }
+    }
   }
 
   resume () {
@@ -27,6 +45,12 @@ export class AudioFX {
   loadSamples () {
     return new Promise(async (resolve, reject) => {
       if (this.zipSampleBundle) {
+        let samplesZip
+        if (this.isSafari) {
+          samplesZip = samplesZipSafari
+        } else {
+          samplesZip = samplesZipNormal
+        }
         const response = await fetch(samplesZip)
         const zipBuffer = await response.arrayBuffer()
         unzip(new Uint8Array(zipBuffer), async (err, unzipped) => {
